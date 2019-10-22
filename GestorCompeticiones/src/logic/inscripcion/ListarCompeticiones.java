@@ -12,6 +12,7 @@ import java.util.List;
 import logic.exception.DataException;
 import logic.model.Competicion;
 import util.Conf;
+import util.Dates;
 
 /**
  * Clase que ejecutara el listado de competiciones
@@ -37,9 +38,18 @@ public class ListarCompeticiones {
 		try (Connection c = DriverManager.getConnection(URL, user, pass)){
 		
 			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_VER_COMPETICIONES_ABIERTAS"));
-			Date now = new Date();
+			Date now = Dates.now();
 
-			ps.setDate(1, new java.sql.Date(now.getTime()));
+			//java.sql.Date d = new java.sql.Date(now.getTime());
+			//String e = ""+ d.getDay()+"/"+d.getMonth()+"/"+d.getYear();
+			//ps.setDate(1, new java.sql.Date(now.getTime()));
+			//23/10/2019'
+			// en sql TO_DATE('01-03-2019') y lo formatea pa oracle
+			
+			String date = now.getDay()+"/"+now.getMonth()+"/"+now.getYear();
+			String d = now.toLocaleString();
+			ps.setString(1,"TO_DATE('"+d+"')");
+			
 			rs = ps.executeQuery();
 
 			while (rs.next()) {

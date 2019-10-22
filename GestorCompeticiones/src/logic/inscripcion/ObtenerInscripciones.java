@@ -49,11 +49,10 @@ public class ObtenerInscripciones {
 			while (rs.next()) {
 				Atleta atleta = new Atleta();
 				atleta.id = rs.getLong("idcompeticion");
-				atleta.date = rs.getDate("date");
 				atleta.nombre = rs.getString("nombre");
-				atleta.km = rs.getString("km");
-				atleta.tipo = rs.getString("tipo");
-				atleta.cuota = rs.getLong("cuota");
+				atleta.surname = rs.getString("apellidos");
+				atleta.dni=rs.getString("dni");
+				atleta.email= rs.getString("email");
 				atletas.add(atleta);
 			}
 		} catch (SQLException e) {
