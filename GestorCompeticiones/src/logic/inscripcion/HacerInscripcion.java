@@ -5,6 +5,9 @@ import java.sql.*;
 import java.util.Date;
 
 import logic.exception.DataException;
+import logic.model.Categoria;
+import util.FileUtil;
+import util.Parser;
 
 /**
  * Clase que ejecutara la inscripcion del atleta
@@ -13,6 +16,11 @@ import logic.exception.DataException;
  *
  */
 public class HacerInscripcion {
+	
+	/*
+	 * Categorias
+	 */
+	private static final String CATEGORIAS = "categories.properties";
 	/*
 	 * Parametros de conexion
 	 */
@@ -38,14 +46,15 @@ public class HacerInscripcion {
 				int idAtleta=0;		//PONER IDATLETA AQUI
 				if (comprobarFecha(idcompeticion)) {
 					if (comprobarPlazas(idcompeticion)) { 
-						String insertar = "INSERT INTO INSCRIPCION VALUES(?,?,?,?)";
+						String insertar = "INSERT INTO INSCRIPCION VALUES(?,?,?,?,?)";
 						PreparedStatement s = c.prepareStatement(insertar);
 						//HACER SETS
 						s.setInt(1, idAtleta);
-						s.setInt(1, idcompeticion);
+						s.setInt(2, idcompeticion);
 						Date date = new Date();
 						s.setString(3,""+ date.getDay()+"/"+date.getMonth()+"/"+date.getYear());
 						s.setString(4, "PRE-INSCRITO");
+						s.setString(5, calcularCategoria(idcompeticion, date));
 						s.execute(insertar);
 						imprimirJustificante();
 						s.close();
@@ -62,6 +71,21 @@ public class HacerInscripcion {
 		} catch (SQLException e) {
 			System.out.println("Fallo en la conexion"); // Imprimirlo en un JDialog
 		}
+	}
+
+	private String calcularCategoria(int idcompeticion, Date date) throws DataException {
+		// En esta versión la competición no importa porque todas tiene las mismas categorías
+		return calculoCategoria(date);
+	}
+
+	private String calculoCategoria(Date date) throws DataException {
+		int age = date.getYear() - new Date().getYear();
+		for (Categoria categoria : Parser.parseCategorias(FileUtil.cargarArchivo(CATEGORIAS))) {
+			if (age >= categoria.getMinAge() && age <= categoria.getMaxAge()) {
+				return categoria.getName();
+			}
+		}
+		throw new DataException("Age " + age + " is not valid for this competition");
 	}
 
 	/**

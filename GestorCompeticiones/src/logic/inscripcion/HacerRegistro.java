@@ -83,7 +83,6 @@ public class HacerRegistro {
 		} catch (SQLException e) {
 			System.out.println("Fallo al obtener la conexion");
 		}
-
 	}
 
 	/**

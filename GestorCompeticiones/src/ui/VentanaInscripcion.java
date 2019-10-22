@@ -33,7 +33,6 @@ public class VentanaInscripcion extends JFrame {
 	private JScrollPane scrollPaneCompeticiones;
 	private JList listCompeticionesDisponibles;
 
-	
 	/**
 	 * Launch the application.
 	 */
