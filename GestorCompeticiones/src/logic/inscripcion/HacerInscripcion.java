@@ -16,17 +16,12 @@ import util.Parser;
  *
  */
 public class HacerInscripcion {
-	
-	/*
-	 * Categorias
-	 */
-	private static final String CATEGORIAS = "categories.properties";
 	/*
 	 * Parametros de conexion
 	 */
-	private final String URL = "";
-	private final String user = "sa";
-	private final String pass = "";
+	private final String URL = "jdbc:oracle:thin:@156.35.94.99:1521:DESA";
+	private final String user = "UO264476";
+	private final String pass = "PASSWORD";
 	private Connection c; // Guardamos la conexion para no crearla en todas las comprobaciones
 
 	/**
@@ -51,12 +46,13 @@ public class HacerInscripcion {
 						//HACER SETS
 						s.setInt(1, idAtleta);
 						s.setInt(2, idcompeticion);
-						Date date = new Date();
-						s.setString(3,""+ date.getDay()+"/"+date.getMonth()+"/"+date.getYear());
-						s.setString(4, "PRE-INSCRITO");
-						s.setString(5, calcularCategoria(idcompeticion, date));
+						
+						//COGER LA CATEGORIA DE MIGUEL
+						s.setString(3,"categoria");
+						s.setString(4,""+ new java.sql.Date(System.currentTimeMillis()));
+						s.setString(5, "PRE-INSCRITO");
+						s.setString(5, calcularCategoria(idcompeticion, new java.sql.Date(System.currentTimeMillis()));
 						s.execute(insertar);
-						imprimirJustificante();
 						s.close();
 						c.close();
 					} else {
@@ -73,6 +69,7 @@ public class HacerInscripcion {
 		}
 	}
 
+
 	private String calcularCategoria(int idcompeticion, Date date) throws DataException {
 		// En esta versión la competición no importa porque todas tiene las mismas categorías
 		return calculoCategoria(date);
@@ -87,16 +84,6 @@ public class HacerInscripcion {
 		}
 		throw new DataException("Age " + age + " is not valid for this competition");
 	}
-
-	/**
-	 * ESTE METODO IMPRIMIRA EL JUSTIFICANTE DE ALGUNA MANERA A dia 06/10/2019 no
-	 * existe la interfaz cuando exista ver como imprimirlo
-	 */
-	private void imprimirJustificante() {
-		// TODO Auto-generated method stub
-
-	}
-
 	/**
 	 * Metodo que comprueba si el atleta esta ya inscrito o no
 	 * 
@@ -160,8 +147,7 @@ public class HacerInscripcion {
 		ResultSet rs = s.executeQuery();
 		String[] dateToParse = rs.getString(1).split("/");
 		Date dateCompetition = new Date(Integer.parseInt(dateToParse[0]),Integer.parseInt(dateToParse[1]),Integer.parseInt(dateToParse[2]));
-		if (dateCompetition.equals(date)){
-			rs.close();
+		if (!dateCompetition.before(date)){ 
 			s.close();
 			c.close();
 			return false;
@@ -216,3 +202,4 @@ public class HacerInscripcion {
 
 	}
 }
+
