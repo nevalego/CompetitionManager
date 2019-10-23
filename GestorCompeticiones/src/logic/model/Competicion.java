@@ -16,9 +16,9 @@ public class Competicion {
 	
 	@Override
 	public String toString() {
-		return "Competicion id=" + id + ", fecha=" + fecha + ", nombre=" + nombre + ", km=" + km + ", tipo=" + tipo
-				+ ", cuota=" + cuota + ", plazas=" + plazas + ", inicioInscripcion=" + inicioInscripcion
-				+ ", finInscripcion=" + finInscripcion ;
+		return "Competicion "+nombre +" " + id + " el dia " + fecha + " "+ km + "km , de tipo " + tipo
+				+ ", cuota " + cuota + ", " + plazas + " plazas, periodo inscripcion " + inicioInscripcion
+				+ " - " + finInscripcion ;
 	}
 	
 	

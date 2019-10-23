@@ -162,6 +162,7 @@ public class VentanaInscripcion extends JFrame {
 	private JList<Competicion> getListCompeticionesDisponibles() {
 		if (listCompeticionesDisponibles == null) {
 			listCompeticionesDisponibles = new JList<Competicion>(modelCompeticiones);
+			listCompeticionesDisponibles.setFont(new Font("Tahoma", Font.PLAIN, 18));
 			listCompeticionesDisponibles.setVisible(true);
 		}
 		return listCompeticionesDisponibles;
