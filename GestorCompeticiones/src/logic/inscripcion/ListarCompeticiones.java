@@ -29,6 +29,7 @@ public class ListarCompeticiones {
 	private final String pass = "PASSWORD";
 
 
+	@SuppressWarnings({ "deprecation", "unused" })
 	public List<Competicion> verCompeticiones(String email) throws DataException {
 
 		List<Competicion> competiciones = new ArrayList<Competicion>();

@@ -1,6 +1,6 @@
 package ui;
 
-import java.awt.BorderLayout;
+
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -10,13 +10,10 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import logic.dto.AtletaDto;
-import logic.exception.DataException;
-
 import java.awt.Color;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
+
 import java.awt.Font;
 import javax.swing.SwingConstants;
 
@@ -48,7 +45,7 @@ public class VentanaJustificante extends JDialog {
 			public void run() {
 				try {
 					VentanaJustificante frame = new VentanaJustificante();
-					frame.setVisible(true);
+					frame.setVisible(false);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -221,5 +218,20 @@ public class VentanaJustificante extends JDialog {
 		lblPonerAlgo_4.setText("");
 		lblSuAlgoSe.setText(string);
 		
+	}
+
+	public void pideDato(String string, String string2, String text, String string3, String nombre, String string4,
+			String string5, String string6, String string7) {
+		lblSuAlgoSe.setText(string);
+		lblNombre.setText(string2);
+		lblPonerAlgo.setText(text);
+		lblApellido.setText(string3);
+		lblPonerAlgo_1.setText(nombre);
+		lblEmail.setText(string4);
+		lblPonerAlgo_2.setText(string5);
+		lblDni.setText(string6);
+		lblPonerAlgo_3.setText(string7);
+		lblFechaDeAlgo.setText("");
+		lblPonerAlgo_4.setText("");
 	}
 }
