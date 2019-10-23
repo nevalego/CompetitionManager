@@ -14,6 +14,7 @@ import javax.swing.JComboBox;
 import java.awt.GridLayout;
 import javax.swing.border.TitledBorder;
 
+import logic.dto.AtletaDto;
 import logic.exception.DataException;
 import logic.inscripcion.HacerRegistro;
 
@@ -241,7 +242,7 @@ public class VentanaRegistro extends JFrame {
 			comboBoxMes.setForeground(Color.WHITE);
 			comboBoxMes.setBackground(Color.BLACK);
 			comboBoxMes.setFont(new Font("Verdana", Font.PLAIN, 16));
-			comboBoxMes.setModel(new DefaultComboBoxModel<String> (new String[] {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"}));
+			comboBoxMes.setModel(new DefaultComboBoxModel<String> (new String[] {"1","2","3","4","5","6","7","8","9","10","11","12"}));
 		}
 		return comboBoxMes;
 	}
@@ -271,11 +272,25 @@ public class VentanaRegistro extends JFrame {
 			buttonAceptar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					try {
-						if(!registrador.comprobarDatos(textFieldEmail.getText(), textFieldDNI.getText()) && registrador.comprobarFecha(comboBoxDia.getSelectedItem().toString(),comboBoxMes.getSelectedItem().toString(),comboBoxAño.getSelectedItem().toString())) {
+						if(registrador.comprobarDatos(textFieldEmail.getText(), textFieldDNI.getText()) && registrador.comprobarFecha(comboBoxDia.getSelectedItem().toString(),comboBoxMes.getSelectedItem().toString(),comboBoxAño.getSelectedItem().toString())) {
 							String sexo = ""; if(rdbtnMasculino.isSelected()) sexo = "Masculino"; else sexo= "Femenino";
-							registrador.registrar(textFieldNombre.getText(),textFieldApellido.getText(),textFieldEmail.getText(),textFieldDNI.getText(),
-									sexo, comboBoxDia.getSelectedItem().toString(),comboBoxMes.getSelectedItem().toString(),comboBoxAño.getSelectedItem().toString());
-							//TODO: IMPRIMIR JUSTIFICANTE
+							AtletaDto adto = new AtletaDto();
+							adto.nombre = textFieldNombre.getText();
+							adto.apellido = textFieldApellido.getText();
+							adto.email = textFieldEmail.getText();
+							adto.dni = textFieldDNI.getText();
+							adto.genero = sexo;
+							adto.diaNacimiento = comboBoxDia.getSelectedItem().toString();
+							adto.mesNacimiento = comboBoxMes.getSelectedItem().toString();
+							adto.añoNacimiento = comboBoxAño.getSelectedItem().toString();
+							registrador.registrar(adto);
+							VentanaJustificante vj = new VentanaJustificante();
+							vj.pideDatos("**SU REGISTRO SE HA REALIZADO CON EXITO", "Nombre:", textFieldNombre.getText(), "Apellido:",
+									textFieldApellido.getText(), "Email:", textFieldEmail.getText(), "DNI:", textFieldDNI.getText(),
+									"FECHA NACIMIENTO:" , adto.diaNacimiento.toString() + "-" + adto.mesNacimiento +"-"+
+											adto.diaNacimiento);
+							vj.setVisible(true);
+							getParentComponent().dispose();
 						}else {
 							JOptionPane.showMessageDialog(getParentComponent(),"Datos incluidos ya registrados o erroneos,\npor favor reviselos", "Error con los datos", JOptionPane.ERROR_MESSAGE);
 						}
@@ -305,9 +320,9 @@ public class VentanaRegistro extends JFrame {
 					textFieldDNI.setText("");
 					rdbtnMasculino.setSelected(false);
 					rdbtnFemenino.setSelected(false);
-					comboBoxDia.setSelectedIndex(1);
-					comboBoxMes.setSelectedIndex(1);
-					comboBoxAño.setSelectedIndex(1);
+					comboBoxDia.setSelectedIndex(0);
+					comboBoxMes.setSelectedIndex(0);
+					comboBoxAño.setSelectedIndex(0);
 				}
 			});
 			buttonCancelar.setFont(new Font("Verdana", Font.PLAIN, 16));
