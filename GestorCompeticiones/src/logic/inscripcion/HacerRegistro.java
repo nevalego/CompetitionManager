@@ -1,18 +1,20 @@
 package logic.inscripcion;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import logic.dto.AtletaDto;
 import logic.exception.DataException;
 
 public class HacerRegistro {
-	private final String URL = "";
-	private final String user = "sa";
-	private final String pass = "";
+	private final String URL = "jdbc:oracle:thin:@156.35.94.99:1521:DESA";
+	private final String user = "UO264476";
+	private final String pass = "PASSWORD";
 	private Connection c;
 
 	/**
@@ -35,13 +37,14 @@ public class HacerRegistro {
 			System.out.println("Fallo al obtener la conexion");
 		}
 		try {
-			PreparedStatement s = c.prepareStatement("SELECT * FROM ATLETA WHERE EMAIL = ?");
+			PreparedStatement s = c.prepareStatement("SELECT * FROM ATLETA WHERE EMAIL = ? OR DNI = ?");
 			s.setString(1, email);
-			PreparedStatement s2 = c.prepareStatement("SELECT * FROM ATLETA WHERE DNI = ?");
-			s.setString(1, dni);
-			if (s.execute() && s2.execute())
-				return true;
-			return false;
+			s.setString(2, dni);
+			ResultSet rs = null;
+			rs = s.executeQuery();
+			if (rs.next())
+				return false;
+			return true;
 		} catch (SQLException e) {
 			throw new DataException("Email o dni ya registrados");
 		}
@@ -59,30 +62,38 @@ public class HacerRegistro {
 	 * @param mes, el mes de nacimiento del atleta
 	 * @param año, el año de nacimiento del atleta
 	 */
-	public void registrar(String nombre, String Apellido, String Email, String dni, String genero, String dia,
-			String mes, String año) {
+	public void registrar(AtletaDto adto) {
 		try {
 			c = DriverManager.getConnection(URL, user, pass);
-			PreparedStatement s = c.prepareStatement("INSERT INTO ATLETA VALUES(?,?,?,?,?,?,?,?,?)");
 			
+		} catch (SQLException e) {
+			System.err.println("Fallo al obtener la conexion en el registro");
+		}
+		try {	
+			PreparedStatement s = c.prepareStatement("INSERT INTO ATLETA VALUES(?,?,?,?,?,?,?)");
 			//Sacamos el id anterior(mas alto)
 			Statement s2 = c.createStatement(); //COMPROBAR SQL
-			ResultSet rs = s2.executeQuery("SELECT IDATLETA FROM ATLETA WHERE IDATLETA >= ALL IN (SELECT ID FROM ATLETA)"); //COMPROBAR SQL
-			
+			ResultSet rs = s2.executeQuery("SELECT MAX(IDATLETA) FROM ATLETA"); //COMPROBAR SQL
+			rs.next();
 			int id = rs.getInt(1);
 			s.setInt(1, id+1);
-			s.setString(2, nombre);
-			s.setString(3,Apellido);
-			s.setString(4,Email);
-			s.setString(5,dni);
-			s.setString(6,genero);
-			s.setString(7,dia);
-			s.setString(8,mes);
-			s.setString(9,año);
-			s.executeQuery();
+			s.setString(4, adto.nombre);
+			s.setString(5,adto.apellido);
+			s.setString(3,adto.email);
+			s.setString(2,adto.dni);
+			System.out.println(adto.diaNacimiento + "\t" +Integer.parseInt(adto.diaNacimiento));
+			System.out.println(adto.mesNacimiento + "\t" +Integer.parseInt(adto.mesNacimiento));
+			System.out.println(adto.añoNacimiento + "\t" +Integer.parseInt(adto.añoNacimiento));
+			@SuppressWarnings("deprecation")
+			Date fechaNacimiento = new Date(Integer.parseInt(adto.diaNacimiento),Integer.parseInt(adto.mesNacimiento),Integer.parseInt(adto.añoNacimiento));
+			s.setDate(6, fechaNacimiento);
+			s.setString(7,adto.genero);
+			s.execute();
 		} catch (SQLException e) {
-			System.out.println("Fallo al obtener la conexion");
+			System.err.println("Fallo con la query de registro");
+			e.printStackTrace();
 		}
+
 	}
 
 	/**
