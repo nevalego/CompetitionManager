@@ -48,7 +48,7 @@ public class HacerInscripcion {
 						// COGER LA CATEGORIA DE MIGUEL
 						s.setString(3, calcularCategoria(id, new java.sql.Date(System.currentTimeMillis())));
 						s.setString(4, "" + new java.sql.Date(System.currentTimeMillis()));
-						s.setString(5, "PRE-INSCRITO");
+						s.setString(5, "PENDIENTE DE PAGO");
 						s.execute(insertar);
 						s.close();
 						c.close();

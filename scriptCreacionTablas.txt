@@ -51,3 +51,8 @@ values (2, 'Carrera Naranco', 'Montaña', 8, 1, '2020-01-28', 110, '2019-12-01','
 insert into Atleta (id,dni,nombre,apellido,email,sexo,fechanacimiento)
 values (1,'74386412','Lucas','Rodriguez Salas','lucrosa','Masculino','1994-08-13');
 
+insert into atleta (id, dni, nombre, apellido, email, sexo, fechanacimiento) 
+values ( 2, '38243841', 'Luis', 'Marian Gomez', '','Masculino','1982-01-08')
+
+insert into Atleta (id,dni,nombre,apellido,email,sexo,fechanacimiento)
+values (3,'7493212','Lacas','Rodriguez Pedro','','Masculino','1996-02-03');

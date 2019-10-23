@@ -1,7 +1,6 @@
 package logic.inscripcion;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,13 +21,7 @@ import util.Jdbc;
  *
  */
 public class ListarCompeticiones {
-	/*
-	 * Parametros de conexion
-	 */
-	//private final String URL = "jdbc:oracle:thin:@156.35.94.99:1521:DESA";
-	//private final String user = "UO264476";
-	//private final String pass = "PASSWORD";
-	
+
 	public List<Competicion> verCompeticiones(String email) throws DataException {
 
 		List<Competicion> competiciones = new ArrayList<Competicion>();
