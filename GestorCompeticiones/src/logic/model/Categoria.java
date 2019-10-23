@@ -2,6 +2,7 @@ package logic.model;
 
 public class Categoria {
 	
+	private long id;
 	private String name;
 	private int minAge;
 	private int maxAge;

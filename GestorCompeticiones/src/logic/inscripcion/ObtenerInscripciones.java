@@ -50,7 +50,7 @@ public class ObtenerInscripciones {
 				Atleta atleta = new Atleta();
 				atleta.id = rs.getLong("idcompeticion");
 				atleta.nombre = rs.getString("nombre");
-				atleta.surname = rs.getString("apellidos");
+				atleta.apellido = rs.getString("apellidos");
 				atleta.dni=rs.getString("dni");
 				atleta.email= rs.getString("email");
 				atletas.add(atleta);
