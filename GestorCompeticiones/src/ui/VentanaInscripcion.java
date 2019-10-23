@@ -14,12 +14,14 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import logic.exception.DataException;
+import logic.inscripcion.HacerInscripcion;
 import logic.inscripcion.ListarCompeticiones;
 import logic.model.Competicion;
 
@@ -39,7 +41,7 @@ public class VentanaInscripcion extends JFrame {
 	private JScrollPane scrollPaneCompeticiones;
 	private JList<Competicion> listCompeticionesDisponibles;
 	private DefaultListModel<Competicion> modelCompeticiones = new DefaultListModel<>();
-	 
+	private HacerInscripcion inscribidor;
 
 	/**
 	 * Launch the application.
@@ -62,7 +64,8 @@ public class VentanaInscripcion extends JFrame {
 	 * @throws DataException 
 	 */
 	public VentanaInscripcion() throws DataException {
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		inscribidor = new HacerInscripcion();
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 		setBounds(100, 100, 918, 627);
 		principalPanel = new JPanel();
 		principalPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -123,11 +126,22 @@ public class VentanaInscripcion extends JFrame {
 			btnInscribirse = new JButton("Inscribirse");
 			btnInscribirse.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
+					try {
+						inscribidor.inscribirse(textFieldEmail.getText(), listCompeticionesDisponibles.getSelectedValue().id);
+						VentanaJustificante vj  = new VentanaJustificante();
+						vj.pideDato("SU INSCRIPCION HA SIDO UN EXITO", "EMAIL", textFieldEmail.getText(), "COMPETICION",listCompeticionesDisponibles.getSelectedValue().nombre,"FECHA","" +listCompeticionesDisponibles.getSelectedValue().fecha,"PAGO",""+listCompeticionesDisponibles.getSelectedValue().cuota);
+						vj.setVisible(true);
+					} catch (DataException e) {
+						JOptionPane.showMessageDialog(getComponent(),e.getMessage(),"FALLO DE INSCRIPCION", JOptionPane.ERROR_MESSAGE);
+					}
 				}
 			});
 			btnInscribirse.setFont(new Font("Verdana", Font.PLAIN, 16));
 		}
 		return btnInscribirse;
+	}
+	private JFrame getComponent() {
+		return this;
 	}
 	private JPanel getLowerPanel() {
 		if (lowerPanel == null) {
