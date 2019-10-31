@@ -23,7 +23,9 @@ import javax.swing.border.EmptyBorder;
 import logic.exception.DataException;
 import logic.inscripcion.HacerInscripcion;
 import logic.inscripcion.ListarCompeticiones;
+import logic.model.Atleta;
 import logic.model.Competicion;
+import logic.model.Inscripcion;
 
 public class VentanaInscripcion extends JFrame {
 
@@ -61,7 +63,8 @@ public class VentanaInscripcion extends JFrame {
 
 	/**
 	 * Create the frame.
-	 * @throws DataException 
+	 * 
+	 * @throws DataException
 	 */
 	public VentanaInscripcion() throws DataException {
 		inscribidor = new HacerInscripcion();
@@ -73,23 +76,22 @@ public class VentanaInscripcion extends JFrame {
 		principalPanel.add(getPanelIntroduceEmail(), BorderLayout.NORTH);
 		principalPanel.add(getLowerPanel(), BorderLayout.SOUTH);
 		principalPanel.add(getScrollPaneCompeticiones(), BorderLayout.CENTER);
-		
+
 		setContentPane(principalPanel);
-		
-		
+
 		mostrarCompeticiones();
 	}
 
 	private void mostrarCompeticiones() throws DataException {
 		ListarCompeticiones competiciones = new ListarCompeticiones();
 		List<Competicion> comps = competiciones.verCompeticiones("");
-		
-		for(Competicion c : comps) {
+
+		for (Competicion c : comps) {
 			modelCompeticiones.addElement(c);
 		}
-		
+
 	}
-	
+
 	private JPanel getPanelIntroduceEmail() {
 		if (panelIntroduceEmail == null) {
 			panelIntroduceEmail = new JPanel();
@@ -98,6 +100,7 @@ public class VentanaInscripcion extends JFrame {
 		}
 		return panelIntroduceEmail;
 	}
+
 	private JPanel getPanelEmail() {
 		if (panelEmail == null) {
 			panelEmail = new JPanel();
@@ -107,6 +110,7 @@ public class VentanaInscripcion extends JFrame {
 		}
 		return panelEmail;
 	}
+
 	private JLabel getLblEmail() {
 		if (lblEmail == null) {
 			lblEmail = new JLabel("Email:");
@@ -114,6 +118,7 @@ public class VentanaInscripcion extends JFrame {
 		}
 		return lblEmail;
 	}
+
 	private JTextField getTextFieldEmail() {
 		if (textFieldEmail == null) {
 			textFieldEmail = new JTextField();
@@ -121,28 +126,43 @@ public class VentanaInscripcion extends JFrame {
 		}
 		return textFieldEmail;
 	}
+
 	private JButton getBtnInscribirse() {
 		if (btnInscribirse == null) {
 			btnInscribirse = new JButton("Inscribirse");
 			btnInscribirse.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					try {
-						inscribidor.inscribirse(textFieldEmail.getText(), listCompeticionesDisponibles.getSelectedValue().id);
-						VentanaJustificante vj  = new VentanaJustificante();
-						vj.pideDato("SU INSCRIPCION HA SIDO UN EXITO", "EMAIL", textFieldEmail.getText(), "COMPETICION",listCompeticionesDisponibles.getSelectedValue().nombre,"FECHA","" +listCompeticionesDisponibles.getSelectedValue().fecha,"PAGO",""+listCompeticionesDisponibles.getSelectedValue().cuota);
-						vj.setVisible(true);
-					} catch (DataException e) {
-						JOptionPane.showMessageDialog(getComponent(),e.getMessage(),"FALLO DE INSCRIPCION", JOptionPane.ERROR_MESSAGE);
-					}
+
+					mostrarVentanaPago(listCompeticionesDisponibles.getSelectedValue());
 				}
 			});
 			btnInscribirse.setFont(new Font("Verdana", Font.PLAIN, 16));
 		}
 		return btnInscribirse;
 	}
+
+	protected void mostrarVentanaPago(Competicion competicionSeleccionada) {
+
+		Atleta atleta = null;
+		Inscripcion inscripcion = null;
+		try {
+			atleta = inscribidor.getAtleta(textFieldEmail.getText());
+			inscribidor.inscribirse(atleta.id, competicionSeleccionada.id);
+			inscripcion = inscribidor.getInscripcion(atleta.id, competicionSeleccionada.id);
+		} catch (DataException e) {
+			JOptionPane.showMessageDialog(getComponent(), e.getMessage(), "FALLO DE INSCRIPCION",
+					JOptionPane.ERROR_MESSAGE);
+
+		}
+		VentanaPago vpago = new VentanaPago();
+		vpago.mostrar(inscripcion, atleta);
+		vpago.setVisible(true);
+	}
+
 	private JFrame getComponent() {
 		return this;
 	}
+
 	private JPanel getLowerPanel() {
 		if (lowerPanel == null) {
 			lowerPanel = new JPanel();
@@ -152,6 +172,7 @@ public class VentanaInscripcion extends JFrame {
 		}
 		return lowerPanel;
 	}
+
 	private JScrollPane getScrollPaneCompeticiones() {
 		if (scrollPaneCompeticiones == null) {
 			scrollPaneCompeticiones = new JScrollPane();
@@ -159,9 +180,11 @@ public class VentanaInscripcion extends JFrame {
 		}
 		return scrollPaneCompeticiones;
 	}
+
 	private JList<Competicion> getListCompeticionesDisponibles() {
 		if (listCompeticionesDisponibles == null) {
 			listCompeticionesDisponibles = new JList<Competicion>(modelCompeticiones);
+			listCompeticionesDisponibles.setFont(new Font("Tahoma", Font.PLAIN, 18));
 			listCompeticionesDisponibles.setVisible(true);
 		}
 		return listCompeticionesDisponibles;

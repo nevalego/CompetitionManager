@@ -7,6 +7,8 @@ import java.util.Date;
 import logic.exception.DataException;
 import logic.model.Atleta;
 import logic.model.Categoria;
+import logic.model.Inscripcion;
+import util.Conf;
 import util.FileUtil;
 import util.Jdbc;
 import util.Parser;
@@ -32,30 +34,23 @@ public class HacerInscripcion {
 	 *                       excepcion creada por nosotros igual
 	 * @throws DataException
 	 */
-	public void inscribirse(String email, Long id) throws DataException {
-		try {
-			c = Jdbc.getConnection();
-		} catch (SQLException e) {
-			System.out.println("Fallo en la conexion ");
-		}
-		try {
-			if (comprobarNoInscrito(email, id)) {
-				long idAtleta = getIdAtleta(email); // PONER IDATLETA AQUI
+	public void inscribirse(long atletaId, Long id) throws DataException {
+		try (Connection c = Jdbc.getConnection()) {
+			if (comprobarNoInscrito(atletaId, id)) {
 				if (comprobarFecha(id)) {
 					if (comprobarPlazas(id)) {
-						String insertar = "INSERT INTO INSCRIPCION VALUES(?,?,?,?,?,?)";
+						String insertar = "INSERT INTO INSCRIPCION (atleta_id,competicion_id,categoria,fecha,estado) VALUES(?,?,?,?,?)";
 						PreparedStatement s = c.prepareStatement(insertar);
 						// HACER SETS
-						s.setLong(5, idAtleta);
-						System.out.println("ID ATLETA: " + idAtleta + " ID COMPETICION"+ id);
-						s.setLong(6, id);
-						s.setLong(1, getUltimaCompeticion()+1);
-						s.setString(4, calcularCategoria(id, idAtleta));
-						s.setString(2, "" + new java.sql.Date(System.currentTimeMillis()));
-						s.setString(3, "PRE-INSCRITO");
+						s.setLong(1, atletaId);
+						s.setLong(2, id);
+						// TO DO Miguel
+						//s.setString(3, calcularCategoria(id, new java.sql.Date(System.currentTimeMillis())));
+						s.setString(3, "Hombre"); // Provisional
+						s.setString(4, "" + new java.sql.Date(System.currentTimeMillis()));
+						s.setString(5, "PENDIENTE DE PAGO");
 						s.executeUpdate();
-						s.close();
-						c.close();
+						
 					} else {
 						throw new DataException("Plazas Acabadas");
 					}
@@ -63,12 +58,42 @@ public class HacerInscripcion {
 					throw new DataException("Fecha Pasada");
 				}
 			} else {
-				throw new DataException("Ya estas inscrito o no esta registrado");
+				throw new DataException("Ya estas inscrito");
 			}
 		} catch (SQLException e) {
-			System.out.println("Fallo en la query inscribirse");
-			e.printStackTrace();
+			throw new DataException("Fallo en la conexion");
 		}
+	}
+	
+	
+	/**
+	 * Metodo que comprueba si el atleta esta ya inscrito o no
+	 * 
+	 * @param EL id, dni o primary key de la clase atleta para comprobar en la tabla
+	 *           inscripcion
+	 * @param EL id, dni o primary key de la clase competicion para comprobar en la
+	 *           tabla inscripcion
+	 * @return true si se puede proceder, false si no
+	 * @throws SQLException, es una estandarizacion por si falla algo, imprime
+	 *                       mensaje habitualmente
+	 */
+	private boolean comprobarNoInscrito(long atletaId, Long competicionId) throws DataException {
+
+		try (Connection c = Jdbc.getConnection()) {
+			String query = "SELECT * FROM INSCRIPCION WHERE atleta_id = ? AND competicion_id = ? ";
+			PreparedStatement s = null;
+
+			s = c.prepareStatement(query);
+			s.setLong(1, atletaId);
+			s.setLong(2, competicionId);
+			ResultSet rs = s.executeQuery();
+			if( rs.next())
+				return false;
+			
+		} catch (SQLException e) {
+			throw new DataException("Problema con la conexion");
+		}
+		return true;
 	}
 
 	private String calcularCategoria(long competicionId, long atletaId) throws DataException {
@@ -104,7 +129,77 @@ public class HacerInscripcion {
 		throw new DataException("Age " + age + " is not valid for this competition");
 	}
 
-	private Atleta getAtleta(long atletaId) {
+	public Inscripcion getInscripcion(long atletaId, long competicionId) throws DataException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		Inscripcion inscripcion = null;
+		try (Connection c = Jdbc.getConnection()) {
+
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_COMPRUEBA_NO_INSCRITO"));
+			ps.setLong(1, atletaId);
+			ps.setLong(2, competicionId);
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				inscripcion = new Inscripcion();
+				inscripcion.id = rs.getLong("id");
+				inscripcion.fecha = rs.getDate("fecha");
+				inscripcion.atletaId = rs.getLong("atleta_id");
+				inscripcion.competicionId = rs.getLong("competicion_id");
+				inscripcion.categoria = rs.getString("categoria");
+				inscripcion.estado = rs.getString("estado");
+			}
+		} catch (SQLException e) {
+			throw new DataException("Error en la conexión");
+		}
+		return inscripcion;
+	}
+
+	public Atleta getAtleta(String email) throws DataException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		Atleta atleta = null;
+		try (Connection c = Jdbc.getConnection()) {
+
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_SELECT_COMPROBAR_DNI_EMAIL"));
+			ps.setString(1, email);
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				atleta = new Atleta();
+				atleta.id = rs.getLong("id");
+				atleta.dni = rs.getString("dni");
+				atleta.nombre = rs.getString("nombre");
+				atleta.apellido = rs.getString("apellido");
+				atleta.email = rs.getString("email");
+				atleta.sexo = rs.getString("sexo");
+				atleta.fechaNacimiento = rs.getDate("fechanacimiento");
+			}
+		} catch (SQLException e) {
+			throw new DataException("Error en la conexión");
+		}
+		return atleta;
+	}
+
+	private String calcularCategoria(Long id, Date date) throws DataException {
+		// En esta versión la competición no importa porque todas tiene las mismas
+		// categorías
+		return calculoCategoria(date);
+	}
+
+	@SuppressWarnings("deprecation")
+	private String calculoCategoria(Date date) throws DataException {
+		int age = date.getYear() - new Date().getYear();
+		for (Categoria categoria : Parser.parseCategorias(FileUtil.cargarArchivo("categories.properties"))) {
+			if (age >= categoria.getMinAge() && age <= categoria.getMaxAge()) {
+				return categoria.getName();
+			}
+		}
+		throw new DataException("Age " + age + " is not valid for this competition");
+	}
+
+	
+	public Atleta getAtleta(long atletaId) {
 		PreparedStatement ps;
 		Atleta result = null;
 		try {
@@ -127,7 +222,7 @@ public class HacerInscripcion {
 		return result;
 	}
 
-	private long getIdAtleta(String email) {
+	public long getIdAtleta(String email) {
 		PreparedStatement ps;
 		try {
 			ps = c.prepareStatement("SELECT ID FROM ATLETA WHERE EMAIL = ?");
@@ -187,28 +282,29 @@ public class HacerInscripcion {
 	 * @return true si se puede proceder false si no
 	 * @throws SQLException, cualquier tipo de exception si falla es un ejemplo
 	 */
+	@SuppressWarnings("deprecation")
 	private boolean comprobarFecha(Long id) throws SQLException {
 		Date date = new Date();
-		String query = "SELECT INICIOINSCRIPCION FROM COMPETICION WHERE ID = ?";
+		String query = "SELECT fecha FROM INSCRIPCION WHERE competicion_id = ?";
 		PreparedStatement s = null;
 		ResultSet rs = null;
-		try {
+		try (Connection c = Jdbc.getConnection()) {
 			s = c.prepareStatement(query);
 			s.setLong(1, id);
-
 			rs = s.executeQuery();
-			rs.next();
-			Date dateCompetition = new Date(rs.getDate("INICIOINSCRIPCION").getTime());
+			String[] dateToParse = rs.getString(1).split("/");
+			Date dateCompetition = new Date(Integer.parseInt(dateToParse[0]), Integer.parseInt(dateToParse[1]),
+					Integer.parseInt(dateToParse[2]));
 			if (!dateCompetition.before(date)) {
-
 				return false;
 			}
+
 		} catch (SQLException e) {
-			System.out.println("Problema con la query fecha");
-			e.printStackTrace();
+			System.out.println("Problema con la conexion");
 		}
 		return true;
 	}
+
 
 	/**
 	 * Metodo PROVISIONAL que comprueba las plazas de la tabla
@@ -218,28 +314,37 @@ public class HacerInscripcion {
 	 * @return true si se puede proceder false si no
 	 * @throws SQLException
 	 */
-	private boolean comprobarPlazas(Long id) throws SQLException {
-		String query = "SELECT SUM(DISTINCT COMPETICION_ID) FROM INSCRIPCION WHERE COMPETICION_ID = ?";
+	private boolean comprobarPlazas(Long id) throws DataException {
+		String query = "SELECT SUM(atleta_id) FROM INSCRIPCION WHERE competicion_id = ?";
 		PreparedStatement ps = null;
-
-		ps = c.prepareStatement(query);
-		ps.setLong(1, id);
-		ResultSet rs = ps.executeQuery();
-		rs.next();
-		int plazasActuales = rs.getInt(1);
-
+		int plazasOcupadas = 0;
+		try (Connection c = Jdbc.getConnection()) {
+			ps = c.prepareStatement(query);
+			ps.setLong(1, id);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next())
+				plazasOcupadas = rs.getInt(1);
+		} catch (SQLException e) {
+			throw new DataException("Error en la conexión");
+		}
 		// ESTO ES UN EJEMPLO AL NO TENER LA BASE DE DATOS
-		String getTotalPlazas = "SELECT PLAZAS FROM COMPETICION WHERE ID = ?";
+		String getTotalPlazas = "SELECT PLAZAS FROM COMPETICION WHERE id= ?";
 		PreparedStatement ps2 = null;
-		ps2 = c.prepareStatement(getTotalPlazas);
-		ps2.setLong(1, id);
-		ResultSet rs2 = ps2.executeQuery();
-		rs2.next();
-		int plazasTotales = rs2.getInt(1);
 
-		if (plazasActuales >= plazasTotales) {
+		try (Connection c = Jdbc.getConnection()) {
+			ps2 = c.prepareStatement(getTotalPlazas);
+			ps2.setLong(1, id);
+			ResultSet rs2 = ps2.executeQuery();
+			int plazasTotales =0;
+			
+			if(rs2.next())
+				plazasTotales = rs2.getInt(1);
 
-			return false;
+			if (plazasOcupadas == plazasTotales) {
+				return false;
+			}
+		} catch (SQLException e) {
+			throw new DataException("Error en la conexión");
 		}
 		return true;
 

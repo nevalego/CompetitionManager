@@ -36,7 +36,7 @@ public class VentanaOrganizador extends JFrame {
 	private JButton btnListar;
 	private JPanel lowerPanel;
 	private JScrollPane scrollPaneCompeticiones;
-	private JList<Inscripcion> listCompeticionesDisponibles;
+	private JList<Inscripcion> list;
 	private DefaultListModel<Inscripcion> modeloInscripciones = new DefaultListModel<>();
 
 	/**
@@ -72,12 +72,12 @@ public class VentanaOrganizador extends JFrame {
 
 		setContentPane(principalPanel);
 
-		mostrarCompeticiones();
+		
 	}
 
-	private void mostrarCompeticiones() throws DataException {
+	private void mostrarCompeticiones(String id) throws DataException {
 		ListarInscripciones inscripciones = new ListarInscripciones();
-		List<Inscripcion> inscr = inscripciones.verInscripciones("");
+		List<Inscripcion> inscr = inscripciones.verInscripciones(id);
 
 		for (Inscripcion i : inscr) {
 			modeloInscripciones.addElement(i);
@@ -122,15 +122,23 @@ public class VentanaOrganizador extends JFrame {
 
 	private JButton getBtnListar() {
 		if (btnListar == null) {
-			btnListar = new JButton("Inscribirse");
+			btnListar = new JButton("Ver");
 			btnListar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					
+					mostrar();
 				}
 			});
 			btnListar.setFont(new Font("Verdana", Font.PLAIN, 16));
 		}
 		return btnListar;
+	}
+
+	protected void mostrar() {
+		try {
+			mostrarCompeticiones(txtCompeticion.getText());
+		} catch (DataException e) {
+			
+		}
 	}
 
 	private JPanel getLowerPanel() {
@@ -152,10 +160,10 @@ public class VentanaOrganizador extends JFrame {
 	}
 
 	private JList<Inscripcion> getListCompeticionesDisponibles() {
-		if (listCompeticionesDisponibles == null) {
-			listCompeticionesDisponibles = new JList<Inscripcion>(modeloInscripciones);
-			listCompeticionesDisponibles.setVisible(true);
+		if (list == null) {
+			list = new JList<Inscripcion>(modeloInscripciones);
+			list.setVisible(true);
 		}
-		return listCompeticionesDisponibles;
+		return list;
 	}
 }
