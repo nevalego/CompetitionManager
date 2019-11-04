@@ -33,6 +33,7 @@ public class ListarInscripciones {
 				inscripcion.atletaId = rs.getLong("atleta_id");
 				inscripcion.competicionId = rs.getLong("competicion_id");
 				inscripciones.add(inscripcion);
+				
 			}
 		} catch (SQLException e) {
 			System.out.println("Fallo en la conexion");
