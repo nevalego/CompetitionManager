@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Date;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
@@ -17,6 +18,7 @@ import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
@@ -33,6 +35,9 @@ import logic.inscripcion.PagoInscripción;
 import logic.model.Atleta;
 import logic.model.Competicion;
 import logic.model.Inscripcion;
+import logic.model.MetodoPago;
+import logic.model.Tarjeta;
+
 import javax.swing.border.LineBorder;
 
 public class Principal extends JFrame {
@@ -236,7 +241,7 @@ public class Principal extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					
 					iniciarSesion(txtFieldEmail.getText());
-					toAtletaMenu();
+					
 				}
 			});
 		}
@@ -248,9 +253,12 @@ public class Principal extends JFrame {
 		HacerInscripcion ins = new HacerInscripcion();
 		try {
 			atleta = ins.getAtleta(email);
+			if(atleta == null)
+				JOptionPane.showMessageDialog(this, "Tu email no está registrado en ningún atleta");
+			else
+				toAtletaMenu();
 		} catch (DataException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, "Error en inicio de sesión");
 		}
 	}
 
@@ -428,8 +436,32 @@ public class Principal extends JFrame {
 	private JButton getBtnInscribirme() {
 		if (btnInscribirme == null) {
 			btnInscribirme = new JButton("Inscribirme");
+			btnInscribirme.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					inscribirse(modelCompeticiones.get(listCompeticiones.getSelectedIndex()));
+				}
+			});
 		}
 		return btnInscribirme;
+	}
+
+	protected void inscribirse(Competicion competicion) {
+		
+		HacerInscripcion inscribirse = new HacerInscripcion();
+		try {
+			inscribirse.inscribirse(atleta.getId(), competicion.getId());
+			
+			Inscripcion ins = inscribirse.getInscripcion(atleta.getId(), competicion.getId());
+			if( ins == null) {
+				JOptionPane.showMessageDialog(this, "Error al realizar la inscripción");
+			}else {
+				JOptionPane.showMessageDialog(this, "Su inscripción se ha realizado con éxito");
+				toAtletaMenu();
+			}
+		} catch (DataException e) {
+			JOptionPane.showMessageDialog(this,e.getMessage());
+		}
+		
 	}
 
 	private JPanel getPnBtnPagarInscripcion() {
@@ -446,24 +478,35 @@ public class Principal extends JFrame {
 			btnPagar = new JButton("Pagar");
 			btnPagar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					
-					toPagoAtleta();
 					cardNumber++;
-					
-					
+					toPagoAtleta();
 				}
 			});
 		}
 		return btnPagar;
 	}
 
-	protected void pagar(Competicion c) {
+	protected void pagar(Inscripcion inscripcion) {
+		
+		if( inscripcion == null) {
+			JOptionPane.showMessageDialog(this, "No ha seleccionado ninguna inscripción para pagar");
+		}
 		
 		PagoInscripción pago = new PagoInscripción();
 		Inscripcion ins = null;
+		Tarjeta porTarjeta = new Tarjeta();
+		porTarjeta.atletaId = atleta.getId();
+		porTarjeta.nombre = txtNombreTarjeta.getText();
+		porTarjeta.numero = txtNumeroTarjeta.getText();
+		porTarjeta.caducidad = new Date(
+				Integer.parseInt((String) comboBoxAño.getSelectedItem()),
+				Integer.parseInt((String) comboBoxMes.getSelectedItem()), 
+				Integer.parseInt((String) comboBoxDia.getSelectedItem()));
+		
+		porTarjeta.codigo = txtCodigoTarjeta.getText();
 		
 		try {
-			ins = pago.obtenerInscripcion(atleta.getId(), c.getId());
+			ins = pago.obtenerInscripcion(atleta.getId(), inscripcion.getId());
 			pago.pagarInscripcion(ins);
 		} catch (DataException e) {
 			// TODO Auto-generated catch block
@@ -594,7 +637,8 @@ public class Principal extends JFrame {
 			btnPagarTarjeta = new JButton("Pagar con tarjeta");
 			btnPagarTarjeta.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					pagar(modelCompeticiones.get(listCompeticiones.getSelectedIndex()));
+					
+					pagar(modelInscripciones.get(listInscripciones.getSelectedIndex()));
 				}
 			});
 			btnPagarTarjeta.setFont(new Font("Tahoma", Font.PLAIN, 14));

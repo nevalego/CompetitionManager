@@ -15,6 +15,9 @@ public class Inscripcion {
 		return "Inscripcion del atleta "+atletaId +" a competicion "+ competicionId+
 				", fecha "+fecha +" " + estado + ", categoria " + categoria;
 	}
+	public long getId() {
+		return id;
+	}
 	
 	
 }

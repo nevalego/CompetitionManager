@@ -7,6 +7,6 @@ public class Tarjeta extends MetodoPago {
 	public String nombre;
 	public String numero;
 	public Date caducidad;
-	public int codigo;
+	public String codigo;
 
 }
