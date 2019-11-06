@@ -9,6 +9,7 @@ import java.sql.Statement;
 
 import logic.dto.AtletaDto;
 import logic.exception.DataException;
+import logic.model.Atleta;
 import util.Jdbc;
 
 public class HacerRegistro {
@@ -60,7 +61,7 @@ public class HacerRegistro {
 	 * @param mes, el mes de nacimiento del atleta
 	 * @param año, el año de nacimiento del atleta
 	 */
-	public void registrar(AtletaDto adto) {
+	public void registrar(Atleta adto) {
 		try {
 			c = Jdbc.getConnection();
 			
@@ -80,9 +81,9 @@ public class HacerRegistro {
 			s.setString(5,adto.email);
 			s.setString(2,adto.dni);
 			@SuppressWarnings("deprecation")
-			Date fechaNacimiento = new Date(Integer.parseInt(adto.diaNacimiento),Integer.parseInt(adto.mesNacimiento),Integer.parseInt(adto.añoNacimiento));
+			Date fechaNacimiento = new Date(adto.fechaNacimiento.getTime());
 			s.setDate(7, fechaNacimiento);
-			s.setString(6,adto.genero);
+			s.setString(6,adto.sexo);
 			s.execute();
 		} catch (SQLException e) {
 			System.err.println("Fallo con la query de registro");
