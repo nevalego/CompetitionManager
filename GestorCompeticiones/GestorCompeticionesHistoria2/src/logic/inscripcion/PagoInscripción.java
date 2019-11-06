@@ -53,6 +53,30 @@ public class PagoInscripción {
 		}
 		return competicion;
 	}
+	
+	public Inscripcion obtenerInscripcion(long atletaId, long competicionId) throws DataException {
+		PreparedStatement ps = null;
+		Inscripcion ins = null;
+		try(Connection c = Jdbc.getConnection()){
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_INSCRIPCION_ATLETA_COMPETICION"));
+			ps.setLong(1, atletaId);
+			ps.setLong(2,competicionId);
+			ResultSet rs = ps.executeQuery();
+			
+			if(rs.next()) {
+				ins = new Inscripcion();
+				ins.id= rs.getLong("id");
+				ins.fecha = rs.getDate("fecha");
+				ins.estado = rs.getString("estado");
+				ins.categoria = rs.getString("categoria");
+				ins.atletaId = rs.getLong("atleta_id");
+				ins.competicionId = rs.getLong("competicion_id");
+			}
+			return ins;
+		} catch (SQLException e) {
+			throw new DataException("Error en la conexión");
+		}
+	}
 
 	public void pagarInscripcion(Inscripcion inscripcion) throws DataException {
 		PreparedStatement ps = null;

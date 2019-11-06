@@ -16,9 +16,13 @@ public class Competicion {
 	
 	@Override
 	public String toString() {
-		return "Competicion "+nombre +" " + id + " el dia " + fecha + " "+ km + "km , de tipo " + tipo
+		return nombre +" " + fecha + " "+ km + " km , de tipo " + tipo
 				+ ", cuota " + cuota + ", " + plazas + " plazas, periodo inscripcion " + inicioInscripcion
 				+ " - " + finInscripcion ;
+	}
+
+	public long getId() {
+		return id;
 	}
 	
 	

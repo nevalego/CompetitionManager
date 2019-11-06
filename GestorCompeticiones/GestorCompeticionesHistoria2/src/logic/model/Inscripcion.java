@@ -12,8 +12,8 @@ public class Inscripcion {
 	public String categoria;
 	@Override
 	public String toString() {
-		return "Inscripcion [id=" + id + ", fecha=" + fecha + ", atletaId=" + atletaId + ", competicionId="
-				+ competicionId + ", estado=" + estado + ", categoria=" + categoria + "]";
+		return "Inscripcion del atleta "+atletaId +" a competicion "+ competicionId+
+				", fecha "+fecha +" " + estado + ", categoria " + categoria;
 	}
 	
 	
