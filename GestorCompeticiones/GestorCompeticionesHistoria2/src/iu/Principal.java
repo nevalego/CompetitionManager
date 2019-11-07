@@ -1140,8 +1140,6 @@ public class Principal extends JFrame {
 		return comboBoxAñoNacimiento;
 	}
 	
-	// EXPERIMENTOS DE CUESTA
-	
 	private JPanel getPanelOrganizador() {
 		if (panelOrganizador == null) {
 			panelOrganizador = new JPanel();
