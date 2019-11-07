@@ -4,23 +4,21 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 
 import logic.exception.DataException;
 import logic.model.Competicion;
 import logic.model.Inscripcion;
 import util.Conf;
-import util.Dates;
 import util.Jdbc;
 
-public class PagoInscripción {
+public class PagoInscripcion {
 
 	public String mostrarDatosPago( Inscripcion inscripcion){
 
-		String datos = "INFORMACIÓN PAGO INSCRIPCIÓN\n"
-				+ "Método de pago: Transferencia Bancaria"
-				+ "Número de cuenta ES2900 4453 2930 4543 0754 3729\n"
-				+ "Cantidad a abonar: €";
+		String datos = "INFORMACIï¿½N PAGO INSCRIPCIï¿½N\n"
+				+ "Mï¿½todo de pago: Transferencia Bancaria"
+				+ "Nï¿½mero de cuenta ES2900 4453 2930 4543 0754 3729\n"
+				+ "Cantidad a abonar: ï¿½";
 		return datos;
 	}
 	
@@ -49,7 +47,7 @@ public class PagoInscripción {
 				competicion.finInscripcion = rs.getDate("fininscripcion");
 			}
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexión");
+			throw new DataException("Error en la conexiï¿½n");
 		}
 		return competicion;
 	}
@@ -74,7 +72,7 @@ public class PagoInscripción {
 			}
 			return ins;
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexión");
+			throw new DataException("Error en la conexiï¿½n");
 		}
 	}
 
@@ -88,7 +86,7 @@ public class PagoInscripción {
 			ps.executeUpdate();
 			
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexión");
+			throw new DataException("Error en la conexiï¿½n");
 		}
 	}
 }

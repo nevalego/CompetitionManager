@@ -8,6 +8,6 @@ public class AtletaDto {
 	public String genero;
 	public String diaNacimiento;
 	public String mesNacimiento;
-	public String añoNacimiento;
+	public String aÃ±oNacimiento;
 
 }

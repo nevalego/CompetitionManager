@@ -1,31 +1,30 @@
 package ui;
 
 
+import java.awt.Button;
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
+import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JComboBox;
-import java.awt.GridLayout;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import logic.dto.AtletaDto;
 import logic.exception.DataException;
 import logic.inscripcion.HacerRegistro;
-
-import java.awt.Color;
-import javax.swing.UIManager;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.ButtonGroup;
-import java.awt.Button;
-import java.awt.Font;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
+import logic.model.Atleta;
 
 public class VentanaRegistro extends JFrame {
 
@@ -52,7 +51,7 @@ public class VentanaRegistro extends JFrame {
 	private JLabel lblMes;
 	private JComboBox<String>  comboBoxMes;
 	private JLabel lblAo;
-	private JComboBox<String> comboBoxAño;
+	private JComboBox<String> comboBoxAÃ±o;
 	private final ButtonGroup buttonGroupgGender = new ButtonGroup();
 	private Button buttonAceptar;
 	private Button buttonCancelar;
@@ -208,7 +207,7 @@ public class VentanaRegistro extends JFrame {
 			datePanel.add(getLblMes());
 			datePanel.add(getComboBoxMes());
 			datePanel.add(getLblAo());
-			datePanel.add(getComboBoxAño());
+			datePanel.add(getComboBoxAÃ±o());
 		}
 		return datePanel;
 	}
@@ -253,16 +252,16 @@ public class VentanaRegistro extends JFrame {
 		}
 		return lblAo;
 	}
-	private JComboBox<String> getComboBoxAño() {
-		if (comboBoxAño == null) {
-			comboBoxAño = new JComboBox<String> ();
-			comboBoxAño.setForeground(Color.WHITE);
-			comboBoxAño.setBackground(Color.BLACK);
-			comboBoxAño.setFont(new Font("Verdana", Font.PLAIN, 16));
-			comboBoxAño.setModel(new DefaultComboBoxModel<String>(new String[] {"1900", "1901", "1902", "1903", "1904", "1905", "1906", "1907", "1908", "1909", "1910", "1911", "1912", "1913", "1914", "1915", "1916", "1917", "1918", "1919", "1920", "1921", "1922", "1923", "1924", "1925", "1926", "1927", "1928", "1929", "1930", "1931", "1932", "1933", "1934", "1935", "1936", "1937", "1938", "1939", "1940", "1941", "1942", "1943", "1944", "1945", "1946", "1947", "1948", "1949", "1950", "1951", "1952", "1953", "1954", "1955", "1956", "1957", "1958", "1959", "1960", "1961", "1962", "1963", "1964", "1965", "1966", "1967", "1968", "1969", "1970", "1971", "1972", "1973", "1974", "1975", "1976", "1977", "1978", "1979", "1980", "1981", "1982", "1983", "1984", "1985", "1986", "1987", "1988", "1989", "1990", "1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"}));
+	private JComboBox<String> getComboBoxAÃ±o() {
+		if (comboBoxAÃ±o == null) {
+			comboBoxAÃ±o = new JComboBox<String> ();
+			comboBoxAÃ±o.setForeground(Color.WHITE);
+			comboBoxAÃ±o.setBackground(Color.BLACK);
+			comboBoxAÃ±o.setFont(new Font("Verdana", Font.PLAIN, 16));
+			comboBoxAÃ±o.setModel(new DefaultComboBoxModel<String>(new String[] {"1900", "1901", "1902", "1903", "1904", "1905", "1906", "1907", "1908", "1909", "1910", "1911", "1912", "1913", "1914", "1915", "1916", "1917", "1918", "1919", "1920", "1921", "1922", "1923", "1924", "1925", "1926", "1927", "1928", "1929", "1930", "1931", "1932", "1933", "1934", "1935", "1936", "1937", "1938", "1939", "1940", "1941", "1942", "1943", "1944", "1945", "1946", "1947", "1948", "1949", "1950", "1951", "1952", "1953", "1954", "1955", "1956", "1957", "1958", "1959", "1960", "1961", "1962", "1963", "1964", "1965", "1966", "1967", "1968", "1969", "1970", "1971", "1972", "1973", "1974", "1975", "1976", "1977", "1978", "1979", "1980", "1981", "1982", "1983", "1984", "1985", "1986", "1987", "1988", "1989", "1990", "1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999", "2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019"}));
 
 		}
-		return comboBoxAño;
+		return comboBoxAÃ±o;
 	}
 	private Button getButtonAceptar() {
 		if (buttonAceptar == null) {
@@ -272,9 +271,9 @@ public class VentanaRegistro extends JFrame {
 			buttonAceptar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					try {
-						if(registrador.comprobarDatos(textFieldEmail.getText(), textFieldDNI.getText()) && registrador.comprobarFecha(comboBoxDia.getSelectedItem().toString(),comboBoxMes.getSelectedItem().toString(),comboBoxAño.getSelectedItem().toString())) {
+						if(registrador.comprobarDatos(textFieldEmail.getText(), textFieldDNI.getText()) && registrador.comprobarFecha(comboBoxDia.getSelectedItem().toString(),comboBoxMes.getSelectedItem().toString(),comboBoxAÃ±o.getSelectedItem().toString())) {
 							String sexo = ""; if(rdbtnMasculino.isSelected()) sexo = "Masculino"; else sexo= "Femenino";
-							AtletaDto adto = new AtletaDto();
+							Atleta adto = new Atleta();
 							adto.nombre = textFieldNombre.getText();
 							adto.apellido = textFieldApellido.getText();
 							adto.email = textFieldEmail.getText();
@@ -282,7 +281,7 @@ public class VentanaRegistro extends JFrame {
 							adto.genero = sexo;
 							adto.diaNacimiento = comboBoxDia.getSelectedItem().toString();
 							adto.mesNacimiento = comboBoxMes.getSelectedItem().toString();
-							adto.añoNacimiento = comboBoxAño.getSelectedItem().toString();
+							adto.aÃ±oNacimiento = comboBoxAÃ±o.getSelectedItem().toString();
 							registrador.registrar(adto);
 							VentanaJustificante vj = new VentanaJustificante();
 							vj.pideDatos("**SU REGISTRO SE HA REALIZADO CON EXITO", "Nombre:", textFieldNombre.getText(), "Apellido:",
@@ -322,7 +321,7 @@ public class VentanaRegistro extends JFrame {
 					rdbtnFemenino.setSelected(false);
 					comboBoxDia.setSelectedIndex(0);
 					comboBoxMes.setSelectedIndex(0);
-					comboBoxAño.setSelectedIndex(0);
+					comboBoxAÃ±o.setSelectedIndex(0);
 				}
 			});
 			buttonCancelar.setFont(new Font("Verdana", Font.PLAIN, 16));
