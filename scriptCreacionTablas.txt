@@ -58,3 +58,25 @@ FOREIGN KEY(competicion_id) references competicion(id)
 
 
 
+INSERT INTO ATLETA (ID,DNI,NOMBRE,APELLIDOS,EMAIL,SEXO,FECHANACIMIENTO) VALUES
+(1, '717394752R', 'Miguel', 'Cuesta Costoso', 'costa@mail.com', 'Masculino', '1998-12-26');
+INSERT INTO ATLETA (ID,DNI,NOMBRE,APELLIDOS,EMAIL,SEXO,FECHANACIMIENTO) VALUES
+(2, '717392752A', 'Mara', 'Rodriguez Jairo', 'mara@mail.com', 'Femenino', '1992-02-08');
+INSERT INTO ATLETA (ID,DNI,NOMBRE,APELLIDOS,EMAIL,SEXO,FECHANACIMIENTO) VALUES
+(3, '719394752H', 'Lorena', 'Martínez Rueda', 'rueda@mail.com', 'Femenino', '1989-05-21');
+INSERT INTO ATLETA (ID,DNI,NOMBRE,APELLIDOS,EMAIL,SEXO,FECHANACIMIENTO) VALUES
+(4, '757394752T', 'Luis', 'Rodriguez Ornia', 'luison@mail.com', 'Masculino', '1972-11-14');
+
+INSERT INTO COMPETICION (ID, NOMBRE, TIPO, KM, FECHA, PLAZAS) VALUES
+(1, 'Carrera Solidaria', 'Asfalto', 9, '2019-12-29', 260);
+INSERT INTO COMPETICION (ID, NOMBRE, TIPO, KM, FECHA, PLAZAS) VALUES
+(2, 'San Silvestre', 'Asfalto',11, '2019-12-31', 300);
+INSERT INTO COMPETICION (ID, NOMBRE, TIPO, KM, FECHA, PLAZAS) VALUES
+(3, 'Carrera Naranco', 'Asfalto', 14, '2020-01-18', 110);
+INSERT INTO COMPETICION (ID, NOMBRE, TIPO, KM, FECHA, PLAZAS) VALUES
+(4, 'Carrera Solidaria', 'Asfalto', 9, '2019-12-29', 260);
+
+
+ 
+
+
