@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -35,6 +36,7 @@ import logic.inscripcion.ListarCompeticiones;
 import logic.inscripcion.ListarInscripciones;
 import logic.inscripcion.PagoInscripción;
 import logic.model.Atleta;
+import logic.model.AtletaInscripcion;
 import logic.model.Competicion;
 import logic.model.Inscripcion;
 import logic.model.Tarjeta;
@@ -121,7 +123,17 @@ public class Principal extends JFrame {
 	private JComboBox comboBoxDiaNacimiento;
 	private JComboBox comboBoxMesNacimiento;
 	private JComboBox comboBoxAñoNacimiento;
+	private JPanel panelOrganizador;
+	private JPanel panelCompeticion;
+	private JLabel lblCompeticion;
+	private JTextField txtCompeticion;
+	private JButton btnListar;
+	private JPanel lowerPanel;
+	private JScrollPane scCompeticiones;
+	private JList<AtletaInscripcion> list;
+	private DefaultListModel<AtletaInscripcion> modeloInscripciones = new DefaultListModel<>();
 
+	
 	/**
 	 * Launch the application.
 	 */
@@ -180,6 +192,11 @@ public class Principal extends JFrame {
 	private JButton getBtnEntrar() {
 		if (btnEntrar == null) {
 			btnEntrar = new JButton("Entrar");
+			btnEntrar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					
+				}
+			});
 		}
 		return btnEntrar;
 	}
@@ -418,7 +435,7 @@ public class Principal extends JFrame {
 		return lblListaDeInscripciones;
 	}
 
-	private JScrollPane getScrollPaneCompeticiones() {
+	private JScrollPane getScCompeticiones() {
 		if (scrollPaneCompeticiones == null) {
 			scrollPaneCompeticiones = new JScrollPane();
 			scrollPaneCompeticiones.setViewportView(getListCompeticiones());
@@ -1122,4 +1139,104 @@ public class Principal extends JFrame {
 		}
 		return comboBoxAñoNacimiento;
 	}
+	
+	// EXPERIMENTOS DE CUESTA
+	
+	private JPanel getPanelOrganizador() {
+		if (panelOrganizador == null) {
+			panelOrganizador = new JPanel();
+			panelOrganizador.setBorder(new EmptyBorder(5, 5, 5, 5));
+			panelOrganizador.setLayout(new BorderLayout(0, 0));
+			panelOrganizador.add(getPanelCompeticion(), BorderLayout.NORTH);
+			panelOrganizador.add(getLowerPanel(), BorderLayout.SOUTH);
+			panelOrganizador.add(getScCompeticiones(), BorderLayout.CENTER);
+		}
+		return panelOrganizador;
+	}
+
+	private JPanel getPanelCompeticion() {
+		if (panelCompeticion == null) {
+			panelCompeticion = new JPanel();
+			panelCompeticion.setLayout(new GridLayout(0, 2, 0, 0));
+			panelCompeticion.add(getLblCompeticion());
+			panelCompeticion.add(getTxtCompeticion());
+		}
+		return panelCompeticion;
+	}
+
+	private JLabel getLblCompeticion() {
+		if (lblCompeticion == null) {
+			lblCompeticion = new JLabel("Competicion a listar:");
+			lblCompeticion.setFont(new Font("Verdana", Font.PLAIN, 16));
+		}
+		return lblCompeticion;
+	}
+
+	private JTextField getTxtCompeticion() {
+		if (txtCompeticion == null) {
+			txtCompeticion = new JTextField();
+			txtCompeticion.setColumns(10);
+		}
+		return txtCompeticion;
+	}
+
+	private JButton getBtnListar() {
+		if (btnListar == null) {
+			btnListar = new JButton("Ver");
+			btnListar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					mostrar();
+				}
+			});
+			btnListar.setFont(new Font("Verdana", Font.PLAIN, 16));
+		}
+		return btnListar;
+	}
+
+	protected void mostrar() {
+		try {
+			mostrarCompeticiones(txtCompeticion.getText());
+		} catch (DataException e) {
+			//algo se hará aquí?
+		}
+	}
+
+	private void mostrarCompeticiones(String id) throws DataException {
+		// Nuevo tipo creado, revisadlo
+		
+		ListarInscripciones inscripciones = new ListarInscripciones();
+		List<AtletaInscripcion> inscr = inscripciones.verAtletasEInscripciones(id);
+
+		for (AtletaInscripcion i : inscr) {
+			modeloInscripciones.addElement(i);
+		}
+
+	}
+
+	private JPanel getLowerPanel() {
+		if (lowerPanel == null) {
+			lowerPanel = new JPanel();
+			FlowLayout flowLayout = (FlowLayout) lowerPanel.getLayout();
+			flowLayout.setAlignment(FlowLayout.RIGHT);
+			lowerPanel.add(getBtnListar());
+		}
+		return lowerPanel;
+	}
+
+	private JScrollPane getScrollPaneCompeticiones() {
+		if (scrollPaneCompeticiones == null) {
+			scrollPaneCompeticiones = new JScrollPane();
+			scrollPaneCompeticiones.setViewportView(getListCompeticionesDisponibles());
+		}
+		return scrollPaneCompeticiones;
+	}
+
+	private JList<AtletaInscripcion> getListCompeticionesDisponibles() {
+		if (list == null) {
+			list = new JList<AtletaInscripcion>(modeloInscripciones);
+			list.setVisible(true);
+		}
+		return list;
+	}
+	
 }
