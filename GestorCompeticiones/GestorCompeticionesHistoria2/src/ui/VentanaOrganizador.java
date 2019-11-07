@@ -14,30 +14,27 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
 import logic.exception.DataException;
-import logic.inscripcion.HacerInscripcion;
 import logic.inscripcion.ListarInscripciones;
-import logic.model.Inscripcion;
+import logic.model.AtletaInscripcion;
 
 public class VentanaOrganizador extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel principalPanel;
-	private JPanel panelEnterCompeticion;
 	private JPanel panelCompeticion;
 	private JLabel lblCompeticion;
 	private JTextField txtCompeticion;
 	private JButton btnListar;
 	private JPanel lowerPanel;
 	private JScrollPane scrollPaneCompeticiones;
-	private JList<Inscripcion> list;
-	private DefaultListModel<Inscripcion> modeloInscripciones = new DefaultListModel<>();
+	private JList<AtletaInscripcion> list;
+	private DefaultListModel<AtletaInscripcion> modeloInscripciones = new DefaultListModel<>();
 
 	/**
 	 * Launch the application.
@@ -72,26 +69,6 @@ public class VentanaOrganizador extends JFrame {
 
 		setContentPane(principalPanel);
 
-		
-	}
-
-	private void mostrarCompeticiones(String id) throws DataException {
-		ListarInscripciones inscripciones = new ListarInscripciones();
-		List<Inscripcion> inscr = inscripciones.verInscripciones(id);
-
-		for (Inscripcion i : inscr) {
-			modeloInscripciones.addElement(i);
-		}
-
-	}
-
-	private JPanel getPanelEnterCompeticion() {
-		if (panelEnterCompeticion == null) {
-			panelEnterCompeticion = new JPanel();
-			panelEnterCompeticion.setLayout(new GridLayout(0, 2, 0, 0));
-			panelEnterCompeticion.add(getPanelCompeticion());
-		}
-		return panelEnterCompeticion;
 	}
 
 	private JPanel getPanelCompeticion() {
@@ -137,8 +114,20 @@ public class VentanaOrganizador extends JFrame {
 		try {
 			mostrarCompeticiones(txtCompeticion.getText());
 		} catch (DataException e) {
-			
+			//algo se hará aquí?
 		}
+	}
+
+	private void mostrarCompeticiones(String id) throws DataException {
+		// Nuevo tipo creado, revisadlo
+		
+		ListarInscripciones inscripciones = new ListarInscripciones();
+		List<AtletaInscripcion> inscr = inscripciones.verInscripciones(id);
+
+		for (AtletaInscripcion i : inscr) {
+			modeloInscripciones.addElement(i);
+		}
+
 	}
 
 	private JPanel getLowerPanel() {
@@ -159,9 +148,9 @@ public class VentanaOrganizador extends JFrame {
 		return scrollPaneCompeticiones;
 	}
 
-	private JList<Inscripcion> getListCompeticionesDisponibles() {
+	private JList<AtletaInscripcion> getListCompeticionesDisponibles() {
 		if (list == null) {
-			list = new JList<Inscripcion>(modeloInscripciones);
+			list = new JList<AtletaInscripcion>(modeloInscripciones);
 			list.setVisible(true);
 		}
 		return list;
