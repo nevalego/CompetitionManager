@@ -123,6 +123,15 @@ public class Principal extends JFrame {
 	private JComboBox comboBoxDiaNacimiento;
 	private JComboBox comboBoxMesNacimiento;
 	private JComboBox comboBoxAñoNacimiento;
+	private JPanel panelOrganizador;
+	private JPanel panelCompeticion;
+	private JLabel lblCompeticion;
+	private JTextField txtCompeticion;
+	private JButton btnListar;
+	private JPanel lowerPanel;
+	private JScrollPane scCompeticiones;
+	private JList<AtletaInscripcion> list;
+	private DefaultListModel<AtletaInscripcion> modeloInscripciones = new DefaultListModel<>();
 
 	
 	/**
