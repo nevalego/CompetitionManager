@@ -62,7 +62,7 @@ public class ListarInscripciones {
 				inscripcion.categoria = rs.getString("categoria");
 				inscripcion.fecha = new Date(rs.getDate("fecha").getTime());
 				inscripcion.estado = rs.getString("estado");
-				inscripcion.competicionId = rs.getLong("atleta_id");
+				inscripcion.competicionId = rs.getLong("competicion_id");
 				inscripcion.atletaId = rs.getLong("atleta_id");
 				inscripciones.add(inscripcion);
 			}
