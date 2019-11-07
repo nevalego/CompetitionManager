@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.List;
 
 import logic.model.AtletaInscripcion;
+import logic.model.Inscripcion;
 import util.Conf;
 import util.Jdbc;
 
@@ -45,7 +46,30 @@ public class ListarInscripciones {
 	public List<Inscripcion> verInscripciones(String competicion_id) {
 		List<Inscripcion> inscripciones = new ArrayList<Inscripcion>();
 		Inscripcion inscripcion = null;
-	public List<AtletaInscripcion> verInscripciones(String competicion_id) {
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		try (Connection c = Jdbc.getConnection()) {
+
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_ATLETA_INSCRIPCION_POR_COMPETICION"));
+			ps.setLong(1, Long.valueOf(competicion_id));
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				inscripcion = new Inscripcion();
+				inscripcion.id = rs.getLong("id");
+				inscripcion.categoria = rs.getString("categoria");
+				inscripcion.fecha = new Date(rs.getDate("fecha").getTime());
+				inscripcion.estado = rs.getString("estado");
+				inscripcion.competicionId = rs.getLong("atleta_id");
+				inscripcion.atletaId = rs.getLong("atleta_id");
+				inscripciones.add(inscripcion);
+			}
+		} catch (SQLException e) {
+			System.out.println("Fallo en la conexion");
+		}
+		return inscripciones;
+	}
+	public List<AtletaInscripcion> verAtletasEInscripciones(String competicion_id) {
 		List<AtletaInscripcion> inscripciones = new ArrayList<AtletaInscripcion>();
 		AtletaInscripcion inscripcion = null;
 		ResultSet rs = null;

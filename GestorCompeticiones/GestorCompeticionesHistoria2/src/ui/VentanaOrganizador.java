@@ -122,7 +122,7 @@ public class VentanaOrganizador extends JFrame {
 		// Nuevo tipo creado, revisadlo
 		
 		ListarInscripciones inscripciones = new ListarInscripciones();
-		List<AtletaInscripcion> inscr = inscripciones.verInscripciones(id);
+		List<AtletaInscripcion> inscr = inscripciones.verAtletasEInscripciones(id);
 
 		for (AtletaInscripcion i : inscr) {
 			modeloInscripciones.addElement(i);

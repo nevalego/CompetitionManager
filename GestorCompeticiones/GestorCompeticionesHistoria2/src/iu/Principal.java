@@ -28,7 +28,6 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 
-import jdk.nashorn.internal.scripts.JO;
 import logic.exception.DataException;
 import logic.inscripcion.HacerInscripcion;
 import logic.inscripcion.HacerRegistro;
