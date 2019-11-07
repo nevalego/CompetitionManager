@@ -19,7 +19,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import logic.exception.DataException;
-import logic.inscripcion.PagoInscripción;
+import logic.inscripcion.PagoInscripcion;
 import logic.model.Atleta;
 import logic.model.Competicion;
 import logic.model.Inscripcion;
@@ -27,6 +27,10 @@ import util.Dates;
 
 public class VentanaPago extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JPanel pnPagar;
 	private JButton btnPagar;
@@ -39,7 +43,7 @@ public class VentanaPago extends JFrame {
 	private JRadioButton rdbtnTransferenciaBancaria;
 	private JTextField txtCuentaEs;
 	private JTextField txtCantidad;
-	private PagoInscripción pago = new PagoInscripción();
+	private PagoInscripcion pago = new PagoInscripcion();
 	private Competicion competicion= null;
 	private Atleta atleta = null;
 	private Inscripcion inscripcion= null;

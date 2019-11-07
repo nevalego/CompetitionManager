@@ -11,7 +11,11 @@ public class Atleta {
 	public String email;
 	public String sexo;
 	public Date fechaNacimiento;
-	
+	public String genero;
+	public String diaNacimiento;
+	public String mesNacimiento;
+	public String añoNacimiento;
+
 	public String getDni() {
 		return dni;
 	
