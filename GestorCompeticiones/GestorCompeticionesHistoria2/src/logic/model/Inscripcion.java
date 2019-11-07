@@ -19,5 +19,4 @@ public class Inscripcion {
 		return id;
 	}
 	
-	
 }
