@@ -23,9 +23,10 @@ public class ListarInscripciones {
 		Inscripcion inscripcion = null;
 		ResultSet rs = null;
 		PreparedStatement ps = null;
-		try (Connection c = Jdbc.getConnection()){
-		
-			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_VER_INSCRIPCIONES_ATLETA"));
+		try (Connection c = Jdbc.getConnection()) {
+
+			ps = c.prepareStatement(Conf.getInstance()
+					.getProperty("SQL_VER_INSCRIPCIONES_ATLETA"));
 			ps.setLong(1, Long.valueOf(atleta_id));
 			rs = ps.executeQuery();
 
@@ -44,7 +45,7 @@ public class ListarInscripciones {
 		}
 		return inscripciones;
 	}
-	
+
 	public List<Inscripcion> verInscripciones(String competicion_id) {
 		List<Inscripcion> inscripciones = new ArrayList<Inscripcion>();
 		Inscripcion inscripcion = null;
@@ -52,7 +53,8 @@ public class ListarInscripciones {
 		PreparedStatement ps = null;
 		try (Connection c = Jdbc.getConnection()) {
 
-			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_ATLETA_INSCRIPCION_POR_COMPETICION"));
+			ps = c.prepareStatement(Conf.getInstance()
+					.getProperty("SQL_ATLETA_INSCRIPCION_POR_COMPETICION"));
 			ps.setLong(1, Long.valueOf(competicion_id));
 			rs = ps.executeQuery();
 
@@ -71,14 +73,17 @@ public class ListarInscripciones {
 		}
 		return inscripciones;
 	}
-	public List<AtletaInscripcion> verAtletasEInscripciones(String competicion_id) {
+
+	public List<AtletaInscripcion> verAtletasEInscripciones(
+			String competicion_id) {
 		List<AtletaInscripcion> inscripciones = new ArrayList<AtletaInscripcion>();
 		AtletaInscripcion inscripcion = null;
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		try (Connection c = Jdbc.getConnection()) {
 
-			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_ATLETA_INSCRIPCION_POR_COMPETICION"));
+			ps = c.prepareStatement(Conf.getInstance()
+					.getProperty("SQL_ATLETA_INSCRIPCION_POR_COMPETICION"));
 			ps.setLong(1, Long.valueOf(competicion_id));
 			rs = ps.executeQuery();
 
@@ -99,8 +104,8 @@ public class ListarInscripciones {
 		return inscripciones;
 	}
 
-
-	public List<InscripcionDto> findInscripcion(String email) throws DataException {
+	public List<InscripcionDto> findInscripcion(String email)
+			throws DataException {
 		List<InscripcionDto> list = new ArrayList<InscripcionDto>();
 		ResultSet rs = null;
 		PreparedStatement ps = null;
@@ -119,18 +124,16 @@ public class ListarInscripciones {
 					.getProperty("SQL_VER_INSCRIPCIONES_POR_EMAIL"));
 			ps.setLong(1, idatleta);
 			rs = ps.executeQuery();
-			rs.next();
-			
-			PreparedStatement ps2 = c.prepareStatement(
-					Conf.getInstance().getProperty("SQL_GET_NAME_FROM_ID"));
-			ps2.setLong(1,rs.getLong("COMPETICION_ID"));
-			ResultSet rs2 = ps2.executeQuery();
-			rs2.next();
-			String nombreCompeticion = rs2.getString("NOMBRE");
-			rs2.close();
-			ps2.close();
-			
-			while(rs.next()) {
+
+			while (rs.next()) {
+				PreparedStatement ps2 = c.prepareStatement(
+						Conf.getInstance().getProperty("SQL_GET_NAME_FROM_ID"));
+				ps2.setLong(1, rs.getLong("COMPETICION_ID"));
+				ResultSet rs2 = ps2.executeQuery();
+				rs2.next();
+				String nombreCompeticion = rs2.getString("NOMBRE");
+				rs2.close();
+				ps2.close();
 				InscripcionDto incs = new InscripcionDto();
 				incs.estado = rs.getString("ESTADO");
 				incs.fechaModificacion = rs.getDate("FECHAMODIFICACION");
@@ -142,7 +145,7 @@ public class ListarInscripciones {
 					"Fallo buscando la inscripcion con email: " + email);
 			e.printStackTrace();
 			throw new DataException("Fallo buscando la inscripcion con email");
-			
+
 		}
 		return list;
 	}
