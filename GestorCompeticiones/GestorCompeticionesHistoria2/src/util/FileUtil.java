@@ -21,9 +21,11 @@ public class FileUtil {
 			}
 			br.close();
 		} catch (IOException e) {
-			throw new DataException("Error en la configuración de categorías");
+			throw new DataException("Error cargando el archivo");
 		}
 		return lines;
 	}
+	
+
 
 }
