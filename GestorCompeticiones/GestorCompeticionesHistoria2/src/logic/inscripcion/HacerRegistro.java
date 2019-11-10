@@ -77,7 +77,7 @@ public class HacerRegistro {
 			int id = rs.getInt(1);
 			s.setInt(1, id + 1);
 			s.setString(3, adto.nombre);
-			s.setString(4, adto.apellido);
+			s.setString(4, adto.apellidos);
 			s.setString(5, adto.email);
 			s.setString(2, adto.dni);
 

@@ -39,7 +39,8 @@ import logic.model.Atleta;
 import logic.model.AtletaInscripcion;
 import logic.model.Competicion;
 import logic.model.Inscripcion;
-import logic.model.Tarjeta;
+import logic.model.Plazo;
+import util.Dates;
 
 public class Principal extends JFrame {
 
@@ -95,9 +96,6 @@ public class Principal extends JFrame {
 	private JLabel lblNmero;
 	private JTextField txtNumeroTarjeta;
 	private JLabel lblFechaDeCaducidad;
-	private JComboBox comboBoxDia;
-	private JComboBox comboBoxMes;
-	private JComboBox comboBoxAño;
 	private JLabel lblCdigoVerificacin;
 	private JTextField txtCodigoTarjeta;
 	private int cardNumber = 0;
@@ -132,8 +130,8 @@ public class Principal extends JFrame {
 	private JScrollPane scCompeticiones;
 	private JList<AtletaInscripcion> list;
 	private DefaultListModel<AtletaInscripcion> modeloInscripciones = new DefaultListModel<>();
+	private JTextField txtCaducidad;
 
-	
 	/**
 	 * Launch the application.
 	 */
@@ -194,7 +192,7 @@ public class Principal extends JFrame {
 			btnEntrar = new JButton("Entrar");
 			btnEntrar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
+
 				}
 			});
 		}
@@ -531,27 +529,44 @@ public class Principal extends JFrame {
 
 		if (inscripcion == null) {
 			JOptionPane.showMessageDialog(this, "No ha seleccionado ninguna inscripci�n para pagar");
+		} else {
+
+			PagoInscripcion pago = new PagoInscripcion();
+			Inscripcion ins = null;
+			int mes =Integer.parseInt(txtCaducidad.getText().split("/")[0]);
+			int año = Integer.parseInt(txtCaducidad.getText().split("/")[1]);
+			Date caducidad = new Date(año,mes,1);
+			
+			
+			if (txtNumeroTarjeta.getText().length() != 16) {
+				// Longitud numero (16)
+				JOptionPane.showMessageDialog(this, "La longitud del número de la tarjeta no es correcta");
+			} else if (Dates.isAfter(Dates.now(), caducidad)) {
+				JOptionPane.showMessageDialog(this, "La tarjeta ha sobrepasado su fecha de expiración");
+			} else {
+				try {
+					ins = pago.obtenerInscripcion(atleta.getId(), inscripcion.getId());
+					ins.fechaPago = Dates.now();
+					ins.medioPago = "Tarjeta";
+					
+					Plazo plazo = null;
+					// ins.cantidad = MIRAR PLAZO para esta competicion con esta fecha
+					if (comprobarPlazoFecha(ins.fechaPago)) {
+						// TODO Comprobar que la fecha de pago esta dentro de un plazo
+					} else {
+						pago.pagarInscripcion(ins);
+					}
+				} catch (DataException e) {
+					JOptionPane.showMessageDialog(this, e.getMessage());
+				}
+			}
 		}
 
-		PagoInscripcion pago = new PagoInscripcion();
-		Inscripcion ins = null;
-		Tarjeta porTarjeta = new Tarjeta();
-		porTarjeta.atletaId = atleta.getId();
-		porTarjeta.nombre = txtNombreTarjeta.getText();
-		porTarjeta.numero = txtNumeroTarjeta.getText();
-		porTarjeta.caducidad = new Date(Integer.parseInt((String) comboBoxAño.getSelectedItem()),
-				Integer.parseInt((String) comboBoxMes.getSelectedItem()),
-				Integer.parseInt((String) comboBoxDia.getSelectedItem()));
+	}
 
-		porTarjeta.codigo = txtCodigoTarjeta.getText();
-
-		try {
-			ins = pago.obtenerInscripcion(atleta.getId(), inscripcion.getId());
-			pago.pagarInscripcion(ins);
-		} catch (DataException e) {
-			JOptionPane.showMessageDialog(this, e.getMessage());
-		}
-
+	private boolean comprobarPlazoFecha(Date fechaPago) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 	private JPanel getPnPagoAtleta() {
@@ -721,9 +736,7 @@ public class Principal extends JFrame {
 			pnTarjetaCredito.add(getLblNmero());
 			pnTarjetaCredito.add(getTxtNumeroTarjeta());
 			pnTarjetaCredito.add(getLblFechaDeCaducidad());
-			pnTarjetaCredito.add(getComboBoxDia());
-			pnTarjetaCredito.add(getComboBoxMes());
-			pnTarjetaCredito.add(getComboBoxAño());
+			pnTarjetaCredito.add(getTxtCaducidad());
 			pnTarjetaCredito.add(getLblCdigoVerificacin());
 			pnTarjetaCredito.add(getTxtCodigoTarjeta());
 			pnTarjetaCredito.add(getBtnPagarTarjeta());
@@ -768,41 +781,10 @@ public class Principal extends JFrame {
 
 	private JLabel getLblFechaDeCaducidad() {
 		if (lblFechaDeCaducidad == null) {
-			lblFechaDeCaducidad = new JLabel("Caducidad (dd/mm/aa):");
+			lblFechaDeCaducidad = new JLabel("Caducidad (mm/aa):");
 			lblFechaDeCaducidad.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return lblFechaDeCaducidad;
-	}
-
-	private JComboBox getComboBoxDia() {
-		if (comboBoxDia == null) {
-			comboBoxDia = new JComboBox();
-			comboBoxDia.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			comboBoxDia.setModel(new DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9",
-					"10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25",
-					"26", "27", "28", "29", "30", "31" }));
-		}
-		return comboBoxDia;
-	}
-
-	private JComboBox getComboBoxMes() {
-		if (comboBoxMes == null) {
-			comboBoxMes = new JComboBox();
-			comboBoxMes.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			comboBoxMes.setModel(new DefaultComboBoxModel(
-					new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }));
-		}
-		return comboBoxMes;
-	}
-
-	private JComboBox getComboBoxAño() {
-		if (comboBoxAño == null) {
-			comboBoxAño = new JComboBox();
-			comboBoxAño.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			comboBoxAño.setModel(new DefaultComboBoxModel(new String[] { "2019", "2020", "2021", "2022", "2023", "2024",
-					"2025", "2026", "2027", "2028", "2029" }));
-		}
-		return comboBoxAño;
 	}
 
 	private JLabel getLblCdigoVerificacin() {
@@ -970,31 +952,31 @@ public class Principal extends JFrame {
 		HacerRegistro registrar = new HacerRegistro();
 		try {
 			boolean correcto = registrar.comprobarDatos(txtEmailAtleta.getText(), txtDniAtleta.getText());
-			if( correcto) {
+			if (correcto) {
 				registrar.comprobarFecha(String.valueOf(comboBoxDiaNacimiento.getSelectedItem()),
-						String.valueOf(comboBoxMesNacimiento.getSelectedItem()), 
+						String.valueOf(comboBoxMesNacimiento.getSelectedItem()),
 						String.valueOf(comboBoxAñoNacimiento.getSelectedItem()));
 				atleta = new Atleta();
-				
-				atleta.dni=txtDniAtleta.getText();
+
+				atleta.dni = txtDniAtleta.getText();
 				atleta.email = txtEmailAtleta.getText();
 				atleta.nombre = txtNombreAtleta.getText();
-				atleta.apellido = txtApellidosAtleta.getText();
+				atleta.apellidos = txtApellidosAtleta.getText();
 				atleta.sexo = String.valueOf(comboBoxSexo.getSelectedItem());
-				
+
 				atleta.fechaNacimiento = new Date(
-						Integer.valueOf((String) comboBoxAñoNacimiento.getSelectedItem())-1900,
-						Integer.valueOf((String)comboBoxMesNacimiento.getSelectedItem()),
-								Integer.valueOf((String)comboBoxDiaNacimiento.getSelectedItem()));
-				
+						Integer.valueOf((String) comboBoxAñoNacimiento.getSelectedItem()) - 1900,
+						Integer.valueOf((String) comboBoxMesNacimiento.getSelectedItem()),
+						Integer.valueOf((String) comboBoxDiaNacimiento.getSelectedItem()));
+
 				registrar.registrar(atleta);
-				JOptionPane.showMessageDialog(this,"El registro del nuevo atleta ha sido un �xito");
+				JOptionPane.showMessageDialog(this, "El registro del nuevo atleta ha sido un �xito");
 				toAtletaMenu();
 			}
-			
+
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
-		}	
+		}
 	}
 
 	private JLabel getLblNombre() {
@@ -1139,7 +1121,7 @@ public class Principal extends JFrame {
 		}
 		return comboBoxAñoNacimiento;
 	}
-	
+
 	private JPanel getPanelOrganizador() {
 		if (panelOrganizador == null) {
 			panelOrganizador = new JPanel();
@@ -1195,13 +1177,13 @@ public class Principal extends JFrame {
 		try {
 			mostrarCompeticiones(txtCompeticion.getText());
 		} catch (DataException e) {
-			//algo se har� aqu�?
+			// algo se har� aqu�?
 		}
 	}
 
 	private void mostrarCompeticiones(String id) throws DataException {
 		// Nuevo tipo creado, revisadlo
-		
+
 		ListarInscripciones inscripciones = new ListarInscripciones();
 		List<AtletaInscripcion> inscr = inscripciones.verAtletasEInscripciones(id);
 
@@ -1236,5 +1218,12 @@ public class Principal extends JFrame {
 		}
 		return list;
 	}
-	
+
+	private JTextField getTxtCaducidad() {
+		if (txtCaducidad == null) {
+			txtCaducidad = new JTextField();
+			txtCaducidad.setColumns(10);
+		}
+		return txtCaducidad;
+	}
 }

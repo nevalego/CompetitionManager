@@ -7,7 +7,7 @@ public class Atleta {
 	public long id;
 	public String dni;
 	public String nombre;
-	public String apellido;
+	public String apellidos;
 	public String email;
 	public String sexo;
 	public Date fechaNacimiento;
@@ -31,7 +31,7 @@ public class Atleta {
 		return nombre;
 	}
 	public String getApellido() {
-		return apellido;
+		return apellidos;
 	}
 
 	public String getSexo() {
