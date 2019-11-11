@@ -133,6 +133,9 @@ public class Principal extends JFrame {
 	private JTextField txtCaducidad;
 	private JPanel pnOrganizador;
 	private JButton btnCrearCompeticion;
+	private JPanel pnNuevaCompeticion;
+	private JButton btnConfigurarPlazosCompeticion;
+	private JButton btnConfigurarCategorias;
 
 	/**
 	 * Launch the application.
@@ -317,6 +320,7 @@ public class Principal extends JFrame {
 			pnCards.add(getPnPagoAtleta(), "pagoatleta");
 			pnCards.add(getPnRegistro(), "registro");
 			pnCards.add(getPnOrganizador(), "organizadormenu");
+			pnCards.add(getPnNuevaCompeticion(), "name_1060145766193700");
 		}
 		return pnCards;
 	}
@@ -1232,7 +1236,39 @@ public class Principal extends JFrame {
 	private JButton getBtnCrearCompeticion() {
 		if (btnCrearCompeticion == null) {
 			btnCrearCompeticion = new JButton("Crear Competicion");
+			btnCrearCompeticion.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					//TODO toNuevaCompeticion();
+				} 
+			});
 		}
 		return btnCrearCompeticion;
+	}
+	private JPanel getPnNuevaCompeticion() {
+		if (pnNuevaCompeticion == null) {
+			pnNuevaCompeticion = new JPanel();
+			pnNuevaCompeticion.setBackground(Color.WHITE);
+			pnNuevaCompeticion.add(getBtnConfigurarPlazosCompeticion());
+			pnNuevaCompeticion.add(getBtnConfigurarCategorias());
+		}
+		return pnNuevaCompeticion;
+	}
+	private JButton getBtnConfigurarPlazosCompeticion() {
+		if (btnConfigurarPlazosCompeticion == null) {
+			btnConfigurarPlazosCompeticion = new JButton("Configurar Plazos");
+			btnConfigurarPlazosCompeticion.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					
+					//TODO configurarPlazosCompeticion(competicion);
+				}
+			});
+		}
+		return btnConfigurarPlazosCompeticion;
+	}
+	private JButton getBtnConfigurarCategorias() {
+		if (btnConfigurarCategorias == null) {
+			btnConfigurarCategorias = new JButton("Configurar Categorias");
+		}
+		return btnConfigurarCategorias;
 	}
 }
