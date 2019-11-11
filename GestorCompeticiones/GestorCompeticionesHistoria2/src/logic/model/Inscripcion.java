@@ -15,16 +15,22 @@ public class Inscripcion {
 	public double cantidad;
 	public long atletaId;
 	public long competicionId;
-
+	public String nombreCompeticion;
 	
 	
 	
-	@Override
+	/*
+	 * @Override public String toString() { return "Inscripcion " + id +
+	 * "con fecha " + fecha + ", " + estado + ", categoria " + categoriaId +
+	 * ", fecha modificacion estado" + fechaModificacion + ", " + tiempo +
+	 * " s, medioPago=" + medioPago + ", fecha de pago " + fechaPago +
+	 * ", cantidad " + cantidad + "€ , atleta " + atletaId + ", competicion " +
+	 * competicionId; }
+	 */
+	
 	public String toString() {
-		return "Inscripcion " + id + "con fecha " + fecha + ", " + estado + ", categoria " + categoriaId
-				+ ", fecha modificacion estado" + fechaModificacion + ", " + tiempo + " s, medioPago=" + medioPago
-				+ ", fecha de pago " + fechaPago + ", cantidad " + cantidad + "€ , atleta " + atletaId + ", competicion "
-				+ competicionId;
+		return "Nombre Competicion: " + nombreCompeticion + " Estado: " + estado
+				+ " Ultima Modificacion: " + fechaModificacion;
 	}
 
 
