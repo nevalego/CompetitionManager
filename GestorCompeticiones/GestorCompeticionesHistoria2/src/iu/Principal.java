@@ -272,9 +272,7 @@ public class Principal extends JFrame {
 			btnIniciaSesin = new JButton("Iniciar sesi\u00F3n");
 			btnIniciaSesin.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-
 					iniciarSesion(txtFieldEmail.getText());
-
 				}
 			});
 		}
@@ -533,13 +531,11 @@ public class Principal extends JFrame {
 
 			PagoInscripcion pago = new PagoInscripcion();
 			Inscripcion ins = null;
-			int mes =Integer.parseInt(txtCaducidad.getText().split("/")[0]);
+			int mes = Integer.parseInt(txtCaducidad.getText().split("/")[0]);
 			int año = Integer.parseInt(txtCaducidad.getText().split("/")[1]);
-			Date caducidad = new Date(año,mes,1);
-			
-			
+			Date caducidad = new Date(año, mes, 1);
+
 			if (txtNumeroTarjeta.getText().length() != 16) {
-				// Longitud numero (16)
 				JOptionPane.showMessageDialog(this, "La longitud del número de la tarjeta no es correcta");
 			} else if (Dates.isAfter(Dates.now(), caducidad)) {
 				JOptionPane.showMessageDialog(this, "La tarjeta ha sobrepasado su fecha de expiración");
@@ -548,13 +544,14 @@ public class Principal extends JFrame {
 					ins = pago.obtenerInscripcion(atleta.getId(), inscripcion.getId());
 					ins.fechaPago = Dates.now();
 					ins.medioPago = "Tarjeta";
-					
-					Plazo plazo = null;
-					// ins.cantidad = MIRAR PLAZO para esta competicion con esta fecha
-					if (comprobarPlazoFecha(ins.fechaPago)) {
-						// TODO Comprobar que la fecha de pago esta dentro de un plazo
+					Date plazoMaxPago = Dates.addDays(ins.fecha, 2);// 48 h tras la inscripcion
+
+					if (ins.fechaPago.after(plazoMaxPago)) {
+						JOptionPane.showMessageDialog(this, "La fecha de pago se encuentra fuera del periodo de pago");
 					} else {
-						pago.pagarInscripcion(ins);
+						Plazo plazo = pago.obtenerPlazo(ins);
+						ins.cantidad = plazo.cuota;
+						pago.pagarInscripcion(ins, ins.cantidad, ins.fechaPago);
 					}
 				} catch (DataException e) {
 					JOptionPane.showMessageDialog(this, e.getMessage());
@@ -562,11 +559,6 @@ public class Principal extends JFrame {
 			}
 		}
 
-	}
-
-	private boolean comprobarPlazoFecha(Date fechaPago) {
-		// TODO Auto-generated method stub
-		return false;
 	}
 
 	private JPanel getPnPagoAtleta() {
@@ -824,11 +816,7 @@ public class Principal extends JFrame {
 
 	private void toAtletaMenu() {
 
-		try {
-			loadCompeticiones();
-		} catch (DataException e) {
-			JOptionPane.showMessageDialog(this, e.getMessage());
-		}
+		loadCompeticiones();
 		loadInscripciones();
 		pnButtons.setVisible(true);
 		cardNumber++;
@@ -841,34 +829,42 @@ public class Principal extends JFrame {
 		((CardLayout) pnCards.getLayout()).show(pnCards, "registro");
 	}
 
-	private void loadCompeticiones() throws DataException {
+	private void loadCompeticiones() {
 
 		modelCompeticiones.removeAllElements();
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
-		List<Competicion> competiciones = listarCompeticiones.verCompeticiones(atleta.getEmail());
+		List<Competicion> competiciones = null;
+		try {
+			competiciones = listarCompeticiones.verCompeticiones(atleta.getEmail());
+			for (Competicion c : competiciones) {
 
-		for (Competicion c : competiciones) {
-
-			modelCompeticiones.addElement(c);
+				modelCompeticiones.addElement(c);
+			}
+			listCompeticiones.repaint();
+			listCompeticiones.revalidate();
+		} catch (DataException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
-		listCompeticiones.repaint();
-		listCompeticiones.revalidate();
-
 	}
 
 	private void loadInscripciones() {
 
 		modelInscripciones.removeAllElements();
 		ListarInscripciones listarInscripciones = new ListarInscripciones();
-		List<Inscripcion> inscripciones = listarInscripciones.verInscripcionesAtleta(atleta.getId());
+		List<Inscripcion> inscripciones = null;
+		try {
+			inscripciones = listarInscripciones.verInscripcionesAtleta(atleta.getId());
+			for (Inscripcion c : inscripciones) {
 
-		for (Inscripcion c : inscripciones) {
+				modelInscripciones.addElement(c);
+			}
+			listInscripciones.repaint();
+			listInscripciones.revalidate();
 
-			modelInscripciones.addElement(c);
+		} catch (DataException e) {
+			JOptionPane.showMessageDialog(this, "Error al ver las inscripciones del atleta");
 		}
-		listInscripciones.repaint();
-		listInscripciones.revalidate();
-
+		
 	}
 
 	private void toFirst() {
@@ -1187,9 +1183,10 @@ public class Principal extends JFrame {
 		ListarInscripciones inscripciones = new ListarInscripciones();
 		List<AtletaInscripcion> inscr = inscripciones.verAtletasEInscripciones(id);
 
-		for (AtletaInscripcion i : inscr) {
-			modeloInscripciones.addElement(i);
-		}
+		/*
+		 * for (AtletaInscripcion i : inscr) { modeloInscripciones.addElement(i); }
+		 */ // Repito Miguel: No puedes usar el modelo que ya existe porque tiene otros
+			// datos que uso yo (nerea)
 
 	}
 
@@ -1206,17 +1203,9 @@ public class Principal extends JFrame {
 	private JScrollPane getScrollPaneCompeticiones() {
 		if (scrollPaneCompeticiones == null) {
 			scrollPaneCompeticiones = new JScrollPane();
-			scrollPaneCompeticiones.setViewportView(getListCompeticionesDisponibles());
+			scrollPaneCompeticiones.setViewportView(getListCompeticiones());
 		}
 		return scrollPaneCompeticiones;
-	}
-
-	private JList<AtletaInscripcion> getListCompeticionesDisponibles() {
-		if (list == null) {
-			list = new JList<AtletaInscripcion>(modeloInscripciones);
-			list.setVisible(true);
-		}
-		return list;
 	}
 
 	private JTextField getTxtCaducidad() {

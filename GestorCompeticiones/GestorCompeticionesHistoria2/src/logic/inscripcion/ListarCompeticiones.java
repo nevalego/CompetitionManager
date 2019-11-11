@@ -44,18 +44,15 @@ public class ListarCompeticiones {
 			while (rs.next()) {
 				competicion = new Competicion();
 				competicion.id = rs.getLong("id");
-				competicion.nombre = rs.getString("name");
-				competicion.tipo = rs.getString("tipo");
-				competicion.km = rs.getInt("km");
-				competicion.cuota = rs.getDouble("cuota");
 				competicion.fecha = rs.getDate("fecha");
+				competicion.nombre= rs.getString("nombre");
+				competicion.km = rs.getInt("km");
 				competicion.plazas = rs.getInt("plazas");
-				competicion.inicioInscripcion = rs.getDate("inicioinscripcion");
-				competicion.finInscripcion = rs.getDate("fininscripcion");
+				competicion.tipo = rs.getString("tipo");
 				competiciones.add(competicion);
 			}
 		} catch (SQLException e) {
-			System.out.println("Fallo en la conexion");
+			throw new DataException("Fallo en la conexion");
 		}
 		return competiciones;
 	}

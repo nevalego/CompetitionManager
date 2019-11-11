@@ -9,6 +9,7 @@ import logic.model.Atleta;
 import logic.model.Categoria;
 import logic.model.Inscripcion;
 import util.Conf;
+import util.Dates;
 import util.FileUtil;
 import util.Jdbc;
 import util.Parser;
@@ -39,15 +40,15 @@ public class HacerInscripcion {
 			if (comprobarNoInscrito(atletaId, id)) {
 				if (comprobarFecha(id)) {
 					if (comprobarPlazas(id)) {
-						String insertar = "INSERT INTO INSCRIPCION (atleta_id,competicion_id,categoria,fecha,estado) VALUES(?,?,?,?,?)";
+						String insertar = "INSERT INTO INSCRIPCION (atleta_id,competicion_id,categoria_id,fecha,estado) VALUES(?,?,?,?,?)";
 						PreparedStatement s = c.prepareStatement(insertar);
 						// HACER SETS
 						s.setLong(1, atletaId);
 						s.setLong(2, id);
 						// TO DO Miguel
 						//s.setString(3, calcularCategoria(id, new java.sql.Date(System.currentTimeMillis())));
-						s.setString(3, "Hombre"); // Provisional
-						s.setString(4, "" + new java.sql.Date(System.currentTimeMillis()));
+						s.setLong(3, 1); // Provisional
+						s.setDate(4,new java.sql.Date(Dates.now().getTime()));
 						s.setString(5, "PENDIENTE DE PAGO");
 						s.executeUpdate();
 						
@@ -122,7 +123,7 @@ public class HacerInscripcion {
 		@SuppressWarnings("deprecation")
 		int age = hoy.getYear() - fechaNacimiento.getYear();
 		for (Categoria categoria : Parser.parseCategorias(FileUtil.cargarArchivo("categories.properties"))) {
-			if (age >= categoria.getMinAge() && age <= categoria.getMaxAge()) {
+			if (age >= categoria.getMinEdad() && age <= categoria.getMaxEdad()) {
 				return categoria.getNombre();
 			}
 		}
@@ -146,7 +147,7 @@ public class HacerInscripcion {
 				inscripcion.fecha = rs.getDate("fecha");
 				inscripcion.atletaId = rs.getLong("atleta_id");
 				inscripcion.competicionId = rs.getLong("competicion_id");
-				inscripcion.categoria = rs.getString("categoria");
+				inscripcion.categoriaId = rs.getLong("categoria_id");
 				inscripcion.estado = rs.getString("estado");
 			}
 		} catch (SQLException e) {
@@ -161,7 +162,7 @@ public class HacerInscripcion {
 		Atleta atleta = null;
 		try (Connection c = Jdbc.getConnection()) {
 
-			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_SELECT_COMPROBAR_DNI_EMAIL"));
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_SELECT_ATLETA_EMAIL"));
 			ps.setString(1, email);
 			rs = ps.executeQuery();
 
@@ -170,7 +171,7 @@ public class HacerInscripcion {
 				atleta.id = rs.getLong("id");
 				atleta.dni = rs.getString("dni");
 				atleta.nombre = rs.getString("nombre");
-				atleta.apellidos = rs.getString("apellido");
+				atleta.apellidos = rs.getString("apellidos");
 				atleta.email = rs.getString("email");
 				atleta.sexo = rs.getString("sexo");
 				atleta.fechaNacimiento = rs.getDate("fechanacimiento");
@@ -191,7 +192,7 @@ public class HacerInscripcion {
 	private String calculoCategoria(Date date) throws DataException {
 		int age = date.getYear() - new Date().getYear();
 		for (Categoria categoria : Parser.parseCategorias(FileUtil.cargarArchivo("categories.properties"))) {
-			if (age >= categoria.getMinAge() && age <= categoria.getMaxAge()) {
+			if (age >= categoria.getMinEdad() && age <= categoria.getMaxEdad()) {
 				return categoria.getNombre();
 			}
 		}
@@ -211,7 +212,7 @@ public class HacerInscripcion {
 				result.id = rs.getLong("idAtleta");
 				result.dni = rs.getString("dni");
 				result.nombre = rs.getString("nombre");
-				result.apellidos = rs.getString("apellido");
+				result.apellidos = rs.getString("apellidos");
 				result.email = rs.getString("email");
 				result.sexo = rs.getString("sexo");
 				result.fechaNacimiento = rs.getDate("fechaNacimiento");
