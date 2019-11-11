@@ -528,13 +528,13 @@ public class Principal extends JFrame {
 		if (inscripcion == null) {
 			JOptionPane.showMessageDialog(this, "No ha seleccionado ninguna inscripci�n para pagar");
 		} else {
-
 			PagoInscripcion pago = new PagoInscripcion();
 			Inscripcion ins = null;
+			
 			int mes = Integer.parseInt(txtCaducidad.getText().split("/")[0]);
 			int año = Integer.parseInt(txtCaducidad.getText().split("/")[1]);
 			Date caducidad = new Date(año, mes, 1);
-
+			
 			if (txtNumeroTarjeta.getText().length() != 16) {
 				JOptionPane.showMessageDialog(this, "La longitud del número de la tarjeta no es correcta");
 			} else if (Dates.isAfter(Dates.now(), caducidad)) {
@@ -864,7 +864,7 @@ public class Principal extends JFrame {
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this, "Error al ver las inscripciones del atleta");
 		}
-		
+
 	}
 
 	private void toFirst() {

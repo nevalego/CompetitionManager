@@ -15,17 +15,6 @@ import util.Dates;
 import util.Jdbc;
 
 public class PagoInscripcion {
-
-	public String mostrarDatosPago( Inscripcion inscripcion){
-
-		String datos = "INFORMACI�N PAGO INSCRIPCI�N\n"
-				+ "M�todo de pago: Transferencia Bancaria"
-				+ "N�mero de cuenta ES2900 4453 2930 4543 0754 3729\n"
-				+ "Cantidad a abonar: �";
-		return datos;
-	}
-	
-
 	
 	public Competicion getCompeticion(long inscripcionId) throws DataException {
 		PreparedStatement ps = null;
