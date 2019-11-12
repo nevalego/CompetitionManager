@@ -131,6 +131,11 @@ public class Principal extends JFrame {
 	private JList<AtletaInscripcion> list;
 	private DefaultListModel<AtletaInscripcion> modeloInscripciones = new DefaultListModel<>();
 	private JTextField txtCaducidad;
+	private JPanel pnOrganizador;
+	private JButton btnCrearCompeticion;
+	private JPanel pnNuevaCompeticion;
+	private JButton btnConfigurarPlazosCompeticion;
+	private JButton btnConfigurarCategorias;
 
 	/**
 	 * Launch the application.
@@ -194,7 +199,7 @@ public class Principal extends JFrame {
 			btnEntrar = new JButton("Entrar");
 			btnEntrar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-
+					toOrganizadorMenu();
 				}
 			});
 		}
@@ -317,6 +322,8 @@ public class Principal extends JFrame {
 			pnCards.add(getPnAtletaMenu(), "atletamenu");
 			pnCards.add(getPnPagoAtleta(), "pagoatleta");
 			pnCards.add(getPnRegistro(), "registro");
+			pnCards.add(getPnOrganizador(), "organizadormenu");
+			pnCards.add(getPnNuevaCompeticion(), "name_1060145766193700");
 		}
 		return pnCards;
 	}
@@ -826,20 +833,22 @@ public class Principal extends JFrame {
 
 	protected void previousCard() {
 
-		if (cardNumber == 1) {
+		if (cardNumber == 1) {// Atleta Menu
 			toFirst();
-			cardNumber--;
-		} else if (cardNumber == 2) {
+		} else if (cardNumber == 2) { // Atleta Pago
 			toAtletaMenu();
-			cardNumber--;
-		} else if (cardNumber == 3) {
-			toPagoAtleta();
-			cardNumber--;
-		} else if (cardNumber == 4) {
-			toAtletaMenu();
-			cardNumber--;
+		} else if (cardNumber == 3) { // Registro Atleta 
+			toFirst();
+		} else if ( cardNumber == 4) {//En la ventana de organizador
+			toFirst();
 		}
 
+	}
+	
+	protected void toOrganizadorMenu() {
+		pnButtons.setVisible(true);
+		cardNumber = 4;
+		((CardLayout) pnCards.getLayout()).show(pnCards, "organizadormenu");
 	}
 
 	private void toAtletaMenu() {
@@ -847,13 +856,13 @@ public class Principal extends JFrame {
 		loadCompeticiones();
 		loadInscripciones();
 		pnButtons.setVisible(true);
-		cardNumber++;
+		cardNumber=1;
 		((CardLayout) pnCards.getLayout()).show(pnCards, "atletamenu");
 	}
 
 	private void toRegistrarse() {
 		pnButtons.setVisible(true);
-		cardNumber++;
+		cardNumber=3;
 		((CardLayout) pnCards.getLayout()).show(pnCards, "registro");
 	}
 
@@ -899,11 +908,12 @@ public class Principal extends JFrame {
 
 	private void toFirst() {
 		pnButtons.setVisible(false);
+		cardNumber = 0;
 		((CardLayout) pnCards.getLayout()).first(pnCards);
 	}
 
 	private void toPagoAtleta() {
-
+		cardNumber = 2;
 		((CardLayout) pnCards.getLayout()).show(pnCards, "pagoatleta");
 	}
 
@@ -1265,5 +1275,51 @@ public class Principal extends JFrame {
 			txtCaducidad.setColumns(10);
 		}
 		return txtCaducidad;
+	}
+	private JPanel getPnOrganizador() {
+		if (pnOrganizador == null) {
+			pnOrganizador = new JPanel();
+			pnOrganizador.setBackground(Color.WHITE);
+			pnOrganizador.add(getBtnCrearCompeticion());
+		}
+		return pnOrganizador;
+	}
+	private JButton getBtnCrearCompeticion() {
+		if (btnCrearCompeticion == null) {
+			btnCrearCompeticion = new JButton("Crear Competicion");
+			btnCrearCompeticion.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					//TODO toNuevaCompeticion();
+				} 
+			});
+		}
+		return btnCrearCompeticion;
+	}
+	private JPanel getPnNuevaCompeticion() {
+		if (pnNuevaCompeticion == null) {
+			pnNuevaCompeticion = new JPanel();
+			pnNuevaCompeticion.setBackground(Color.WHITE);
+			pnNuevaCompeticion.add(getBtnConfigurarPlazosCompeticion());
+			pnNuevaCompeticion.add(getBtnConfigurarCategorias());
+		}
+		return pnNuevaCompeticion;
+	}
+	private JButton getBtnConfigurarPlazosCompeticion() {
+		if (btnConfigurarPlazosCompeticion == null) {
+			btnConfigurarPlazosCompeticion = new JButton("Configurar Plazos");
+			btnConfigurarPlazosCompeticion.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					
+					//TODO configurarPlazosCompeticion(competicion);
+				}
+			});
+		}
+		return btnConfigurarPlazosCompeticion;
+	}
+	private JButton getBtnConfigurarCategorias() {
+		if (btnConfigurarCategorias == null) {
+			btnConfigurarCategorias = new JButton("Configurar Categorias");
+		}
+		return btnConfigurarCategorias;
 	}
 }
