@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import logic.exception.DataException;
 import logic.model.Resultados;
@@ -24,12 +25,13 @@ public class VerResultados {
 	public void generaResultados(String fileName) {
 		try {
 			resultadosAbsolutos = Parser.parseResultados(FileUtil.cargarArchivo(fileName));
+			asignaSexos();
 		}catch(DataException e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
-		resultadosMujer =  (List<Resultados>) resultadosAbsolutos.stream().filter(s -> s.getSexo() == "Mujer");
-		resultadosHombre = (List<Resultados>) resultadosAbsolutos.stream().filter(s -> s.getSexo() == "Hombre");
+		resultadosMujer =   resultadosAbsolutos.stream().filter(s -> s.getSexo() == "Mujer").collect(Collectors.toList());
+		resultadosHombre = 	resultadosAbsolutos.stream().filter(s -> s.getSexo() == "Hombre").collect(Collectors.toList());
 		uploadResults();
 	}
 
@@ -47,7 +49,26 @@ public class VerResultados {
 	public List<Resultados> getResultadosHombre() {
 		return resultadosHombre;
 	}
+	private void asignaSexos() {
+		resultadosAbsolutos.forEach(r -> asignador(r));
+	}
 	
+	private void asignador(Resultados r)  {
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		try (Connection c = Jdbc.getConnection()) {
+
+			ps = c.prepareStatement(Conf.getInstance()
+					.getProperty("SQL_GET_SEXO_FROM_EMAIL"));
+			ps.setString(1,r.getNombreCompetidor());
+			rs = ps.executeQuery();
+			rs.next();
+			r.setSexo(rs.getString("SEXO"));
+		} catch (SQLException e) {
+			e.printStackTrace();
+			
+		}
+	}
 	/**
 	 * Este metodo envia los resultados a la base de datos
 	 */
