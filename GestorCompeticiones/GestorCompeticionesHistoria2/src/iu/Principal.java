@@ -44,6 +44,7 @@ import util.Dates;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import java.awt.Toolkit;
+import javax.swing.JTable;
 
 public class Principal extends JFrame {
 
@@ -156,6 +157,11 @@ public class Principal extends JFrame {
 	private JPanel pnBtnCrearCompeticion;
 	private JPanel pnConfigurarPlazos;
 	private JLabel lblConfiguracionPlazosNueva;
+	private JPanel pnTablaPlazos;
+	private JScrollPane scrollPanePlazos;
+	private JTable tablePlazos;
+	private JPanel pnBtnOkPlazos;
+	private JButton btnOkPlazos;
 
 	/**
 	 * Launch the application.
@@ -1506,6 +1512,8 @@ public class Principal extends JFrame {
 			pnConfigurarPlazos.setBackground(Color.WHITE);
 			pnConfigurarPlazos.setLayout(new BorderLayout(0, 0));
 			pnConfigurarPlazos.add(getLblConfiguracionPlazosNueva(), BorderLayout.NORTH);
+			pnConfigurarPlazos.add(getPnTablaPlazos(), BorderLayout.CENTER);
+			pnConfigurarPlazos.add(getPnBtnOkPlazos(), BorderLayout.SOUTH);
 		}
 		return pnConfigurarPlazos;
 	}
@@ -1515,5 +1523,43 @@ public class Principal extends JFrame {
 			lblConfiguracionPlazosNueva.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		}
 		return lblConfiguracionPlazosNueva;
+	}
+	private JPanel getPnTablaPlazos() {
+		if (pnTablaPlazos == null) {
+			pnTablaPlazos = new JPanel();
+			pnTablaPlazos.setBackground(Color.WHITE);
+			pnTablaPlazos.setLayout(new GridLayout(0, 1, 0, 0));
+			pnTablaPlazos.add(getScrollPanePlazos());
+		}
+		return pnTablaPlazos;
+	}
+	private JScrollPane getScrollPanePlazos() {
+		if (scrollPanePlazos == null) {
+			scrollPanePlazos = new JScrollPane();
+			scrollPanePlazos.setBackground(Color.WHITE);
+			scrollPanePlazos.setViewportView(getTablePlazos());
+		}
+		return scrollPanePlazos;
+	}
+	private JTable getTablePlazos() {
+		if (tablePlazos == null) {
+			tablePlazos = new JTable();
+			tablePlazos.setBackground(Color.WHITE);
+		}
+		return tablePlazos;
+	}
+	private JPanel getPnBtnOkPlazos() {
+		if (pnBtnOkPlazos == null) {
+			pnBtnOkPlazos = new JPanel();
+			pnBtnOkPlazos.setBackground(new Color(255, 255, 255));
+			pnBtnOkPlazos.add(getBtnOkPlazos());
+		}
+		return pnBtnOkPlazos;
+	}
+	private JButton getBtnOkPlazos() {
+		if (btnOkPlazos == null) {
+			btnOkPlazos = new JButton("Ok");
+		}
+		return btnOkPlazos;
 	}
 }
