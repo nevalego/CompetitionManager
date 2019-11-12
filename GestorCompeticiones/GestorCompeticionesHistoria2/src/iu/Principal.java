@@ -41,6 +41,9 @@ import logic.model.Competicion;
 import logic.model.Inscripcion;
 import logic.model.Plazo;
 import util.Dates;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import java.awt.Toolkit;
 
 public class Principal extends JFrame {
 
@@ -136,6 +139,23 @@ public class Principal extends JFrame {
 	private JPanel pnNuevaCompeticion;
 	private JButton btnConfigurarPlazosCompeticion;
 	private JButton btnConfigurarCategorias;
+	private JLabel lblNombreCompeticion;
+	private JTextField txtNombreCompeticionNueva;
+	private JLabel lblTipo;
+	private JTextField txtTipoCompeticionNueva;
+	private JLabel lblKilometroskm;
+	private JTextField txtKmCompeticionNueva;
+	private JPanel pnInfoNuevaCompeticion;
+	private JPanel pnConfigurarCompeticion;
+	private JLabel lblNuevaCompeticion;
+	private JButton btnCrear;
+	private JLabel lblPlazas;
+	private JSpinner spinnerPlazasCompeticionNueva;
+	private JLabel lblFecha;
+	private JTextField txtFechaCompeticionNueva;
+	private JPanel pnBtnCrearCompeticion;
+	private JPanel pnConfigurarPlazos;
+	private JLabel lblConfiguracionPlazosNueva;
 
 	/**
 	 * Launch the application.
@@ -157,6 +177,7 @@ public class Principal extends JFrame {
 	 * Create the frame.
 	 */
 	public Principal() {
+		setIconImage(Toolkit.getDefaultToolkit().getImage(Principal.class.getResource("/util/icono.png")));
 		setResizable(false);
 		setBackground(Color.WHITE);
 		setTitle("Gestor Competiciones");
@@ -320,7 +341,8 @@ public class Principal extends JFrame {
 			pnCards.add(getPnPagoAtleta(), "pagoatleta");
 			pnCards.add(getPnRegistro(), "registro");
 			pnCards.add(getPnOrganizador(), "organizadormenu");
-			pnCards.add(getPnNuevaCompeticion(), "name_1060145766193700");
+			pnCards.add(getPnNuevaCompeticion(), "crearcompeticion");
+			pnCards.add(getPnConfigurarPlazos(), "plazos");
 		}
 		return pnCards;
 	}
@@ -805,16 +827,26 @@ public class Principal extends JFrame {
 
 	protected void previousCard() {
 
-		if (cardNumber == 1) {// Atleta Menu
+		if (cardNumber == 1) {// Panel Atleta Menu
 			toFirst();
-		} else if (cardNumber == 2) { // Atleta Pago
+		} else if (cardNumber == 2) { // Panel Atleta Pago
 			toAtletaMenu();
-		} else if (cardNumber == 3) { // Registro Atleta 
+		} else if (cardNumber == 3) { // Panel Registro Atleta 
 			toFirst();
-		} else if ( cardNumber == 4) {//En la ventana de organizador
+		} else if ( cardNumber == 4) {// Panel menu de organizador
 			toFirst();
+		} else if( cardNumber == 5) { // Panel nueva competicion
+			toOrganizadorMenu();
+		} else if( cardNumber == 6) { // Panel configuracion plazos
+			toNuevaCompeticion();
 		}
 
+	}
+	
+	private void toConfigurarPlazos() {
+		pnButtons.setVisible(true);
+		cardNumber = 6;
+		((CardLayout) pnCards.getLayout()).show(pnCards, "plazos");
 	}
 	
 	protected void toOrganizadorMenu() {
@@ -836,6 +868,12 @@ public class Principal extends JFrame {
 		pnButtons.setVisible(true);
 		cardNumber=3;
 		((CardLayout) pnCards.getLayout()).show(pnCards, "registro");
+	}
+	
+	private void toNuevaCompeticion() {
+		pnButtons.setVisible(true);
+		cardNumber=5;
+		((CardLayout) pnCards.getLayout()).show(pnCards, "crearcompeticion");
 	}
 
 	private void loadCompeticiones() {
@@ -1229,16 +1267,18 @@ public class Principal extends JFrame {
 		if (pnOrganizador == null) {
 			pnOrganizador = new JPanel();
 			pnOrganizador.setBackground(Color.WHITE);
-			pnOrganizador.add(getBtnCrearCompeticion());
+			pnOrganizador.setLayout(new BorderLayout(0, 0));
+			pnOrganizador.add(getPnBtnCrearCompeticion(), BorderLayout.SOUTH);
 		}
 		return pnOrganizador;
 	}
 	private JButton getBtnCrearCompeticion() {
 		if (btnCrearCompeticion == null) {
 			btnCrearCompeticion = new JButton("Crear Competicion");
+			btnCrearCompeticion.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			btnCrearCompeticion.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					//TODO toNuevaCompeticion();
+					toNuevaCompeticion();
 				} 
 			});
 		}
@@ -1248,18 +1288,21 @@ public class Principal extends JFrame {
 		if (pnNuevaCompeticion == null) {
 			pnNuevaCompeticion = new JPanel();
 			pnNuevaCompeticion.setBackground(Color.WHITE);
-			pnNuevaCompeticion.add(getBtnConfigurarPlazosCompeticion());
-			pnNuevaCompeticion.add(getBtnConfigurarCategorias());
+			pnNuevaCompeticion.setLayout(new BorderLayout(0, 0));
+			pnNuevaCompeticion.add(getPnInfoNuevaCompeticion());
+			pnNuevaCompeticion.add(getPnConfigurarCompeticion(), BorderLayout.SOUTH);
+			pnNuevaCompeticion.add(getLblNuevaCompeticion(), BorderLayout.NORTH);
 		}
 		return pnNuevaCompeticion;
 	}
 	private JButton getBtnConfigurarPlazosCompeticion() {
 		if (btnConfigurarPlazosCompeticion == null) {
 			btnConfigurarPlazosCompeticion = new JButton("Configurar Plazos");
+			btnConfigurarPlazosCompeticion.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			btnConfigurarPlazosCompeticion.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					
-					//TODO configurarPlazosCompeticion(competicion);
+					toConfigurarPlazos();
 				}
 			});
 		}
@@ -1268,7 +1311,158 @@ public class Principal extends JFrame {
 	private JButton getBtnConfigurarCategorias() {
 		if (btnConfigurarCategorias == null) {
 			btnConfigurarCategorias = new JButton("Configurar Categorias");
+			btnConfigurarCategorias.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return btnConfigurarCategorias;
+	}
+	private JLabel getLblNombreCompeticion() {
+		if (lblNombreCompeticion == null) {
+			lblNombreCompeticion = new JLabel("Nombre Competicion:");
+			lblNombreCompeticion.setBounds(56, 8, 134, 17);
+			lblNombreCompeticion.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return lblNombreCompeticion;
+	}
+	private JTextField getTxtNombreCompeticionNueva() {
+		if (txtNombreCompeticionNueva == null) {
+			txtNombreCompeticionNueva = new JTextField();
+			txtNombreCompeticionNueva.setBounds(195, 5, 171, 23);
+			txtNombreCompeticionNueva.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			txtNombreCompeticionNueva.setColumns(10);
+		}
+		return txtNombreCompeticionNueva;
+	}
+	private JLabel getLblTipo() {
+		if (lblTipo == null) {
+			lblTipo = new JLabel("Tipo:");
+			lblTipo.setBounds(56, 90, 31, 17);
+			lblTipo.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return lblTipo;
+	}
+	private JTextField getTxtTipoCompeticionNueva() {
+		if (txtTipoCompeticionNueva == null) {
+			txtTipoCompeticionNueva = new JTextField();
+			txtTipoCompeticionNueva.setBounds(195, 87, 171, 23);
+			txtTipoCompeticionNueva.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			txtTipoCompeticionNueva.setColumns(10);
+		}
+		return txtTipoCompeticionNueva;
+	}
+	private JLabel getLblKilometroskm() {
+		if (lblKilometroskm == null) {
+			lblKilometroskm = new JLabel("Kilometros (km):");
+			lblKilometroskm.setBounds(56, 49, 101, 17);
+			lblKilometroskm.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return lblKilometroskm;
+	}
+	private JTextField getTxtKmCompeticionNueva() {
+		if (txtKmCompeticionNueva == null) {
+			txtKmCompeticionNueva = new JTextField();
+			txtKmCompeticionNueva.setBounds(195, 46, 116, 23);
+			txtKmCompeticionNueva.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			txtKmCompeticionNueva.setColumns(10);
+		}
+		return txtKmCompeticionNueva;
+	}
+	private JPanel getPnInfoNuevaCompeticion() {
+		if (pnInfoNuevaCompeticion == null) {
+			pnInfoNuevaCompeticion = new JPanel();
+			pnInfoNuevaCompeticion.setBackground(Color.WHITE);
+			pnInfoNuevaCompeticion.setLayout(null);
+			pnInfoNuevaCompeticion.add(getLblNombreCompeticion());
+			pnInfoNuevaCompeticion.add(getTxtNombreCompeticionNueva());
+			pnInfoNuevaCompeticion.add(getLblTipo());
+			pnInfoNuevaCompeticion.add(getTxtTipoCompeticionNueva());
+			pnInfoNuevaCompeticion.add(getLblKilometroskm());
+			pnInfoNuevaCompeticion.add(getTxtKmCompeticionNueva());
+			pnInfoNuevaCompeticion.add(getLblPlazas());
+			pnInfoNuevaCompeticion.add(getSpinnerPlazasCompeticionNueva());
+			pnInfoNuevaCompeticion.add(getLblFecha());
+			pnInfoNuevaCompeticion.add(getTxtFechaCompeticionNueva());
+		}
+		return pnInfoNuevaCompeticion;
+	}
+	private JPanel getPnConfigurarCompeticion() {
+		if (pnConfigurarCompeticion == null) {
+			pnConfigurarCompeticion = new JPanel();
+			pnConfigurarCompeticion.setBackground(Color.WHITE);
+			pnConfigurarCompeticion.add(getBtnConfigurarPlazosCompeticion());
+			pnConfigurarCompeticion.add(getBtnConfigurarCategorias());
+			pnConfigurarCompeticion.add(getBtnCrear());
+		}
+		return pnConfigurarCompeticion;
+	}
+	private JLabel getLblNuevaCompeticion() {
+		if (lblNuevaCompeticion == null) {
+			lblNuevaCompeticion = new JLabel("Nueva Competicion");
+			lblNuevaCompeticion.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		}
+		return lblNuevaCompeticion;
+	}
+	private JButton getBtnCrear() {
+		if (btnCrear == null) {
+			btnCrear = new JButton("Crear");
+			btnCrear.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return btnCrear;
+	}
+	private JLabel getLblPlazas() {
+		if (lblPlazas == null) {
+			lblPlazas = new JLabel("Plazas:");
+			lblPlazas.setBounds(56, 176, 41, 17);
+			lblPlazas.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return lblPlazas;
+	}
+	private JSpinner getSpinnerPlazasCompeticionNueva() {
+		if (spinnerPlazasCompeticionNueva == null) {
+			spinnerPlazasCompeticionNueva = new JSpinner();
+			spinnerPlazasCompeticionNueva.setModel(new SpinnerNumberModel(new Integer(50), new Integer(10), null, new Integer(10)));
+			spinnerPlazasCompeticionNueva.setBounds(109, 173, 68, 20);
+			spinnerPlazasCompeticionNueva.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return spinnerPlazasCompeticionNueva;
+	}
+	private JLabel getLblFecha() {
+		if (lblFecha == null) {
+			lblFecha = new JLabel("Fecha (dd/mm/aaaa):");
+			lblFecha.setBounds(56, 135, 133, 17);
+			lblFecha.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return lblFecha;
+	}
+	private JTextField getTxtFechaCompeticionNueva() {
+		if (txtFechaCompeticionNueva == null) {
+			txtFechaCompeticionNueva = new JTextField();
+			txtFechaCompeticionNueva.setBounds(195, 133, 116, 22);
+			txtFechaCompeticionNueva.setColumns(10);
+		}
+		return txtFechaCompeticionNueva;
+	}
+	private JPanel getPnBtnCrearCompeticion() {
+		if (pnBtnCrearCompeticion == null) {
+			pnBtnCrearCompeticion = new JPanel();
+			pnBtnCrearCompeticion.setBackground(Color.WHITE);
+			pnBtnCrearCompeticion.add(getBtnCrearCompeticion());
+		}
+		return pnBtnCrearCompeticion;
+	}
+	private JPanel getPnConfigurarPlazos() {
+		if (pnConfigurarPlazos == null) {
+			pnConfigurarPlazos = new JPanel();
+			pnConfigurarPlazos.setBackground(Color.WHITE);
+			pnConfigurarPlazos.setLayout(new BorderLayout(0, 0));
+			pnConfigurarPlazos.add(getLblConfiguracionPlazosNueva(), BorderLayout.NORTH);
+		}
+		return pnConfigurarPlazos;
+	}
+	private JLabel getLblConfiguracionPlazosNueva() {
+		if (lblConfiguracionPlazosNueva == null) {
+			lblConfiguracionPlazosNueva = new JLabel("Configuracion Plazos Nueva Competicion");
+			lblConfiguracionPlazosNueva.setFont(new Font("Tahoma", Font.PLAIN, 15));
+		}
+		return lblConfiguracionPlazosNueva;
 	}
 }
