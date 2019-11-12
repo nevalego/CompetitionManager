@@ -207,8 +207,10 @@ public class Principal extends JFrame {
 	private JLabel getLblEntrarComoOrganizador() {
 		if (lblEntrarComoOrganizador == null) {
 			lblEntrarComoOrganizador = new JLabel("Entrar como Organizador");
-			lblEntrarComoOrganizador.setHorizontalAlignment(SwingConstants.LEFT);
-			lblEntrarComoOrganizador.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblEntrarComoOrganizador
+					.setHorizontalAlignment(SwingConstants.LEFT);
+			lblEntrarComoOrganizador
+					.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		}
 		return lblEntrarComoOrganizador;
 	}
@@ -311,7 +313,8 @@ public class Principal extends JFrame {
 		try {
 			atleta = ins.getAtleta(email);
 			if (atleta == null)
-				JOptionPane.showMessageDialog(this, "Tu email no est� registrado en ning�n atleta");
+				JOptionPane.showMessageDialog(this,
+						"Tu email no est� registrado en ning�n atleta");
 			else
 				toAtletaMenu();
 		} catch (DataException e) {
@@ -404,9 +407,12 @@ public class Principal extends JFrame {
 			pnMenuAtletaCompeticiones = new JPanel();
 			pnMenuAtletaCompeticiones.setBackground(Color.WHITE);
 			pnMenuAtletaCompeticiones.setLayout(new BorderLayout(0, 0));
-			pnMenuAtletaCompeticiones.add(getLblListaDeCompeticiones(), BorderLayout.NORTH);
-			pnMenuAtletaCompeticiones.add(getScrollPaneCompeticiones(), BorderLayout.CENTER);
-			pnMenuAtletaCompeticiones.add(getPnBtnInscribirme(), BorderLayout.SOUTH);
+			pnMenuAtletaCompeticiones.add(getLblListaDeCompeticiones(),
+					BorderLayout.NORTH);
+			pnMenuAtletaCompeticiones.add(getScrollPaneCompeticiones(),
+					BorderLayout.CENTER);
+			pnMenuAtletaCompeticiones.add(getPnBtnInscribirme(),
+					BorderLayout.SOUTH);
 		}
 		return pnMenuAtletaCompeticiones;
 	}
@@ -416,9 +422,12 @@ public class Principal extends JFrame {
 			pnMenuAtletaInscripciones = new JPanel();
 			pnMenuAtletaInscripciones.setBackground(Color.WHITE);
 			pnMenuAtletaInscripciones.setLayout(new BorderLayout(0, 0));
-			pnMenuAtletaInscripciones.add(getLblListaDeInscripciones(), BorderLayout.NORTH);
-			pnMenuAtletaInscripciones.add(getScrollPaneInscripciones(), BorderLayout.CENTER);
-			pnMenuAtletaInscripciones.add(getPnBtnPagarInscripcion(), BorderLayout.SOUTH);
+			pnMenuAtletaInscripciones.add(getLblListaDeInscripciones(),
+					BorderLayout.NORTH);
+			pnMenuAtletaInscripciones.add(getScrollPaneInscripciones(),
+					BorderLayout.CENTER);
+			pnMenuAtletaInscripciones.add(getPnBtnPagarInscripcion(),
+					BorderLayout.SOUTH);
 		}
 		return pnMenuAtletaInscripciones;
 	}
@@ -448,7 +457,8 @@ public class Principal extends JFrame {
 
 	private JLabel getLblListaDeCompeticiones() {
 		if (lblListaDeCompeticiones == null) {
-			lblListaDeCompeticiones = new JLabel("Lista de Competiciones Disponibles");
+			lblListaDeCompeticiones = new JLabel(
+					"Lista de Competiciones Disponibles");
 		}
 		return lblListaDeCompeticiones;
 	}
@@ -504,7 +514,8 @@ public class Principal extends JFrame {
 			btnInscribirme = new JButton("Inscribirme");
 			btnInscribirme.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					inscribirse(modelCompeticiones.get(listCompeticiones.getSelectedIndex()));
+					inscribirse(modelCompeticiones
+							.get(listCompeticiones.getSelectedIndex()));
 				}
 			});
 		}
@@ -517,11 +528,14 @@ public class Principal extends JFrame {
 		try {
 			inscribirse.inscribirse(atleta.getId(), competicion.getId());
 
-			Inscripcion ins = inscribirse.getInscripcion(atleta.getId(), competicion.getId());
+			Inscripcion ins = inscribirse.getInscripcion(atleta.getId(),
+					competicion.getId());
 			if (ins == null) {
-				JOptionPane.showMessageDialog(this, "Error al realizar la inscripci�n");
+				JOptionPane.showMessageDialog(this,
+						"Error al realizar la inscripci�n");
 			} else {
-				JOptionPane.showMessageDialog(this, "Su inscripci�n se ha realizado con �xito");
+				JOptionPane.showMessageDialog(this,
+						"Su inscripci�n se ha realizado con �xito");
 				toAtletaMenu();
 			}
 		} catch (DataException e) {
@@ -555,28 +569,35 @@ public class Principal extends JFrame {
 	protected void pagar(Inscripcion inscripcion) {
 
 		if (inscripcion == null) {
-			JOptionPane.showMessageDialog(this, "No ha seleccionado ninguna inscripci�n para pagar");
+			JOptionPane.showMessageDialog(this,
+					"No ha seleccionado ninguna inscripci�n para pagar");
 		} else {
 			PagoInscripcion pago = new PagoInscripcion();
 			Inscripcion ins = null;
-			
+
 			int mes = Integer.parseInt(txtCaducidad.getText().split("/")[0]);
 			int año = Integer.parseInt(txtCaducidad.getText().split("/")[1]);
 			Date caducidad = new Date(año, mes, 1);
-			
+
 			if (txtNumeroTarjeta.getText().length() != 16) {
-				JOptionPane.showMessageDialog(this, "La longitud del número de la tarjeta no es correcta");
+				JOptionPane.showMessageDialog(this,
+						"La longitud del número de la tarjeta no es correcta");
 			} else if (Dates.isAfter(Dates.now(), caducidad)) {
-				JOptionPane.showMessageDialog(this, "La tarjeta ha sobrepasado su fecha de expiración");
+				JOptionPane.showMessageDialog(this,
+						"La tarjeta ha sobrepasado su fecha de expiración");
 			} else {
 				try {
-					ins = pago.obtenerInscripcion(atleta.getId(), inscripcion.getId());
+					ins = pago.obtenerInscripcion(atleta.getId(),
+							inscripcion.getId());
 					ins.fechaPago = Dates.now();
 					ins.medioPago = "Tarjeta";
-					Date plazoMaxPago = Dates.addDays(ins.fecha, 2);// 48 h tras la inscripcion
+					Date plazoMaxPago = Dates.addDays(ins.fecha, 2);// 48 h tras
+																	// la
+																	// inscripcion
 
 					if (ins.fechaPago.after(plazoMaxPago)) {
-						JOptionPane.showMessageDialog(this, "La fecha de pago se encuentra fuera del periodo de pago");
+						JOptionPane.showMessageDialog(this,
+								"La fecha de pago se encuentra fuera del periodo de pago");
 					} else {
 						Plazo plazo = pago.obtenerPlazo(ins);
 						ins.cantidad = plazo.cuota;
@@ -603,7 +624,8 @@ public class Principal extends JFrame {
 
 	private JLabel getLblMenAtletaPago() {
 		if (lblMenAtletaPago == null) {
-			lblMenAtletaPago = new JLabel("Men\u00FA Atleta: Pago de Inscripci\u00F3n");
+			lblMenAtletaPago = new JLabel(
+					"Men\u00FA Atleta: Pago de Inscripci\u00F3n");
 			lblMenAtletaPago.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		}
 		return lblMenAtletaPago;
@@ -641,8 +663,10 @@ public class Principal extends JFrame {
 
 	private JRadioButton getRdbtnPagoPorTransferencia() {
 		if (rdbtnPagoPorTransferencia == null) {
-			rdbtnPagoPorTransferencia = new JRadioButton("Pago por Transferencia Bancaria");
-			rdbtnPagoPorTransferencia.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			rdbtnPagoPorTransferencia = new JRadioButton(
+					"Pago por Transferencia Bancaria");
+			rdbtnPagoPorTransferencia
+					.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			rdbtnPagoPorTransferencia.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					seleccionarPagoTransferencia();
@@ -659,13 +683,16 @@ public class Principal extends JFrame {
 		pnTarjetaCredito.setVisible(false);
 		lblMetodoDePago.setText("Pago por Transferencia");
 		txtpnInformacinPago.setVisible(true);
-		txtpnInformacinPago.setText("Se debe realizar la transferencia a la cuenta ES04 3379 2010 3472 0238"
-				+ "\nEl plazo de pago es de 48 horas tras la " + "fecha de inscripci�n.");
+		txtpnInformacinPago.setText(
+				"Se debe realizar la transferencia a la cuenta ES04 3379 2010 3472 0238"
+						+ "\nEl plazo de pago es de 48 horas tras la "
+						+ "fecha de inscripci�n.");
 	}
 
 	private JRadioButton getRdbtnPagoPorTarjeta() {
 		if (rdbtnPagoPorTarjeta == null) {
-			rdbtnPagoPorTarjeta = new JRadioButton("Pago por Tarjeta Cr\u00E9dito");
+			rdbtnPagoPorTarjeta = new JRadioButton(
+					"Pago por Tarjeta Cr\u00E9dito");
 			rdbtnPagoPorTarjeta.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			rdbtnPagoPorTarjeta.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -711,7 +738,8 @@ public class Principal extends JFrame {
 			btnPagarTarjeta.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 
-					pagar(modelInscripciones.get(listInscripciones.getSelectedIndex()));
+					pagar(modelInscripciones
+							.get(listInscripciones.getSelectedIndex()));
 				}
 			});
 			btnPagarTarjeta.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -882,7 +910,8 @@ public class Principal extends JFrame {
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 		List<Competicion> competiciones = null;
 		try {
-			competiciones = listarCompeticiones.verCompeticiones(atleta.getEmail());
+			competiciones = listarCompeticiones
+					.verCompeticiones(atleta.getEmail());
 			for (Competicion c : competiciones) {
 
 				modelCompeticiones.addElement(c);
@@ -900,16 +929,17 @@ public class Principal extends JFrame {
 		ListarInscripciones listarInscripciones = new ListarInscripciones();
 		List<Inscripcion> inscripciones = null;
 		try {
-			inscripciones = listarInscripciones.verInscripcionesAtleta(atleta.getId());
-			for (Inscripcion c : inscripciones) {
+			inscripciones = listarInscripciones
+					.findInscripcion(atleta.getEmail());
 
-				modelInscripciones.addElement(c);
-			}
+			inscripciones.forEach(i -> modelInscripciones.addElement(i));
+
 			listInscripciones.repaint();
 			listInscripciones.revalidate();
 
 		} catch (DataException e) {
-			JOptionPane.showMessageDialog(this, "Error al ver las inscripciones del atleta");
+			JOptionPane.showMessageDialog(this,
+					"Error al ver las inscripciones del atleta");
 		}
 
 	}
@@ -995,11 +1025,14 @@ public class Principal extends JFrame {
 	protected void registrarAtleta() {
 		HacerRegistro registrar = new HacerRegistro();
 		try {
-			boolean correcto = registrar.comprobarDatos(txtEmailAtleta.getText(), txtDniAtleta.getText());
+			boolean correcto = registrar.comprobarDatos(
+					txtEmailAtleta.getText(), txtDniAtleta.getText());
 			if (correcto) {
-				registrar.comprobarFecha(String.valueOf(comboBoxDiaNacimiento.getSelectedItem()),
+				registrar.comprobarFecha(
+						String.valueOf(comboBoxDiaNacimiento.getSelectedItem()),
 						String.valueOf(comboBoxMesNacimiento.getSelectedItem()),
-						String.valueOf(comboBoxAñoNacimiento.getSelectedItem()));
+						String.valueOf(
+								comboBoxAñoNacimiento.getSelectedItem()));
 				atleta = new Atleta();
 
 				atleta.dni = txtDniAtleta.getText();
@@ -1009,12 +1042,16 @@ public class Principal extends JFrame {
 				atleta.sexo = String.valueOf(comboBoxSexo.getSelectedItem());
 
 				atleta.fechaNacimiento = new Date(
-						Integer.valueOf((String) comboBoxAñoNacimiento.getSelectedItem()) - 1900,
-						Integer.valueOf((String) comboBoxMesNacimiento.getSelectedItem()),
-						Integer.valueOf((String) comboBoxDiaNacimiento.getSelectedItem()));
+						Integer.valueOf((String) comboBoxAñoNacimiento
+								.getSelectedItem()) - 1900,
+						Integer.valueOf((String) comboBoxMesNacimiento
+								.getSelectedItem()),
+						Integer.valueOf((String) comboBoxDiaNacimiento
+								.getSelectedItem()));
 
 				registrar.registrar(atleta);
-				JOptionPane.showMessageDialog(this, "El registro del nuevo atleta ha sido un �xito");
+				JOptionPane.showMessageDialog(this,
+						"El registro del nuevo atleta ha sido un �xito");
 				toAtletaMenu();
 			}
 
@@ -1112,7 +1149,8 @@ public class Principal extends JFrame {
 		if (comboBoxSexo == null) {
 			comboBoxSexo = new JComboBox();
 			comboBoxSexo.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			comboBoxSexo.setModel(new DefaultComboBoxModel(new String[] { "Masculino", "Femenino" }));
+			comboBoxSexo.setModel(new DefaultComboBoxModel(
+					new String[] { "Masculino", "Femenino" }));
 			comboBoxSexo.setBounds(290, 37, 116, 19);
 		}
 		return comboBoxSexo;
@@ -1130,9 +1168,11 @@ public class Principal extends JFrame {
 	private JComboBox getComboBoxDiaNacimiento() {
 		if (comboBoxDiaNacimiento == null) {
 			comboBoxDiaNacimiento = new JComboBox();
-			comboBoxDiaNacimiento.setModel(new DefaultComboBoxModel(new String[] { "1", "2", "3", "4", "5", "6", "7",
-					"8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24",
-					"25", "26", "27", "28", "29", "30", "31" }));
+			comboBoxDiaNacimiento.setModel(new DefaultComboBoxModel(
+					new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9",
+							"10", "11", "12", "13", "14", "15", "16", "17",
+							"18", "19", "20", "21", "22", "23", "24", "25",
+							"26", "27", "28", "29", "30", "31" }));
 			comboBoxDiaNacimiento.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			comboBoxDiaNacimiento.setBounds(264, 119, 44, 22);
 		}
@@ -1142,8 +1182,9 @@ public class Principal extends JFrame {
 	private JComboBox getComboBoxMesNacimiento() {
 		if (comboBoxMesNacimiento == null) {
 			comboBoxMesNacimiento = new JComboBox();
-			comboBoxMesNacimiento.setModel(new DefaultComboBoxModel(
-					new String[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12" }));
+			comboBoxMesNacimiento.setModel(
+					new DefaultComboBoxModel(new String[] { "1", "2", "3", "4",
+							"5", "6", "7", "8", "9", "10", "11", "12" }));
 			comboBoxMesNacimiento.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			comboBoxMesNacimiento.setBounds(321, 119, 42, 22);
 		}
@@ -1153,13 +1194,20 @@ public class Principal extends JFrame {
 	private JComboBox getComboBoxAñoNacimiento() {
 		if (comboBoxAñoNacimiento == null) {
 			comboBoxAñoNacimiento = new JComboBox();
-			comboBoxAñoNacimiento.setModel(new DefaultComboBoxModel(new String[] { "1950", "1951", "1952", "1953",
-					"1954", "1955", "1956", "1957", "1958", "1959", "1960", "1961", "1962", "1963", "1964", "1965",
-					"1966", "1967", "1967", "1967", "1968", "1969", "1970", "1971", "1972", "1973", "1974", "1975",
-					"1976", "1977", "1978", "1979", "1980", "1981", "1982", "1983", "1984", "1985", "1986", "1987",
-					"1988", "1989", "1990", "1991", "1992", "1993", "1994", "1995", "1996", "1997", "1998", "1999",
-					"2000", "2001", "2002", "2003", "2004", "2005", "2006", "2007", "2008", "2009", "2010", "2011",
-					"2012", "2013", "2014", "2015", "2016", "2017", "2018", "2019" }));
+			comboBoxAñoNacimiento
+					.setModel(new DefaultComboBoxModel(new String[] { "1950",
+							"1951", "1952", "1953", "1954", "1955", "1956",
+							"1957", "1958", "1959", "1960", "1961", "1962",
+							"1963", "1964", "1965", "1966", "1967", "1967",
+							"1967", "1968", "1969", "1970", "1971", "1972",
+							"1973", "1974", "1975", "1976", "1977", "1978",
+							"1979", "1980", "1981", "1982", "1983", "1984",
+							"1985", "1986", "1987", "1988", "1989", "1990",
+							"1991", "1992", "1993", "1994", "1995", "1996",
+							"1997", "1998", "1999", "2000", "2001", "2002",
+							"2003", "2004", "2005", "2006", "2007", "2008",
+							"2009", "2010", "2011", "2012", "2013", "2014",
+							"2015", "2016", "2017", "2018", "2019" }));
 			comboBoxAñoNacimiento.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			comboBoxAñoNacimiento.setBounds(375, 119, 68, 22);
 		}
@@ -1229,11 +1277,14 @@ public class Principal extends JFrame {
 		// Nuevo tipo creado, revisadlo
 
 		ListarInscripciones inscripciones = new ListarInscripciones();
-		List<AtletaInscripcion> inscr = inscripciones.verAtletasEInscripciones(id);
+		List<AtletaInscripcion> inscr = inscripciones
+				.verAtletasEInscripciones(id);
 
 		/*
-		 * for (AtletaInscripcion i : inscr) { modeloInscripciones.addElement(i); }
-		 */ // Repito Miguel: No puedes usar el modelo que ya existe porque tiene otros
+		 * for (AtletaInscripcion i : inscr) {
+		 * modeloInscripciones.addElement(i); }
+		 */ // Repito Miguel: No puedes usar el modelo que ya existe porque
+			// tiene otros
 			// datos que uso yo (nerea)
 
 	}

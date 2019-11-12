@@ -114,9 +114,9 @@ public class ListarInscripciones {
 		return inscripciones;
 	}
 
-	public List<InscripcionDto> findInscripcion(String email)
+	public List<Inscripcion> findInscripcion(String email)
 			throws DataException {
-		List<InscripcionDto> list = new ArrayList<InscripcionDto>();
+		List<Inscripcion> list = new ArrayList<Inscripcion>();
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		try (Connection c = Jdbc.getConnection()) {
@@ -137,14 +137,15 @@ public class ListarInscripciones {
 
 			while (rs.next()) {
 				PreparedStatement ps2 = c.prepareStatement(
-						Conf.getInstance().getProperty("SQL_GET_NAME_FROM_ID"));
+						Conf.getInstance().getProperty("SQL_GET_NAME_LISTAR"));
 				ps2.setLong(1, rs.getLong("COMPETICION_ID"));
 				ResultSet rs2 = ps2.executeQuery();
 				rs2.next();
 				String nombreCompeticion = rs2.getString("NOMBRE");
 				rs2.close();
 				ps2.close();
-				InscripcionDto incs = new InscripcionDto();
+				//InscripcionDto incs = new InscripcionDto();
+				Inscripcion incs = new Inscripcion();
 				incs.estado = rs.getString("ESTADO");
 				incs.fechaModificacion = rs.getDate("FECHAMODIFICACION");
 				incs.nombreCompeticion = nombreCompeticion;
