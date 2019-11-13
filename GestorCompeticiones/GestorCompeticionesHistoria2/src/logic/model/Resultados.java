@@ -30,5 +30,10 @@ public class Resultados {
 	public void setPosicion(int posicion) {
 		this.posicion = posicion;
 	}
+	@Override
+	public String toString() {
+		return "Resultados [nombreCompetidor=" + nombreCompetidor + ", tiempo="
+				+ tiempo + ", sexo=" + sexo + ", posicion=" + posicion + "]";
+	}
 
 }
