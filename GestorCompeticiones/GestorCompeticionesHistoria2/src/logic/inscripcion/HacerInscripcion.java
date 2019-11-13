@@ -53,6 +53,8 @@ public class HacerInscripcion {
 						s.setString(5, "PENDIENTE DE PAGO");
 						s.executeUpdate();
 						
+						System.out.println("LLEGA AQUI?");
+						
 					} else {
 						throw new DataException("Plazas Acabadas");
 					}
@@ -107,7 +109,7 @@ public class HacerInscripcion {
 		Date hoy = Dates.today();
 		Date fechaNacimiento = getAtleta(atletaId).fechaNacimiento;
 		int age = (Dates.diffDays(hoy, fechaNacimiento) / 365);
-		for (Categoria categoria : Parser.parseCategorias(FileUtil.cargarArchivo("categories.properties"))) {
+		for (Categoria categoria : Parser.parseCategorias(FileUtil.cargarArchivo("src/categories.properties"))) {
 			if (age >= categoria.getMinAge() && age <= categoria.getMaxAge()) {
 				return categoria.getName();
 			}
@@ -182,16 +184,17 @@ public class HacerInscripcion {
 	}
 
 	
-	public Atleta getAtleta(long atletaId) {
-		PreparedStatement ps;
+	public Atleta getAtleta(long atletaId) throws DataException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
 		Atleta result = null;
-		try {
+		try (Connection c = Jdbc.getConnection()) {
 			ps = c.prepareStatement("SELECT * FROM ATLETA WHERE ID = ?");
 			ps.setLong(1, atletaId);
-			ResultSet rs = ps.executeQuery();
+			rs = ps.executeQuery();
 			if (rs.next()) {
 				result = new Atleta();
-				result.id = rs.getLong("idAtleta");
+				result.id = rs.getLong("id");
 				result.dni = rs.getString("dni");
 				result.nombre = rs.getString("nombre");
 				result.apellido = rs.getString("apellido");
@@ -200,7 +203,7 @@ public class HacerInscripcion {
 				result.fechaNacimiento = rs.getDate("fechaNacimiento");
 			}
 		} catch (SQLException e) {
-			return null;
+			throw new DataException("Error en la conexi�n");
 		}
 		return result;
 	}
