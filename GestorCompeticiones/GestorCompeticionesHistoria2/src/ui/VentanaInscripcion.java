@@ -87,6 +87,7 @@ public class VentanaInscripcion extends JFrame {
 		List<Competicion> comps = competiciones.verCompeticiones("");
 
 		for (Competicion c : comps) {
+			modelCompeticiones.clear();
 			modelCompeticiones.addElement(c);
 		}
 

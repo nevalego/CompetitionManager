@@ -9,6 +9,7 @@ import logic.model.Atleta;
 import logic.model.Categoria;
 import logic.model.Inscripcion;
 import util.Conf;
+import util.Dates;
 import util.FileUtil;
 import util.Jdbc;
 import util.Parser;
@@ -39,14 +40,15 @@ public class HacerInscripcion {
 			if (comprobarNoInscrito(atletaId, id)) {
 				if (comprobarFecha(id)) {
 					if (comprobarPlazas(id)) {
+						
 						String insertar = "INSERT INTO INSCRIPCION (atleta_id,competicion_id,categoria,fecha,estado) VALUES(?,?,?,?,?)";
 						PreparedStatement s = c.prepareStatement(insertar);
 						// HACER SETS
 						s.setLong(1, atletaId);
 						s.setLong(2, id);
-						// TO DO Miguel
-						//s.setString(3, calcularCategoria(id, new java.sql.Date(System.currentTimeMillis())));
-						s.setString(3, "Hombre"); // Provisional
+						// TODO Miguel
+						s.setString(3, calcularCategoria(id, atletaId));
+//						s.setString(3, "Hombre"); // Provisional
 						s.setString(4, "" + new java.sql.Date(System.currentTimeMillis()));
 						s.setString(5, "PENDIENTE DE PAGO");
 						s.executeUpdate();
@@ -97,12 +99,23 @@ public class HacerInscripcion {
 	}
 
 	private String calcularCategoria(long competicionId, long atletaId) throws DataException {
-		// En esta versión la competición no importa porque todas tiene las mismas
-		// categorías
-		return calculoCategoria(atletaId);
+		// En esta versiÃ³n la competiciÃ³n no es relevante ya que todas tienen las mismas categorÃ­as
+		return calcularCategoria(atletaId);
 	}
-	
-	private int getUltimaCompeticion() {
+
+	private String calcularCategoria(long atletaId) throws DataException {
+		Date hoy = Dates.today();
+		Date fechaNacimiento = getAtleta(atletaId).fechaNacimiento;
+		int age = (Dates.diffDays(hoy, fechaNacimiento) / 365);
+		for (Categoria categoria : Parser.parseCategorias(FileUtil.cargarArchivo("categories.properties"))) {
+			if (age >= categoria.getMinAge() && age <= categoria.getMaxAge()) {
+				return categoria.getName();
+			}
+		}
+		throw new DataException("Age " + age + " is not valid for this competition");
+	}
+
+/**	private int getUltimaCompeticion() {
 		Statement s2;
 		try {
 			s2 = c.createStatement();
@@ -114,20 +127,7 @@ public class HacerInscripcion {
 		} 
 		return -1;
 		
-	}
-
-	private String calculoCategoria(long atletaId) throws DataException {
-		Date hoy = new Date();
-		Date fechaNacimiento = getAtleta(atletaId).fechaNacimiento;
-		@SuppressWarnings("deprecation")
-		int age = hoy.getYear() - fechaNacimiento.getYear();
-		for (Categoria categoria : Parser.parseCategorias(FileUtil.cargarArchivo("categories.properties"))) {
-			if (age >= categoria.getMinAge() && age <= categoria.getMaxAge()) {
-				return categoria.getName();
-			}
-		}
-		throw new DataException("Age " + age + " is not valid for this competition");
-	}
+	} */
 
 	public Inscripcion getInscripcion(long atletaId, long competicionId) throws DataException {
 		PreparedStatement ps = null;
@@ -150,7 +150,7 @@ public class HacerInscripcion {
 				inscripcion.estado = rs.getString("estado");
 			}
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexión");
+			throw new DataException("Error en la conexiï¿½n");
 		}
 		return inscripcion;
 	}
@@ -176,26 +176,9 @@ public class HacerInscripcion {
 				atleta.fechaNacimiento = rs.getDate("fechanacimiento");
 			}
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexión");
+			throw new DataException("Error en la conexiï¿½n");
 		}
 		return atleta;
-	}
-
-	private String calcularCategoria(Long id, Date date) throws DataException {
-		// En esta versión la competición no importa porque todas tiene las mismas
-		// categorías
-		return calculoCategoria(date);
-	}
-
-	@SuppressWarnings("deprecation")
-	private String calculoCategoria(Date date) throws DataException {
-		int age = date.getYear() - new Date().getYear();
-		for (Categoria categoria : Parser.parseCategorias(FileUtil.cargarArchivo("categories.properties"))) {
-			if (age >= categoria.getMinAge() && age <= categoria.getMaxAge()) {
-				return categoria.getName();
-			}
-		}
-		throw new DataException("Age " + age + " is not valid for this competition");
 	}
 
 	
@@ -246,7 +229,6 @@ public class HacerInscripcion {
 	 * @return true si se puede proceder, false si no
 	 * @throws SQLException, es una estandarizacion por si falla algo, imprime
 	 *                       mensaje habitualmente
-	 */
 	private boolean comprobarNoInscrito(String email, Long id) throws SQLException {
 		String querySacaId = "SELECT ID FROM ATLETA WHERE EMAIL = ?";
 		PreparedStatement ps = c.prepareStatement(querySacaId);
@@ -273,7 +255,7 @@ public class HacerInscripcion {
 			return false;
 		} 
 		return true;
-	}
+	}	*/
 
 	/**
 	 * Metodo PROVISIONAL que comprueba la fecha de la tabla
@@ -309,7 +291,7 @@ public class HacerInscripcion {
 	/**
 	 * Metodo PROVISIONAL que comprueba las plazas de la tabla
 	 * 
-	 * @param idtabla, el id de la competicion para ver si hay plazas. DUDA: ¿EL
+	 * @param idtabla, el id de la competicion para ver si hay plazas. DUDA: ï¿½EL
 	 *                 NUMERO DE PLAZAS ESTA EN COMPETICION?
 	 * @return true si se puede proceder false si no
 	 * @throws SQLException
@@ -325,7 +307,7 @@ public class HacerInscripcion {
 			if(rs.next())
 				plazasOcupadas = rs.getInt(1);
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexión");
+			throw new DataException("Error en la conexiï¿½n");
 		}
 		// ESTO ES UN EJEMPLO AL NO TENER LA BASE DE DATOS
 		String getTotalPlazas = "SELECT PLAZAS FROM COMPETICION WHERE id= ?";
@@ -344,7 +326,7 @@ public class HacerInscripcion {
 				return false;
 			}
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexión");
+			throw new DataException("Error en la conexiï¿½n");
 		}
 		return true;
 

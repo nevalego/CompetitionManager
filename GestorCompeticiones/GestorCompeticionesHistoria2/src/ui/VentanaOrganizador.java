@@ -2,26 +2,17 @@ package ui;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.List;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
+import iu.PnListarInscripcionesPorCompeticion;
 import logic.exception.DataException;
-import logic.inscripcion.ListarInscripciones;
-import logic.model.AtletaInscripcion;
 
 public class VentanaOrganizador extends JFrame {
 
@@ -30,11 +21,11 @@ public class VentanaOrganizador extends JFrame {
 	private JPanel panelCompeticion;
 	private JLabel lblCompeticion;
 	private JTextField txtCompeticion;
-	private JButton btnListar;
-	private JPanel lowerPanel;
-	private JScrollPane scrollPaneCompeticiones;
-	private JList<AtletaInscripcion> list;
-	private DefaultListModel<AtletaInscripcion> modeloInscripciones = new DefaultListModel<>();
+//	private JButton btnListar;
+//	private JPanel lowerPanel;
+//	private JScrollPane scrollPaneCompeticiones;
+//	private JList<AtletaInscripcion> list;
+//	private DefaultListModel<AtletaInscripcion> modeloInscripciones = new DefaultListModel<>();
 
 	/**
 	 * Launch the application.
@@ -64,10 +55,10 @@ public class VentanaOrganizador extends JFrame {
 		principalPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		principalPanel.setLayout(new BorderLayout(0, 0));
 		principalPanel.add(getPanelCompeticion(), BorderLayout.NORTH);
-		principalPanel.add(getLowerPanel(), BorderLayout.SOUTH);
-		principalPanel.add(getScrollPaneCompeticiones(), BorderLayout.CENTER);
+//		principalPanel.add(getLowerPanel(), BorderLayout.SOUTH);
+//		principalPanel.add(getScrollPaneCompeticiones(), BorderLayout.CENTER);
 
-		setContentPane(principalPanel);
+		setContentPane(new PnListarInscripcionesPorCompeticion());
 
 	}
 
@@ -97,62 +88,62 @@ public class VentanaOrganizador extends JFrame {
 		return txtCompeticion;
 	}
 
-	private JButton getBtnListar() {
-		if (btnListar == null) {
-			btnListar = new JButton("Ver");
-			btnListar.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent arg0) {
-					mostrar();
-				}
-			});
-			btnListar.setFont(new Font("Verdana", Font.PLAIN, 16));
-		}
-		return btnListar;
-	}
+//	private JButton getBtnListar() {
+//		if (btnListar == null) {
+//			btnListar = new JButton("Ver");
+//			btnListar.addActionListener(new ActionListener() {
+//				public void actionPerformed(ActionEvent arg0) {
+//					mostrar();
+//				}
+//			});
+//			btnListar.setFont(new Font("Verdana", Font.PLAIN, 16));
+//		}
+//		return btnListar;
+//	}
 
-	protected void mostrar() {
-		try {
-			mostrarCompeticiones(txtCompeticion.getText());
-		} catch (DataException e) {
-			//algo se hará aquí?
-		}
-	}
+//	protected void mostrar() {
+//		try {
+//			mostrarCompeticiones(txtCompeticion.getText());
+//		} catch (DataException e) {
+//			// algo se harï¿½ aquï¿½?
+//		}
+//	}
 
-	private void mostrarCompeticiones(String id) throws DataException {
-		// Nuevo tipo creado, revisadlo
-		
-		ListarInscripciones inscripciones = new ListarInscripciones();
-		List<AtletaInscripcion> inscr = inscripciones.verAtletasEInscripciones(id);
+//	private void mostrarCompeticiones(String id) throws DataException {
+//		// Nuevo tipo creado, revisadlo
+//
+//		ListarInscripciones inscripciones = new ListarInscripciones();
+//		List<AtletaInscripcion> inscr = inscripciones.verAtletasEInscripciones(id);
+//
+//		for (AtletaInscripcion i : inscr) {
+//			modeloInscripciones.addElement(i);
+//		}
+//
+//	}
 
-		for (AtletaInscripcion i : inscr) {
-			modeloInscripciones.addElement(i);
-		}
+//	private JPanel getLowerPanel() {
+//		if (lowerPanel == null) {
+//			lowerPanel = new JPanel();
+//			FlowLayout flowLayout = (FlowLayout) lowerPanel.getLayout();
+//			flowLayout.setAlignment(FlowLayout.RIGHT);
+//			lowerPanel.add(getBtnListar());
+//		}
+//		return lowerPanel;
+//	}
 
-	}
+//	private JScrollPane getScrollPaneCompeticiones() {
+//		if (scrollPaneCompeticiones == null) {
+//			scrollPaneCompeticiones = new JScrollPane();
+//			scrollPaneCompeticiones.setViewportView(getListCompeticionesDisponibles());
+//		}
+//		return scrollPaneCompeticiones;
+//	}
 
-	private JPanel getLowerPanel() {
-		if (lowerPanel == null) {
-			lowerPanel = new JPanel();
-			FlowLayout flowLayout = (FlowLayout) lowerPanel.getLayout();
-			flowLayout.setAlignment(FlowLayout.RIGHT);
-			lowerPanel.add(getBtnListar());
-		}
-		return lowerPanel;
-	}
-
-	private JScrollPane getScrollPaneCompeticiones() {
-		if (scrollPaneCompeticiones == null) {
-			scrollPaneCompeticiones = new JScrollPane();
-			scrollPaneCompeticiones.setViewportView(getListCompeticionesDisponibles());
-		}
-		return scrollPaneCompeticiones;
-	}
-
-	private JList<AtletaInscripcion> getListCompeticionesDisponibles() {
-		if (list == null) {
-			list = new JList<AtletaInscripcion>(modeloInscripciones);
-			list.setVisible(true);
-		}
-		return list;
-	}
+//	private JList<AtletaInscripcion> getListCompeticionesDisponibles() {
+//		if (list == null) {
+//			list = new JList<AtletaInscripcion>(modeloInscripciones);
+//			list.setVisible(true);
+//		}
+//		return list;
+//	}
 }
