@@ -118,7 +118,7 @@ public class HacerInscripcion {
 	}
 
 	private String calculoCategoria(long atletaId) throws DataException {
-		Date hoy = new Date();
+		Date hoy = Dates.today();
 		Date fechaNacimiento = getAtleta(atletaId).fechaNacimiento;
 		@SuppressWarnings("deprecation")
 		int age = hoy.getYear() - fechaNacimiento.getYear();
