@@ -9,6 +9,7 @@ import logic.model.Atleta;
 import logic.model.Categoria;
 import logic.model.Inscripcion;
 import util.Conf;
+import util.Dates;
 import util.FileUtil;
 import util.Jdbc;
 import util.Parser;
@@ -97,8 +98,8 @@ public class HacerInscripcion {
 	}
 
 	private String calcularCategoria(long competicionId, long atletaId) throws DataException {
-		// En esta versión la competición no importa porque todas tiene las mismas
-		// categorías
+		// En esta versiï¿½n la competiciï¿½n no importa porque todas tiene las mismas
+		// categorï¿½as
 		return calculoCategoria(atletaId);
 	}
 	
@@ -117,7 +118,7 @@ public class HacerInscripcion {
 	}
 
 	private String calculoCategoria(long atletaId) throws DataException {
-		Date hoy = new Date();
+		Date hoy = Dates.today();
 		Date fechaNacimiento = getAtleta(atletaId).fechaNacimiento;
 		@SuppressWarnings("deprecation")
 		int age = hoy.getYear() - fechaNacimiento.getYear();
@@ -150,7 +151,7 @@ public class HacerInscripcion {
 				inscripcion.estado = rs.getString("estado");
 			}
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexión");
+			throw new DataException("Error en la conexiï¿½n");
 		}
 		return inscripcion;
 	}
@@ -176,14 +177,14 @@ public class HacerInscripcion {
 				atleta.fechaNacimiento = rs.getDate("fechanacimiento");
 			}
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexión");
+			throw new DataException("Error en la conexiï¿½n");
 		}
 		return atleta;
 	}
 
 	private String calcularCategoria(Long id, Date date) throws DataException {
-		// En esta versión la competición no importa porque todas tiene las mismas
-		// categorías
+		// En esta versiï¿½n la competiciï¿½n no importa porque todas tiene las mismas
+		// categorï¿½as
 		return calculoCategoria(date);
 	}
 
@@ -309,7 +310,7 @@ public class HacerInscripcion {
 	/**
 	 * Metodo PROVISIONAL que comprueba las plazas de la tabla
 	 * 
-	 * @param idtabla, el id de la competicion para ver si hay plazas. DUDA: ¿EL
+	 * @param idtabla, el id de la competicion para ver si hay plazas. DUDA: ï¿½EL
 	 *                 NUMERO DE PLAZAS ESTA EN COMPETICION?
 	 * @return true si se puede proceder false si no
 	 * @throws SQLException
@@ -325,7 +326,7 @@ public class HacerInscripcion {
 			if(rs.next())
 				plazasOcupadas = rs.getInt(1);
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexión");
+			throw new DataException("Error en la conexiï¿½n");
 		}
 		// ESTO ES UN EJEMPLO AL NO TENER LA BASE DE DATOS
 		String getTotalPlazas = "SELECT PLAZAS FROM COMPETICION WHERE id= ?";
@@ -344,7 +345,7 @@ public class HacerInscripcion {
 				return false;
 			}
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexión");
+			throw new DataException("Error en la conexiï¿½n");
 		}
 		return true;
 
