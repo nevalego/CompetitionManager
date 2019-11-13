@@ -133,7 +133,6 @@ public class Principal extends JFrame {
 	private JList<AtletaInscripcion> list;
 	private DefaultListModel<AtletaInscripcion> modeloInscripciones = new DefaultListModel<>();
 
-	
 	/**
 	 * Launch the application.
 	 */
@@ -194,7 +193,7 @@ public class Principal extends JFrame {
 			btnEntrar = new JButton("Entrar");
 			btnEntrar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					
+
 				}
 			});
 		}
@@ -970,31 +969,31 @@ public class Principal extends JFrame {
 		HacerRegistro registrar = new HacerRegistro();
 		try {
 			boolean correcto = registrar.comprobarDatos(txtEmailAtleta.getText(), txtDniAtleta.getText());
-			if( correcto) {
+			if (correcto) {
 				registrar.comprobarFecha(String.valueOf(comboBoxDiaNacimiento.getSelectedItem()),
-						String.valueOf(comboBoxMesNacimiento.getSelectedItem()), 
+						String.valueOf(comboBoxMesNacimiento.getSelectedItem()),
 						String.valueOf(comboBoxAñoNacimiento.getSelectedItem()));
 				atleta = new Atleta();
-				
-				atleta.dni=txtDniAtleta.getText();
+
+				atleta.dni = txtDniAtleta.getText();
 				atleta.email = txtEmailAtleta.getText();
 				atleta.nombre = txtNombreAtleta.getText();
 				atleta.apellido = txtApellidosAtleta.getText();
 				atleta.sexo = String.valueOf(comboBoxSexo.getSelectedItem());
-				
+
 				atleta.fechaNacimiento = new Date(
-						Integer.valueOf((String) comboBoxAñoNacimiento.getSelectedItem())-1900,
-						Integer.valueOf((String)comboBoxMesNacimiento.getSelectedItem()),
-								Integer.valueOf((String)comboBoxDiaNacimiento.getSelectedItem()));
-				
+						Integer.valueOf((String) comboBoxAñoNacimiento.getSelectedItem()) - 1900,
+						Integer.valueOf((String) comboBoxMesNacimiento.getSelectedItem()),
+						Integer.valueOf((String) comboBoxDiaNacimiento.getSelectedItem()));
+
 				registrar.registrar(atleta);
-				JOptionPane.showMessageDialog(this,"El registro del nuevo atleta ha sido un �xito");
+				JOptionPane.showMessageDialog(this, "El registro del nuevo atleta ha sido un �xito");
 				toAtletaMenu();
 			}
-			
+
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
-		}	
+		}
 	}
 
 	private JLabel getLblNombre() {
@@ -1139,7 +1138,7 @@ public class Principal extends JFrame {
 		}
 		return comboBoxAñoNacimiento;
 	}
-	
+
 	private JPanel getPanelOrganizador() {
 		if (panelOrganizador == null) {
 			panelOrganizador = new JPanel();
@@ -1195,13 +1194,13 @@ public class Principal extends JFrame {
 		try {
 			mostrarCompeticiones(txtCompeticion.getText());
 		} catch (DataException e) {
-			//algo se har� aqu�?
+			// algo se har� aqu�?
 		}
 	}
 
 	private void mostrarCompeticiones(String id) throws DataException {
 		// Nuevo tipo creado, revisadlo
-		
+
 		ListarInscripciones inscripciones = new ListarInscripciones();
 		List<AtletaInscripcion> inscr = inscripciones.verAtletasEInscripciones(id);
 
@@ -1236,5 +1235,5 @@ public class Principal extends JFrame {
 		}
 		return list;
 	}
-	
+
 }

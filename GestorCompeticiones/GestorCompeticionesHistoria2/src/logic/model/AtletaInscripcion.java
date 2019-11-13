@@ -5,8 +5,8 @@ import java.util.Date;
 public class AtletaInscripcion implements Comparable<AtletaInscripcion> {
 
 	/*
-	 * Un tipo añadido para poder crear un modelo fácil de listar en la ventana de
-	 * mostrar atletas e inscripciones por categoría - Miguel
+	 * Un tipo aï¿½adido para poder crear un modelo fï¿½cil de listar en la ventana de
+	 * mostrar atletas e inscripciones por categorï¿½a - Miguel
 	 */
 
 	public String dni;
