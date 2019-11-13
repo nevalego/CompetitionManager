@@ -148,7 +148,7 @@ public class HacerInscripcion {
 				inscripcion.fecha = rs.getDate("fecha");
 				inscripcion.atletaId = rs.getLong("atleta_id");
 				inscripcion.competicionId = rs.getLong("competicion_id");
-				inscripcion.categoria = rs.getString("categoria");
+				inscripcion.categoriaId = rs.getLong("categoria_id");
 				inscripcion.estado = rs.getString("estado");
 			}
 		} catch (SQLException e) {
@@ -163,7 +163,7 @@ public class HacerInscripcion {
 		Atleta atleta = null;
 		try (Connection c = Jdbc.getConnection()) {
 
-			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_SELECT_COMPROBAR_DNI_EMAIL"));
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_SELECT_ATLETA_EMAIL"));
 			ps.setString(1, email);
 			rs = ps.executeQuery();
 
@@ -172,7 +172,7 @@ public class HacerInscripcion {
 				atleta.id = rs.getLong("id");
 				atleta.dni = rs.getString("dni");
 				atleta.nombre = rs.getString("nombre");
-				atleta.apellido = rs.getString("apellido");
+				atleta.apellidos = rs.getString("apellidos");
 				atleta.email = rs.getString("email");
 				atleta.sexo = rs.getString("sexo");
 				atleta.fechaNacimiento = rs.getDate("fechanacimiento");
@@ -197,7 +197,7 @@ public class HacerInscripcion {
 				result.id = rs.getLong("id");
 				result.dni = rs.getString("dni");
 				result.nombre = rs.getString("nombre");
-				result.apellido = rs.getString("apellido");
+				result.apellidos = rs.getString("apellidos");
 				result.email = rs.getString("email");
 				result.sexo = rs.getString("sexo");
 				result.fechaNacimiento = rs.getDate("fechaNacimiento");

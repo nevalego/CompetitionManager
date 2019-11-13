@@ -3,26 +3,35 @@ package logic.model;
 public class Categoria {
 	
 	private long id;
-	private String name;
-	private int minAge;
-	private int maxAge;
+	private String nombre;
+	private int minEdad;
+	private int maxEdad;
+	private long competicionId;
 
 	public Categoria(String name, int minAge, int maxAge) {
-		this.name = name;
-		this.minAge = minAge;
-		this.maxAge = maxAge;
+		this.nombre = name;
+		this.minEdad = minAge;
+		this.maxEdad = maxAge;
 	}
 
-	public int getMinAge() {
-		return minAge;
+	public long getId() {
+		return id;
 	}
 
-	public int getMaxAge() {
-		return maxAge;
+	public int getMinEdad() {
+		return minEdad;
 	}
 
-	public String getName() {
-		return name;
+	public int getMaxEdad() {
+		return maxEdad;
+	}
+
+	public long getCompeticionId() {
+		return competicionId;
+	}
+
+	public String getNombre() {
+		return nombre;
 	}
 
 }
