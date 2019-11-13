@@ -1567,8 +1567,18 @@ public class Principal extends JFrame {
 	private JButton getButtonNuevaFilaPlazo() {
 		if (buttonNuevaFilaPlazo == null) {
 			buttonNuevaFilaPlazo = new JButton("+");
+			buttonNuevaFilaPlazo.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					nuevaFilaTablaPlazos();
+				}
+			});
 		}
 		return buttonNuevaFilaPlazo;
+	}
+
+	protected void nuevaFilaTablaPlazos() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	private JButton getButtonBorrarFilaPlazo() {
