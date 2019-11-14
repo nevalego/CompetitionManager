@@ -48,7 +48,12 @@ import logic.model.Competicion;
 import logic.model.Inscripcion;
 import logic.model.Plazo;
 import util.Dates;
-
+class CustomTableModel extends DefaultTableModel {
+	   @Override
+	   public boolean isCellEditable(int row, int column) {
+	      return false;
+	   }
+	}
 public class Principal extends JFrame {
 
 	private JPanel contentPane;
@@ -78,8 +83,6 @@ public class Principal extends JFrame {
 	private JLabel lblListaDeInscripciones;
 	private JScrollPane scrollPaneCompeticiones;
 	private JScrollPane scrollPaneInscripciones;
-	private JList<Competicion> listCompeticiones;
-	private JList<Inscripcion> listInscripciones;
 	private JPanel pnBtnInscribirme;
 	private JButton btnInscribirme;
 	private JPanel pnBtnPagarInscripcion;
@@ -95,7 +98,7 @@ public class Principal extends JFrame {
 	private JPanel pnInfoPago;
 	private JButton btnPagarTarjeta;
 	private JLabel lblMetodoDePago;
-	private JPanel panel;
+	private JPanel pnPago;
 	private JTextPane txtpnInformacinPago;
 	private JPanel pnTarjetaCredito;
 	private JLabel lblNombreTarjeta;
@@ -107,8 +110,10 @@ public class Principal extends JFrame {
 	private JTextField txtCodigoTarjeta;
 	private int cardNumber = 0;
 	private Atleta atleta = null;
-	private DefaultListModel<Competicion> modelCompeticiones = new DefaultListModel<>();
-	private DefaultListModel<Inscripcion> modelInscripciones = new DefaultListModel<>();
+	private CustomTableModel modelCompeticiones = new CustomTableModel();
+	private List<Competicion> competiciones = new ArrayList<>();
+	private CustomTableModel modelInscripciones = new CustomTableModel();
+	private List<Inscripcion> inscripciones = new ArrayList<>();
 	private JPanel pnRegistro;
 	private JLabel lblRegistroNuevoAtleta;
 	private JPanel pnDatosRegistro;
@@ -123,20 +128,22 @@ public class Principal extends JFrame {
 	private JLabel lblEmailAtleta;
 	private JTextField txtEmailAtleta;
 	private JLabel lblSexo;
-	private JComboBox comboBoxSexo;
+	private JComboBox<String> comboBoxSexo;
 	private JLabel lblFechaNacimiento;
-	private JComboBox comboBoxDiaNacimiento;
-	private JComboBox comboBoxMesNacimiento;
-	private JComboBox comboBoxAñoNacimiento;
+	private JComboBox<String> comboBoxDiaNacimiento;
+	private JComboBox<String> comboBoxMesNacimiento;
+	private JComboBox<String> comboBoxAñoNacimiento;
 	private JPanel panelOrganizador;
 	private JPanel panelCompeticion;
 	private JLabel lblCompeticion;
 	private JTextField txtCompeticion;
 	private JButton btnListar;
 	private JPanel lowerPanel;
+	// -------------------------Miguel
 	private JScrollPane scCompeticiones;
 	private JList<AtletaInscripcion> list;
 	private DefaultListModel<AtletaInscripcion> modeloInscripciones = new DefaultListModel<>();
+	//---------------------------------
 	private JTextField txtCaducidad;
 	private JPanel pnOrganizador;
 	private JButton btnCrearCompeticion;
@@ -174,6 +181,11 @@ public class Principal extends JFrame {
 	private JButton buttonBorrarFilaCategoria;
 	private JScrollPane scrollPaneCategorias;
 	private JTable tableCategorias;
+	private JTable tableCompeticionesAtleta;
+	private JTable tableInscripcionesAtleta;
+	private JButton btnCancelar;
+	private JPanel pnInfoPagoInscripcion;
+	private JTextField txtInfoInscripcionPago;
 
 	/**
 	 * Launch the application.
@@ -200,7 +212,7 @@ public class Principal extends JFrame {
 		setBackground(Color.WHITE);
 		setTitle("Gestor Competiciones");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 666, 362);
+		setBounds(100, 100, 848, 443);
 		contentPane = new JPanel();
 		contentPane.setBackground(Color.WHITE);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -399,7 +411,7 @@ public class Principal extends JFrame {
 	private JLabel getLblMenuAtleta() {
 		if (lblMenuAtleta == null) {
 			lblMenuAtleta = new JLabel("Men\u00FA Atleta");
-			lblMenuAtleta.setHorizontalAlignment(SwingConstants.CENTER);
+			lblMenuAtleta.setHorizontalAlignment(SwingConstants.LEFT);
 			lblMenuAtleta.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		}
 		return lblMenuAtleta;
@@ -480,7 +492,7 @@ public class Principal extends JFrame {
 	private JScrollPane getScCompeticiones() {
 		if (scrollPaneCompeticiones == null) {
 			scrollPaneCompeticiones = new JScrollPane();
-			scrollPaneCompeticiones.setViewportView(getListCompeticiones());
+			scrollPaneCompeticiones.setViewportView(getTableCompeticionesAtleta());
 		}
 		return scrollPaneCompeticiones;
 	}
@@ -488,23 +500,9 @@ public class Principal extends JFrame {
 	private JScrollPane getScrollPaneInscripciones() {
 		if (scrollPaneInscripciones == null) {
 			scrollPaneInscripciones = new JScrollPane();
-			scrollPaneInscripciones.setViewportView(getListInscripciones());
+			scrollPaneInscripciones.setViewportView(getTableInscripcionesAtleta());
 		}
 		return scrollPaneInscripciones;
-	}
-
-	private JList<Competicion> getListCompeticiones() {
-		if (listCompeticiones == null) {
-			listCompeticiones = new JList<Competicion>(modelCompeticiones);
-		}
-		return listCompeticiones;
-	}
-
-	private JList<Inscripcion> getListInscripciones() {
-		if (listInscripciones == null) {
-			listInscripciones = new JList<Inscripcion>(modelInscripciones);
-		}
-		return listInscripciones;
 	}
 
 	private JPanel getPnBtnInscribirme() {
@@ -521,7 +519,8 @@ public class Principal extends JFrame {
 			btnInscribirme = new JButton("Inscribirme");
 			btnInscribirme.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					inscribirse(modelCompeticiones.get(listCompeticiones.getSelectedIndex()));
+					int row = tableCompeticionesAtleta.getSelectedRow();
+					inscribirse(competiciones.get(row));
 				}
 			});
 		}
@@ -552,6 +551,7 @@ public class Principal extends JFrame {
 			pnBtnPagarInscripcion = new JPanel();
 			pnBtnPagarInscripcion.setBackground(Color.WHITE);
 			pnBtnPagarInscripcion.add(getBtnPagar());
+			pnBtnPagarInscripcion.add(getBtnCancelar());
 		}
 		return pnBtnPagarInscripcion;
 	}
@@ -580,7 +580,7 @@ public class Principal extends JFrame {
 			int mes = Integer.parseInt(txtCaducidad.getText().split("/")[0]);
 			int año = Integer.parseInt(txtCaducidad.getText().split("/")[1]);
 			@SuppressWarnings("deprecation")
-			Date caducidad = new Date(año, mes, 1);
+			Date caducidad = new Date(100 + año, mes, 1);
 
 			if (txtNumeroTarjeta.getText().length() != 16) {
 				JOptionPane.showMessageDialog(this, "La longitud del número de la tarjeta no es correcta");
@@ -634,8 +634,8 @@ public class Principal extends JFrame {
 			pnMetodoPago = new JPanel();
 			pnMetodoPago.setBackground(Color.WHITE);
 			pnMetodoPago.setLayout(new BorderLayout(0, 0));
-			pnMetodoPago.add(getLblMetodosDePago(), BorderLayout.NORTH);
 			pnMetodoPago.add(getPnMetodosPago(), BorderLayout.CENTER);
+			pnMetodoPago.add(getPnInfoPagoInscripcion(), BorderLayout.NORTH);
 		}
 		return pnMetodoPago;
 	}
@@ -652,9 +652,10 @@ public class Principal extends JFrame {
 		if (pnMetodosPago == null) {
 			pnMetodosPago = new JPanel();
 			pnMetodosPago.setBackground(Color.WHITE);
-			pnMetodosPago.setLayout(new GridLayout(0, 2, 0, 0));
-			pnMetodosPago.add(getPnRadioButtonsPago());
+			pnMetodosPago.setLayout(new BorderLayout(0, 0));
+			pnMetodosPago.add(getPnRadioButtonsPago(), BorderLayout.WEST);
 			pnMetodosPago.add(getPnInfoPago());
+			pnMetodosPago.add(getLblMetodosDePago(), BorderLayout.NORTH);
 		}
 		return pnMetodosPago;
 	}
@@ -720,7 +721,7 @@ public class Principal extends JFrame {
 			pnInfoPago.setBackground(Color.WHITE);
 			pnInfoPago.setLayout(new BorderLayout(0, 0));
 			pnInfoPago.add(getLblMetodoDePago(), BorderLayout.NORTH);
-			pnInfoPago.add(getPanel(), BorderLayout.CENTER);
+			pnInfoPago.add(getPnPago(), BorderLayout.CENTER);
 		}
 		return pnInfoPago;
 	}
@@ -728,10 +729,14 @@ public class Principal extends JFrame {
 	private JButton getBtnPagarTarjeta() {
 		if (btnPagarTarjeta == null) {
 			btnPagarTarjeta = new JButton("Pagar con tarjeta");
+			btnPagarTarjeta.setBounds(103, 166, 196, 23);
 			btnPagarTarjeta.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 
-					pagar(modelInscripciones.get(listInscripciones.getSelectedIndex()));
+					Inscripcion ins = new Inscripcion();
+					int row = tableCompeticionesAtleta.getSelectedRow();
+					inscripciones.get(row);
+					pagar(ins);
 				}
 			});
 			btnPagarTarjeta.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -748,15 +753,15 @@ public class Principal extends JFrame {
 		return lblMetodoDePago;
 	}
 
-	private JPanel getPanel() {
-		if (panel == null) {
-			panel = new JPanel();
-			panel.setBackground(Color.WHITE);
-			panel.setLayout(new BorderLayout(0, 0));
-			panel.add(getTxtpnInformacinPago(), BorderLayout.NORTH);
-			panel.add(getPnTarjetaCredito(), BorderLayout.CENTER);
+	private JPanel getPnPago() {
+		if (pnPago == null) {
+			pnPago = new JPanel();
+			pnPago.setBackground(Color.WHITE);
+			pnPago.setLayout(new BorderLayout(0, 0));
+			pnPago.add(getTxtpnInformacinPago(), BorderLayout.NORTH);
+			pnPago.add(getPnTarjetaCredito());
 		}
-		return panel;
+		return pnPago;
 	}
 
 	private JTextPane getTxtpnInformacinPago() {
@@ -772,6 +777,7 @@ public class Principal extends JFrame {
 		if (pnTarjetaCredito == null) {
 			pnTarjetaCredito = new JPanel();
 			pnTarjetaCredito.setBackground(Color.WHITE);
+			pnTarjetaCredito.setLayout(null);
 			pnTarjetaCredito.add(getLblNombreTarjeta());
 			pnTarjetaCredito.add(getTxtNombreTarjeta());
 			pnTarjetaCredito.add(getLblNmero());
@@ -789,6 +795,7 @@ public class Principal extends JFrame {
 	private JLabel getLblNombreTarjeta() {
 		if (lblNombreTarjeta == null) {
 			lblNombreTarjeta = new JLabel("Nombre Tarjeta:");
+			lblNombreTarjeta.setBounds(36, 22, 101, 17);
 			lblNombreTarjeta.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return lblNombreTarjeta;
@@ -797,6 +804,7 @@ public class Principal extends JFrame {
 	private JTextField getTxtNombreTarjeta() {
 		if (txtNombreTarjeta == null) {
 			txtNombreTarjeta = new JTextField();
+			txtNombreTarjeta.setBounds(149, 19, 150, 23);
 			txtNombreTarjeta.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			txtNombreTarjeta.setColumns(10);
 		}
@@ -806,6 +814,7 @@ public class Principal extends JFrame {
 	private JLabel getLblNmero() {
 		if (lblNmero == null) {
 			lblNmero = new JLabel("N\u00FAmero Tarjeta:");
+			lblNmero.setBounds(36, 58, 101, 17);
 			lblNmero.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return lblNmero;
@@ -814,6 +823,7 @@ public class Principal extends JFrame {
 	private JTextField getTxtNumeroTarjeta() {
 		if (txtNumeroTarjeta == null) {
 			txtNumeroTarjeta = new JTextField();
+			txtNumeroTarjeta.setBounds(149, 55, 193, 23);
 			txtNumeroTarjeta.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			txtNumeroTarjeta.setColumns(10);
 		}
@@ -823,6 +833,7 @@ public class Principal extends JFrame {
 	private JLabel getLblFechaDeCaducidad() {
 		if (lblFechaDeCaducidad == null) {
 			lblFechaDeCaducidad = new JLabel("Caducidad (mm/aa):");
+			lblFechaDeCaducidad.setBounds(36, 94, 126, 17);
 			lblFechaDeCaducidad.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return lblFechaDeCaducidad;
@@ -831,6 +842,7 @@ public class Principal extends JFrame {
 	private JLabel getLblCdigoVerificacin() {
 		if (lblCdigoVerificacin == null) {
 			lblCdigoVerificacin = new JLabel("C\u00F3digo Verificaci\u00F3n:");
+			lblCdigoVerificacin.setBounds(36, 127, 119, 17);
 			lblCdigoVerificacin.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return lblCdigoVerificacin;
@@ -839,6 +851,7 @@ public class Principal extends JFrame {
 	private JTextField getTxtCodigoTarjeta() {
 		if (txtCodigoTarjeta == null) {
 			txtCodigoTarjeta = new JTextField();
+			txtCodigoTarjeta.setBounds(179, 124, 120, 23);
 			txtCodigoTarjeta.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			txtCodigoTarjeta.setColumns(10);
 		}
@@ -874,6 +887,7 @@ public class Principal extends JFrame {
 		loadCompeticiones();
 		loadInscripciones();
 		pnButtons.setVisible(true);
+		lblMenuAtleta.setText("Menu Atleta "+atleta.nombre+ " "+ atleta.apellidos);
 		cardNumber = 1;
 		((CardLayout) pnCards.getLayout()).show(pnCards, "atletamenu");
 	}
@@ -910,37 +924,47 @@ public class Principal extends JFrame {
 
 	private void loadCompeticiones() {
 
-		modelCompeticiones.removeAllElements();
+		modelCompeticiones.addColumn("Nombre");
+		modelCompeticiones.addColumn("Fecha");
+		modelCompeticiones.addColumn("Tipo");
+		modelCompeticiones.addColumn("Km");
+		modelCompeticiones.addColumn("Plazos");
+
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
-		List<Competicion> competiciones = null;
+		
 		try {
 			competiciones = listarCompeticiones.verCompeticiones(atleta.getEmail());
 			for (Competicion c : competiciones) {
-
-				modelCompeticiones.addElement(c);
+				modelCompeticiones.addRow(new Object[] {c.nombre,c.fecha,c.tipo,c.km,c.plazas});
 			}
-			listCompeticiones.repaint();
-			listCompeticiones.revalidate();
+
+			tableCompeticionesAtleta.getTableHeader().setReorderingAllowed(false);
+			scrollPaneCompeticiones.setViewportView(tableCompeticionesAtleta);
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
+
 	}
 
 	private void loadInscripciones() {
 
-		modelInscripciones.removeAllElements();
+		modelInscripciones.addColumn("Competicion");
+		modelInscripciones.addColumn("Fecha");
+		modelInscripciones.addColumn("Estado");
+
 		ListarInscripciones listarInscripciones = new ListarInscripciones();
-		List<Inscripcion> inscripciones = null;
+		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 		try {
-			inscripciones = listarInscripciones.findInscripcion(atleta.getEmail());
+			inscripciones = listarInscripciones.verInscripcionesAtleta(atleta.getId());
+			for (Inscripcion i : inscripciones) {
+				String nombre = listarCompeticiones.verCompeticionInscripcion(i);
+				modelInscripciones.addRow(new Object[] {nombre,i.fecha,i.estado});
+			}
 
-			inscripciones.forEach(i -> modelInscripciones.addElement(i));
-
-			listInscripciones.repaint();
-			listInscripciones.revalidate();
-
+			tableInscripcionesAtleta.getTableHeader().setReorderingAllowed(false);
+			scrollPaneInscripciones.setViewportView(tableInscripcionesAtleta);
 		} catch (DataException e) {
-			JOptionPane.showMessageDialog(this, "Error al ver las inscripciones del atleta");
+			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
 
 	}
@@ -952,6 +976,7 @@ public class Principal extends JFrame {
 	}
 
 	private void toPagoAtleta() {
+		lblMenAtletaPago.setText("Menu Atleta "+atleta.nombre+ " "+atleta.apellidos+ ": Pago Inscripcion");
 		cardNumber = 2;
 		((CardLayout) pnCards.getLayout()).show(pnCards, "pagoatleta");
 	}
@@ -1151,7 +1176,7 @@ public class Principal extends JFrame {
 
 	private JLabel getLblFechaNacimiento() {
 		if (lblFechaNacimiento == null) {
-			lblFechaNacimiento = new JLabel("Fecha nacimiento (dd/mm/aa):");
+			lblFechaNacimiento = new JLabel("Fecha nacimiento:");
 			lblFechaNacimiento.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			lblFechaNacimiento.setBounds(53, 122, 199, 16);
 		}
@@ -1252,7 +1277,7 @@ public class Principal extends JFrame {
 		try {
 			mostrarCompeticiones(txtCompeticion.getText());
 		} catch (DataException e) {
-			JOptionPane.showMessageDialog(this,"No se ha podido mostrar las competiciones");
+			JOptionPane.showMessageDialog(this, "No se ha podido mostrar las competiciones");
 		}
 	}
 
@@ -1283,7 +1308,7 @@ public class Principal extends JFrame {
 	private JScrollPane getScrollPaneCompeticiones() {
 		if (scrollPaneCompeticiones == null) {
 			scrollPaneCompeticiones = new JScrollPane();
-			scrollPaneCompeticiones.setViewportView(getListCompeticiones());
+			scrollPaneCompeticiones.setViewportView(getTableCompeticionesAtleta());
 		}
 		return scrollPaneCompeticiones;
 	}
@@ -1291,6 +1316,7 @@ public class Principal extends JFrame {
 	private JTextField getTxtCaducidad() {
 		if (txtCaducidad == null) {
 			txtCaducidad = new JTextField();
+			txtCaducidad.setBounds(174, 89, 125, 22);
 			txtCaducidad.setColumns(10);
 		}
 		return txtCaducidad;
@@ -1433,7 +1459,7 @@ public class Principal extends JFrame {
 			btnCrear = new JButton("Crear");
 			btnCrear.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
-					if(camposVacios())
+					if (camposVacios())
 						JOptionPane.showMessageDialog(getThis(), "Debes completar los campos de la competicion");
 					else
 						crearCompeticionNueva();
@@ -1449,24 +1475,24 @@ public class Principal extends JFrame {
 		try {
 			competicionNueva.nombre = txtNombreCompeticionNueva.getText();
 			competicionNueva.tipo = txtTipoCompeticionNueva.getText();
-			competicionNueva.km = ((Integer)spinnerPlazasCompeticionNueva.getValue());
-			competicionNueva.fecha = Dates.fromDdMmYyyy(Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[0])
-					, Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[1]),
+			competicionNueva.km = ((Integer) spinnerPlazasCompeticionNueva.getValue());
+			competicionNueva.fecha = Dates.fromDdMmYyyy(
+					Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[0]),
+					Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[1]),
 					Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[2].substring(2)));
 			nueva.crearCompeticion(competicionNueva);
-			
-			for(Plazo plazo : plazosNuevaCompeticion)
+
+			for (Plazo plazo : plazosNuevaCompeticion)
 				nueva.añadirPlazoCompeticion(competicionNueva.id, plazo);
-			
+
 		} catch (DataException e) {
-			JOptionPane.showMessageDialog(this,"Error al crear la competicion");
+			JOptionPane.showMessageDialog(this, "Error al crear la competicion");
 		}
 	}
 
 	protected boolean camposVacios() {
-		return txtNombreCompeticionNueva.getText().equals("") ||
-				 txtFechaCompeticionNueva.getText().equals("") ||
-				 txtTipoCompeticionNueva.getText().equals("");
+		return txtNombreCompeticionNueva.getText().equals("") || txtFechaCompeticionNueva.getText().equals("")
+				|| txtTipoCompeticionNueva.getText().equals("");
 	}
 
 	private JLabel getLblPlazas() {
@@ -1552,7 +1578,7 @@ public class Principal extends JFrame {
 		modelTablaPlazos.addColumn("Fecha inicio");
 		modelTablaPlazos.addColumn("Fecha fin");
 		modelTablaPlazos.addColumn("Cuota");
-		
+
 		for (Plazo p : plazosNuevaCompeticion) {
 			modelTablaPlazos
 					.addRow(new Object[] { Dates.toString(p.fechaInicio), Dates.toString(p.fechaFin), p.cuota });
@@ -1676,5 +1702,44 @@ public class Principal extends JFrame {
 			tableCategorias = new JTable();
 		}
 		return tableCategorias;
+	}
+
+	private JTable getTableCompeticionesAtleta() {
+		if (tableCompeticionesAtleta == null) {
+			tableCompeticionesAtleta = new JTable();
+			tableCompeticionesAtleta.setModel(modelCompeticiones);
+			tableCompeticionesAtleta.setRowSelectionAllowed(true);
+		}
+		return tableCompeticionesAtleta;
+	}
+
+	private JTable getTableInscripcionesAtleta() {
+		if (tableInscripcionesAtleta == null) {
+			tableInscripcionesAtleta = new JTable();
+			tableInscripcionesAtleta.setModel(modelInscripciones);
+			tableCompeticionesAtleta.setRowSelectionAllowed(true);
+		}
+		return tableInscripcionesAtleta;
+	}
+	private JButton getBtnCancelar() {
+		if (btnCancelar == null) {
+			btnCancelar = new JButton("Cancelar");
+		}
+		return btnCancelar;
+	}
+	private JPanel getPnInfoPagoInscripcion() {
+		if (pnInfoPagoInscripcion == null) {
+			pnInfoPagoInscripcion = new JPanel();
+			pnInfoPagoInscripcion.setLayout(new BorderLayout(0, 0));
+			pnInfoPagoInscripcion.add(getTxtInfoInscripcionPago(), BorderLayout.SOUTH);
+		}
+		return pnInfoPagoInscripcion;
+	}
+	private JTextField getTxtInfoInscripcionPago() {
+		if (txtInfoInscripcionPago == null) {
+			txtInfoInscripcionPago = new JTextField();
+			txtInfoInscripcionPago.setColumns(10);
+		}
+		return txtInfoInscripcionPago;
 	}
 }
