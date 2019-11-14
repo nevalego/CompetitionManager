@@ -1557,7 +1557,6 @@ public class Principal extends JFrame {
 			modelTablaPlazos
 					.addRow(new Object[] { Dates.toString(p.fechaInicio), Dates.toString(p.fechaFin), p.cuota });
 		}
-
 		tablePlazos.getTableHeader().setReorderingAllowed(false);
 		scrollPanePlazos.setViewportView(tablePlazos);
 
