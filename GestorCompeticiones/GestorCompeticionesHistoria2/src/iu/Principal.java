@@ -33,7 +33,10 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import logic.exception.DataException;
 import logic.inscripcion.HacerInscripcion;
@@ -169,6 +172,11 @@ public class Principal extends JFrame {
 	private JButton buttonNuevaFilaPlazo;
 	private JButton buttonBorrarFilaPlazo;
 	private JLabel lblCategorias;
+	private JPanel pnNuevaFilaCategorias;
+	private JButton buttonNuevaFilaCategoria;
+	private JButton buttonBorrarFilaCategoria;
+	private JScrollPane scrollPaneCategorias;
+	private JTable tableCategorias;
 
 	/**
 	 * Launch the application.
@@ -889,9 +897,9 @@ public class Principal extends JFrame {
 			plazo.fechaFin = Dates.addMonths(plazo.fechaInicio, 3);
 			plazo.cuota = 17;
 			plazosNuevaCompeticion.add(plazo);
-			
+
 			mostrarTablaPlazos();
-			
+
 			pnButtons.setVisible(true);
 			cardNumber = 5;
 			((CardLayout) pnCards.getLayout()).show(pnCards, "crearcompeticion");
@@ -1425,9 +1433,40 @@ public class Principal extends JFrame {
 	private JButton getBtnCrear() {
 		if (btnCrear == null) {
 			btnCrear = new JButton("Crear");
+			btnCrear.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					if(camposVacios())
+						JOptionPane.showMessageDialog(getThis(), "Debes completar los campos de la competicion");
+					else
+						crearCompeticionNueva();
+				}
+			});
 			btnCrear.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return btnCrear;
+	}
+
+	protected void crearCompeticionNueva() {
+		NuevaCompeticion nueva = new NuevaCompeticion();
+		try {
+			competicionNueva.nombre = txtNombreCompeticionNueva.getText();
+			competicionNueva.tipo = txtTipoCompeticionNueva.getText();
+			competicionNueva.km = ((Integer)spinnerPlazasCompeticionNueva.getValue());
+			competicionNueva.fecha = Dates.fromDdMmYyyy(Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[0])
+					, Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[1]),
+					Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[2].substring(2)));
+			nueva.crearCompeticion(competicionNueva);
+			nueva.añadirPlazosCompeticion(competicionNueva.id);
+			
+		} catch (DataException e) {
+			JOptionPane.showMessageDialog(this,"Error al crear la competicion");
+		}
+	}
+
+	protected boolean camposVacios() {
+		return txtNombreCompeticionNueva.getText().equals("") ||
+				 txtFechaCompeticionNueva.getText().equals("") ||
+				 txtTipoCompeticionNueva.getText().equals("");
 	}
 
 	private JLabel getLblPlazas() {
@@ -1510,19 +1549,18 @@ public class Principal extends JFrame {
 	}
 
 	private void mostrarTablaPlazos() {
-		modelTablaPlazos.addColumn("Fecha Inicio");
-		modelTablaPlazos.addColumn("Fecha Fin");
-		modelTablaPlazos.addColumn("Cuota(€)");
+		modelTablaPlazos.addColumn("Fecha inicio");
+		modelTablaPlazos.addColumn("Fecha fin");
+		modelTablaPlazos.addColumn("Cuota");
 		
-		for(Plazo p : plazosNuevaCompeticion) {
-			modelTablaPlazos.addRow( new Object[] {Dates.toString(p.fechaInicio)
-					,Dates.toString(p.fechaFin)
-					, p.cuota});
+		for (Plazo p : plazosNuevaCompeticion) {
+			modelTablaPlazos
+					.addRow(new Object[] { Dates.toString(p.fechaInicio), Dates.toString(p.fechaFin), p.cuota });
 		}
-		
+
 		tablePlazos.getTableHeader().setReorderingAllowed(false);
 		scrollPanePlazos.setViewportView(tablePlazos);
-		
+
 	}
 
 	private JPanel getPnCentralCompeticionNueva() {
@@ -1542,6 +1580,8 @@ public class Principal extends JFrame {
 			pnTablaCategorias.setBackground(Color.WHITE);
 			pnTablaCategorias.setLayout(new BorderLayout(0, 0));
 			pnTablaCategorias.add(getLblCategorias(), BorderLayout.NORTH);
+			pnTablaCategorias.add(getPnNuevaFilaCategorias(), BorderLayout.SOUTH);
+			pnTablaCategorias.add(getScrollPaneCategorias(), BorderLayout.CENTER);
 		}
 		return pnTablaCategorias;
 	}
@@ -1577,13 +1617,17 @@ public class Principal extends JFrame {
 	}
 
 	protected void nuevaFilaTablaPlazos() {
-		// TODO Auto-generated method stub
-		
+		modelTablaPlazos.addRow(new Object[] { "", "", });
 	}
 
 	private JButton getButtonBorrarFilaPlazo() {
 		if (buttonBorrarFilaPlazo == null) {
 			buttonBorrarFilaPlazo = new JButton("-");
+			buttonBorrarFilaPlazo.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					modelTablaPlazos.removeRow(tablePlazos.getSelectedRow());
+				}
+			});
 		}
 		return buttonBorrarFilaPlazo;
 	}
@@ -1594,5 +1638,44 @@ public class Principal extends JFrame {
 			lblCategorias.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return lblCategorias;
+	}
+
+	private JPanel getPnNuevaFilaCategorias() {
+		if (pnNuevaFilaCategorias == null) {
+			pnNuevaFilaCategorias = new JPanel();
+			pnNuevaFilaCategorias.setBackground(Color.WHITE);
+			pnNuevaFilaCategorias.add(getButtonNuevaFilaCategoria());
+			pnNuevaFilaCategorias.add(getButtonBorrarFilaCategoria());
+		}
+		return pnNuevaFilaCategorias;
+	}
+
+	private JButton getButtonNuevaFilaCategoria() {
+		if (buttonNuevaFilaCategoria == null) {
+			buttonNuevaFilaCategoria = new JButton("+");
+		}
+		return buttonNuevaFilaCategoria;
+	}
+
+	private JButton getButtonBorrarFilaCategoria() {
+		if (buttonBorrarFilaCategoria == null) {
+			buttonBorrarFilaCategoria = new JButton("-");
+		}
+		return buttonBorrarFilaCategoria;
+	}
+
+	private JScrollPane getScrollPaneCategorias() {
+		if (scrollPaneCategorias == null) {
+			scrollPaneCategorias = new JScrollPane();
+			scrollPaneCategorias.setViewportView(getTableCategorias());
+		}
+		return scrollPaneCategorias;
+	}
+
+	private JTable getTableCategorias() {
+		if (tableCategorias == null) {
+			tableCategorias = new JTable();
+		}
+		return tableCategorias;
 	}
 }
