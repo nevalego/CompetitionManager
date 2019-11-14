@@ -33,10 +33,7 @@ import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
 
 import logic.exception.DataException;
 import logic.inscripcion.HacerInscripcion;
@@ -582,6 +579,7 @@ public class Principal extends JFrame {
 
 			int mes = Integer.parseInt(txtCaducidad.getText().split("/")[0]);
 			int año = Integer.parseInt(txtCaducidad.getText().split("/")[1]);
+			@SuppressWarnings("deprecation")
 			Date caducidad = new Date(año, mes, 1);
 
 			if (txtNumeroTarjeta.getText().length() != 16) {
@@ -1254,12 +1252,12 @@ public class Principal extends JFrame {
 		try {
 			mostrarCompeticiones(txtCompeticion.getText());
 		} catch (DataException e) {
-			// algo se har� aqu�?
+			JOptionPane.showMessageDialog(this,"No se ha podido mostrar las competiciones");
 		}
 	}
 
 	private void mostrarCompeticiones(String id) throws DataException {
-		// Nuevo tipo creado, revisadlo
+		// TODO Nuevo tipo creado, revisadlo
 
 		ListarInscripciones inscripciones = new ListarInscripciones();
 		List<AtletaInscripcion> inscr = inscripciones.verAtletasEInscripciones(id);
@@ -1456,7 +1454,9 @@ public class Principal extends JFrame {
 					, Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[1]),
 					Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[2].substring(2)));
 			nueva.crearCompeticion(competicionNueva);
-			nueva.añadirPlazosCompeticion(competicionNueva.id);
+			
+			for(Plazo plazo : plazosNuevaCompeticion)
+				nueva.añadirPlazoCompeticion(competicionNueva.id, plazo);
 			
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this,"Error al crear la competicion");

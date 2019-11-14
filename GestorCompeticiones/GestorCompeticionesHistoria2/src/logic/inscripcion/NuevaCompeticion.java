@@ -4,9 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import logic.exception.DataException;
 import logic.model.Competicion;
+import logic.model.Plazo;
 import util.Conf;
 import util.Jdbc;
 
@@ -45,8 +47,18 @@ public class NuevaCompeticion {
 		}
 	}
 
-	public void añadirPlazosCompeticion(Long id) {
-		// TODO Auto-generated method stub
-		
+	public void añadirPlazoCompeticion(Long competicionId, Plazo plazo) throws DataException {
+		PreparedStatement ps = null;
+
+		try (Connection c = Jdbc.getConnection()) {
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_AÑADIR_PLAZO"));
+			ps.setDate(2, new java.sql.Date(plazo.fechaInicio.getTime()));
+			ps.setDate(3, new java.sql.Date(plazo.fechaFin.getTime()));
+			ps.setDouble(4,plazo.cuota);
+			ps.setLong(5, competicionId);
+			ps.executeUpdate();
+		} catch (SQLException e) {
+			throw new DataException("Fallo en la conexion");
+		}
 	}
 }
