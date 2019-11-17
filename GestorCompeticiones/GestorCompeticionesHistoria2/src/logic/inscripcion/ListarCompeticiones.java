@@ -10,6 +10,7 @@ import java.util.List;
 
 import logic.exception.DataException;
 import logic.model.Competicion;
+import logic.model.Inscripcion;
 import util.Conf;
 import util.Dates;
 import util.Jdbc;
@@ -55,6 +56,26 @@ public class ListarCompeticiones {
 			throw new DataException("Fallo en la conexion");
 		}
 		return competiciones;
+	}
+	
+	public String verCompeticionInscripcion(Inscripcion ins) throws DataException {
+
+		ResultSet rs = null;
+		String name="";
+		PreparedStatement ps = null;
+		try (Connection c = Jdbc.getConnection()){
+		
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_GET_NAME_LISTAR"));
+			ps.setLong(1, ins.competicionId);
+			rs = ps.executeQuery();
+
+			if (rs.next()) {
+				name = rs.getString("nombre");
+			}
+		} catch (SQLException e) {
+			throw new DataException("Fallo en la conexion");
+		}
+		return name;
 	}
 
 }
