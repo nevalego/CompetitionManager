@@ -72,8 +72,8 @@ public class VerResultados {
 					Conf.getInstance().getProperty("SQL_GET_SEXO_FROM_EMAIL"));
 			ps.setString(1, r.getNombreCompetidor());
 			rs = ps.executeQuery();
-			rs.next();
-			r.setSexo(rs.getString("SEXO"));
+			if(rs.next())
+				r.setSexo(rs.getString("SEXO"));
 		} catch (SQLException e) {
 			e.printStackTrace();
 
@@ -93,8 +93,8 @@ public class VerResultados {
 					Conf.getInstance().getProperty("SQL_GET_NOMBRE_FROM_EMAIL"));
 			ps.setString(1, r.getNombreCompetidor());
 			rs = ps.executeQuery();
-			rs.next();
-			r.setNombreCompetidor(rs.getString("NOMBRE") + " " + rs.getString("APELLIDOS"));
+			if(rs.next())
+				r.setNombreCompetidor(rs.getString("NOMBRE") + " " + rs.getString("APELLIDOS"));
 		} catch (SQLException e) {
 			e.printStackTrace();
 
