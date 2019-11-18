@@ -44,7 +44,7 @@ public class VerResultados {
 		resultadosHombre = resultadosAbsolutos.stream()
 				.filter(s -> s.getSexo() == "Masculino")
 				.collect(Collectors.toList());
-		// uploadResults();
+		//uploadResults();
 	}
 
 	public List<Resultados> getResultadosAbsolutos() {
@@ -139,18 +139,15 @@ public class VerResultados {
 		PreparedStatement ps3 = null;
 		ResultSet rs3 = null;
 		try (Connection c = Jdbc.getConnection()) {
-			ps2 = c.prepareStatement(
-					Conf.getInstance().getProperty("SQL_GET_ID_FROM_NAME"));
+			ps2 = getConsulta(c,"SQL_GET_ID_FROM_NAME");
 			rs2 = ps2.executeQuery();
 			rs2.next();
 			int cid = rs2.getInt("ID");
-			ps = c.prepareStatement(
-					Conf.getInstance().getProperty("SQL_GET_TIEMPOS"));
+			ps = getConsulta(c,"SQL_GET_TIEMPOS");
 			ps.setInt(1,cid);
 			rs = ps.executeQuery();
 			while(rs.next()) {
-				ps3 = c.prepareStatement(
-						Conf.getInstance().getProperty("SQL_GET_EMAIL_FROM_ID"));
+				ps3 =getConsulta(c,"SQL_GET_EMAIL_FROM_ID");
 				ps3.setInt(1,rs.getInt("ATLETA_ID"));
 				rs3 = ps3.executeQuery();
 				rs.next();
@@ -188,8 +185,37 @@ public class VerResultados {
 		List<Resultados> prov = resultadosAbsolutos;
 		for(int i =0;i<prov.size();i++) {
 			Resultados rmin = Collections.min(prov,new ComparaResultados());
+			System.out.println("RMIN = " +rmin);
 			rmin.setPosicion(i+1);
 			prov.remove(rmin);
 		}
+	}
+	
+	private PreparedStatement getConsulta(Connection c, String consultaName) throws SQLException {
+		return c.prepareStatement(
+				Conf.getInstance().getProperty(consultaName));
+	}
+	
+	public List<Resultados> generateResultByCategory(String categoria) {
+		List<Resultados> r = new ArrayList<Resultados>();
+		PreparedStatement ps = null;
+		PreparedStatement ps2 = null;
+		ResultSet rs = null;
+		ResultSet rs2 = null;
+		try (Connection c = Jdbc.getConnection()) {
+			ps = getConsulta(c,"SQL_GET_ATLETAS_BY_COMPETITION");
+			ps2 = getConsulta(c,"SQL_GET_RESULT_BY_CATEGRY");
+			rs2 = ps2.executeQuery();
+			while(rs.next()) {
+				Resultados res = new Resultados();
+				res.setNombreCompetidor(rs.getString("DORSAL"));
+				res.setTiempo(rs.getString("TIEMPO"));
+				r.add(res);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		//asignarPosiciones(res);
+		return r;
 	}
 }

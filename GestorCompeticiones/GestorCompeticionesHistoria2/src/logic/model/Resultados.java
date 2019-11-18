@@ -36,4 +36,5 @@ public class Resultados {
 				+ tiempo + ", sexo=" + sexo + ", posicion=" + posicion + "]";
 	}
 
+
 }
