@@ -345,7 +345,7 @@ public class Principal extends JFrame {
 			else
 				toAtletaMenu();
 		} catch (DataException e) {
-			JOptionPane.showMessageDialog(this, "Error en inicio de sesi�n");
+			JOptionPane.showMessageDialog(this, "Error en inicio de sesion");
 		}
 	}
 
@@ -602,7 +602,7 @@ public class Principal extends JFrame {
 				} else {
 					Plazo plazo = pago.obtenerPlazo(ins);
 					ins.cantidad = plazo.cuota;
-					pago.pagarInscripcion(ins, ins.cantidad, ins.fechaPago);
+					pago.pagarInscripcion(ins, ins.cantidad,ins.medioPago, ins.fechaPago);
 				}
 			}
 		} catch (DataException e) {
