@@ -85,8 +85,12 @@ INSERT INTO PLAZO (ID, FECHAINICIO, FECHAFIN, CUOTA, COMPETICION_ID) VALUES
 (1, '2019-07-01', '2019-10-01', 15, 1);
 INSERT INTO PLAZO (ID, FECHAINICIO, FECHAFIN, CUOTA, COMPETICION_ID) VALUES
 (2, '2019-10-02', '2019-12-26', 19, 1);
-
-
+insert into plazo (id, competicion_id, fechainicio, fechafin, cuota) values
+(3, 2, '2019-09-11', '2019-12-28', 15);
+insert into plazo (id, competicion_id, fechainicio, fechafin, cuota) values
+(4, 3, '2019-10-11', '2020-01-08', 21);
+insert into plazo (id, competicion_id, fechainicio, fechafin, cuota) values
+(5, 4, '2019-06-01', '2019-11-17', 19);
 
  
 

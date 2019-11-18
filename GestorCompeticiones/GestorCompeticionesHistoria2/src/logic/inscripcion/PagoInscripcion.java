@@ -45,7 +45,7 @@ public class PagoInscripcion {
 		PreparedStatement ps = null;
 		Inscripcion ins = null;
 		try(Connection c = Jdbc.getConnection()){
-			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_INSCRIPCION_ATLETA_COMPETICION"));
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_INSCRIPCION_ATLETA"));
 			ps.setLong(1, atletaId);
 			ps.setLong(2,competicionId);
 			ResultSet rs = ps.executeQuery();
