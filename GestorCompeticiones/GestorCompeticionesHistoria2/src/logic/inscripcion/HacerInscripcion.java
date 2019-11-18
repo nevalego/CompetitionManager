@@ -46,12 +46,13 @@ public class HacerInscripcion {
 						s.setLong(1, atletaId);
 						s.setLong(2, id);
 						// TO DO Miguel
-						//s.setString(3, calcularCategoria(id, new java.sql.Date(System.currentTimeMillis())));
+						// s.setString(3, calcularCategoria(id, new
+						// java.sql.Date(System.currentTimeMillis())));
 						s.setLong(3, 1); // Provisional
-						s.setDate(4,new java.sql.Date(Dates.now().getTime()));
+						s.setDate(4, new java.sql.Date(Dates.now().getTime()));
 						s.setString(5, "PENDIENTE DE PAGO");
 						s.executeUpdate();
-						
+
 					} else {
 						throw new DataException("Plazas Acabadas");
 					}
@@ -65,8 +66,7 @@ public class HacerInscripcion {
 			throw new DataException("Fallo en la conexion");
 		}
 	}
-	
-	
+
 	/**
 	 * Metodo que comprueba si el atleta esta ya inscrito o no
 	 * 
@@ -88,9 +88,9 @@ public class HacerInscripcion {
 			s.setLong(1, atletaId);
 			s.setLong(2, competicionId);
 			ResultSet rs = s.executeQuery();
-			if( rs.next())
+			if (rs.next())
 				return false;
-			
+
 		} catch (SQLException e) {
 			throw new DataException("Problema con la conexion");
 		}
@@ -102,19 +102,19 @@ public class HacerInscripcion {
 		// categor�as
 		return calculoCategoria(atletaId);
 	}
-	
+
 	private int getUltimaCompeticion() {
 		Statement s2;
 		try {
 			s2 = c.createStatement();
-			ResultSet rs = s2.executeQuery("SELECT MAX(ID) FROM INSCRIPCION"); 
+			ResultSet rs = s2.executeQuery("SELECT MAX(ID) FROM INSCRIPCION");
 			rs.next();
 			return rs.getInt(1);
 		} catch (SQLException e) {
 			System.out.println("FALLO EN OBTENCION DEL ID");
-		} 
+		}
 		return -1;
-		
+
 	}
 
 	private String calculoCategoria(long atletaId) throws DataException {
@@ -176,10 +176,11 @@ public class HacerInscripcion {
 				atleta.sexo = rs.getString("sexo");
 				atleta.fechaNacimiento = rs.getDate("fechanacimiento");
 			}
+			return atleta;
 		} catch (SQLException e) {
 			throw new DataException("Error en la conexi�n");
 		}
-		return atleta;
+
 	}
 
 	private String calcularCategoria(Long id, Date date) throws DataException {
@@ -199,7 +200,6 @@ public class HacerInscripcion {
 		throw new DataException("Age " + age + " is not valid for this competition");
 	}
 
-	
 	public Atleta getAtleta(long atletaId) {
 		PreparedStatement ps;
 		Atleta result = null;
@@ -272,7 +272,7 @@ public class HacerInscripcion {
 			s.execute();
 		} catch (SQLException e) {
 			return false;
-		} 
+		}
 		return true;
 	}
 
@@ -306,12 +306,11 @@ public class HacerInscripcion {
 		return true;
 	}
 
-
 	/**
 	 * Metodo PROVISIONAL que comprueba las plazas de la tabla
 	 * 
 	 * @param idtabla, el id de la competicion para ver si hay plazas. DUDA: �EL
-	 *                 NUMERO DE PLAZAS ESTA EN COMPETICION?
+	 *        NUMERO DE PLAZAS ESTA EN COMPETICION?
 	 * @return true si se puede proceder false si no
 	 * @throws SQLException
 	 */
@@ -323,7 +322,7 @@ public class HacerInscripcion {
 			ps = c.prepareStatement(query);
 			ps.setLong(1, id);
 			ResultSet rs = ps.executeQuery();
-			if(rs.next())
+			if (rs.next())
 				plazasOcupadas = rs.getInt(1);
 		} catch (SQLException e) {
 			throw new DataException("Error en la conexi�n");
@@ -336,9 +335,9 @@ public class HacerInscripcion {
 			ps2 = c.prepareStatement(getTotalPlazas);
 			ps2.setLong(1, id);
 			ResultSet rs2 = ps2.executeQuery();
-			int plazasTotales =0;
-			
-			if(rs2.next())
+			int plazasTotales = 0;
+
+			if (rs2.next())
 				plazasTotales = rs2.getInt(1);
 
 			if (plazasOcupadas == plazasTotales) {

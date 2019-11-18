@@ -45,7 +45,7 @@ public class PagoInscripcion {
 		PreparedStatement ps = null;
 		Inscripcion ins = null;
 		try(Connection c = Jdbc.getConnection()){
-			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_INSCRIPCION_ATLETA_COMPETICION"));
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_INSCRIPCION_ATLETA"));
 			ps.setLong(1, atletaId);
 			ps.setLong(2,competicionId);
 			ResultSet rs = ps.executeQuery();
@@ -66,24 +66,26 @@ public class PagoInscripcion {
 			}
 			return ins;
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexi�n");
+			throw new DataException("Error en la conexion");
 		}
 	}
 
-	public void pagarInscripcion(Inscripcion inscripcion, double cantidad, Date fecha) throws DataException {
+	public void pagarInscripcion(Inscripcion inscripcion, double cantidad,String medioPago, Date fecha) throws DataException {
 		PreparedStatement ps = null;
 		try (Connection c = Jdbc.getConnection()){
 			
 			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_PAGAR_INSCRIPCION"));
 			ps.setString(1, "ABONADA");
 			ps.setDouble(2, cantidad);
-			ps.setDate(3, new java.sql.Date(fecha.getTime()));
-			ps.setDate(4, new java.sql.Date(Dates.now().getTime()));// Ultima modificacion estado 
-			ps.setLong(5, inscripcion.id);
+			System.out.println(new java.sql.Date(fecha.getTime()));
+			ps.setDate(3, new java.sql.Date(fecha.getTime())); // Fecha pago
+			ps.setString(4, medioPago);
+			ps.setDate(5, new java.sql.Date(fecha.getTime()));// Ultima modificacion estado 
+			ps.setLong(6, inscripcion.id);
 			ps.executeUpdate();
 			
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexi�n");
+			throw new DataException("Error en la conexion");
 		}
 	}
 
