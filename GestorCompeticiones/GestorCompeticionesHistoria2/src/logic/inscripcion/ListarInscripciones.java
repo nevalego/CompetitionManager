@@ -42,7 +42,7 @@ public class ListarInscripciones {
 				ins.competicionId = rs.getLong("competicion_id");
 				ins.medioPago = rs.getString("mediopago");
 				ins.fechaPago = rs.getDate("fechapago");
-				ins.cantidad = rs.getDouble("cantidad");
+				ins.cantidad = rs.getInt("cantidad");
 				inscripciones.add(ins);
 			}
 		} catch (SQLException e) {
@@ -75,7 +75,7 @@ public class ListarInscripciones {
 				ins.competicionId = rs.getLong("competicion_id");
 				ins.medioPago = rs.getString("mediopago");
 				ins.fechaPago = rs.getDate("fechapago");
-				ins.cantidad = rs.getDouble("cantidad");
+				ins.cantidad = rs.getInt("cantidad");
 				inscripciones.add(ins);
 			}
 		} catch (SQLException e) {

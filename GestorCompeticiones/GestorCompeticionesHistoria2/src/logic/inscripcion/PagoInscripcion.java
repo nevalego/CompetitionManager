@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
 
 import logic.exception.DataException;
 import logic.model.Competicion;
@@ -62,7 +61,7 @@ public class PagoInscripcion {
 				ins.competicionId = rs.getLong("competicion_id");
 				ins.medioPago = rs.getString("mediopago");
 				ins.fechaPago = rs.getDate("fechapago");
-				ins.cantidad = rs.getDouble("cantidad");
+				ins.cantidad = rs.getInt("cantidad");
 			}
 			return ins;
 		} catch (SQLException e) {
@@ -70,19 +69,19 @@ public class PagoInscripcion {
 		}
 	}
 
-	public void pagarInscripcion(Inscripcion inscripcion, double cantidad,String medioPago, Date fecha) throws DataException {
+	public void pagarInscripcion(Inscripcion inscripcion) throws DataException {
 		PreparedStatement ps = null;
 		try (Connection c = Jdbc.getConnection()){
 			
 			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_PAGAR_INSCRIPCION"));
 			ps.setString(1, "ABONADA");
-			ps.setDouble(2, cantidad);
-			System.out.println(new java.sql.Date(fecha.getTime()));
-			ps.setDate(3, new java.sql.Date(fecha.getTime())); // Fecha pago
-			ps.setString(4, medioPago);
-			ps.setDate(5, new java.sql.Date(fecha.getTime()));// Ultima modificacion estado 
+			ps.setInt(2, inscripcion.cantidad);
+			ps.setDate(3,  new java.sql.Date(inscripcion.fechaPago.getTime())); // Fecha pago
+			ps.setDate(4,  new java.sql.Date(inscripcion.fechaPago.getTime()));
+			ps.setString(5, inscripcion.medioPago);
 			ps.setLong(6, inscripcion.id);
-			ps.executeUpdate();
+			
+			ps.execute();
 			
 		} catch (SQLException e) {
 			throw new DataException("Error en la conexion");

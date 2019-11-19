@@ -1,6 +1,0 @@
-/*C1*/SET SCHEMA SYSTEM_LOBS
-INSERT INTO BLOCKS VALUES(0,2147483647,0)
-COMMIT
-/*C2*/SET SCHEMA PUBLIC
-create table competicion\u000a(\u000aid int not null,\u000anombre varchar(20),\u000atipo varchar(20),\u000akm int,\u000acuota double,\u000afecha date,\u000aplazas int,\u000ainicioinscripcion date,\u000afininscripcion date,\u000aprimary key(id)\u000a)
-DISCONNECT

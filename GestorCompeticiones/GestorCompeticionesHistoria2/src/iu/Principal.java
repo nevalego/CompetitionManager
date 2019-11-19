@@ -577,14 +577,18 @@ public class Principal extends JFrame {
 
 		PagoInscripcion pago = new PagoInscripcion();
 		Inscripcion ins = null;
-
+		Date plazoMaxPago = null;
 		try {
 			ins = pago.obtenerInscripcion(atleta.getId(), inscripcion.getId());
 			ins.fechaPago = Dates.now();
 			ins.medioPago = "Tarjeta";
-			Date plazoMaxPago = Dates.addDays(ins.fecha, 2);// 48 h tras
+			plazoMaxPago = Dates.addDays(ins.fecha, 2);// 48 h tras
 															// la
 															// inscripcion
+			
+		} catch (DataException e) {
+			JOptionPane.showMessageDialog(this, "Error al obtener inscripcion");
+		}
 			// Fecha Caducidad
 			int dia = (Integer) comboBoxDiaCaducidad.getSelectedItem();
 			int mes = (Integer) comboBoxMesCaducidad.getSelectedItem();
@@ -600,14 +604,23 @@ public class Principal extends JFrame {
 				if (ins.fechaPago.after(plazoMaxPago)) {
 					JOptionPane.showMessageDialog(this, "La fecha de pago se encuentra fuera del periodo de pago");
 				} else {
-					Plazo plazo = pago.obtenerPlazo(ins);
-					ins.cantidad = plazo.cuota;
-					pago.pagarInscripcion(ins, ins.cantidad,ins.medioPago, ins.fechaPago);
+					Plazo plazo= null;
+					try {
+						plazo = pago.obtenerPlazo(ins);
+					} catch (DataException e) {
+						JOptionPane.showMessageDialog(this, "Error al obtener plazo");
+					}
+					ins.cantidad = (int) plazo.cuota;
+					ins.fechaPago = Dates.now();
+					ins.fechaModificacion = Dates.now();
+					try {
+						pago.pagarInscripcion(ins);// TODO Preguntar a claudio
+					} catch (DataException e) {
+						JOptionPane.showMessageDialog(this, "Error al pagar inscripcion");
+					}
 				}
 			}
-		} catch (DataException e) {
-			JOptionPane.showMessageDialog(this, e.getMessage());
-		}
+		
 	}
 
 
@@ -963,11 +976,11 @@ public class Principal extends JFrame {
 	}
 
 	private void loadInscripciones() {
-
+		
 		modelInscripciones.addColumn("Competicion");
 		modelInscripciones.addColumn("Fecha");
 		modelInscripciones.addColumn("Estado");
-
+		//modelInscripciones.removeAllElements();
 		ListarInscripciones listarInscripciones = new ListarInscripciones();
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 		try {
@@ -1468,6 +1481,10 @@ public class Principal extends JFrame {
 	}
 
 	protected void crearCompeticionNueva() {
+		
+		// TODO guardar plazos y comprobar que estan bien
+		
+		
 		NuevaCompeticion nueva = new NuevaCompeticion();
 		try {
 			competicionNueva.nombre = txtNombreCompeticionNueva.getText();
