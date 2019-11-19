@@ -77,14 +77,14 @@ public class PagoInscripcion {
 			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_PAGAR_INSCRIPCION"));
 			ps.setString(1, "ABONADA");
 			ps.setDouble(2, cantidad);
-			System.out.println(new java.sql.Date(fecha.getTime()));
-			ps.setDate(3, new java.sql.Date(fecha.getTime())); // Fecha pago
+			ps.setDate(3,new java.sql.Date(fecha.getTime())); // Fecha pago
 			ps.setString(4, medioPago);
 			ps.setDate(5, new java.sql.Date(fecha.getTime()));// Ultima modificacion estado 
 			ps.setLong(6, inscripcion.id);
 			ps.executeUpdate();
 			
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new DataException("Error en la conexion");
 		}
 	}
