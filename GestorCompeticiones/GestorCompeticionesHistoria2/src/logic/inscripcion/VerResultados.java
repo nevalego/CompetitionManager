@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,7 +31,7 @@ public class VerResultados {
 			asignaSexos();
 			asignaNombre();
 			// Collections.sort(resultadosAbsolutos); -> DA ERROR????
-			//ponerPosicion(); NO FUNCIONA BIEN
+			ponerPosicion(); 
 			resultadosAbsolutos.forEach(r -> System.out.println(r));
 		} catch (DataException e) {
 			System.out.println(e.getMessage());
@@ -44,7 +45,7 @@ public class VerResultados {
 		resultadosHombre = resultadosAbsolutos.stream()
 				.filter(s -> s.getSexo() == "Masculino")
 				.collect(Collectors.toList());
-		//uploadResults();
+		uploadResults();
 	}
 
 	public List<Resultados> getResultadosAbsolutos() {
@@ -118,13 +119,15 @@ public class VerResultados {
 					Conf.getInstance().getProperty("SQL_GET_ID_FROM_EMAIL"));
 			ps2.setString(1, r.getNombreCompetidor());
 			rs2 = ps2.executeQuery();
-			rs2.next();
-			int id = rs2.getInt("ID");
+			int id = 0;
+			if(rs2.next())
+				rs2.getInt("ID");
 			ps = c.prepareStatement(
 					Conf.getInstance().getProperty("SQL_UPDATE_RESULT"));
 			ps.setString(1, r.getTiempo());
+			//ps.setInt(2,r.getPosicion());
 			ps.setInt(2,id);
-			ps.executeQuery();
+			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -169,25 +172,24 @@ public class VerResultados {
 
 		@Override
 		public int compare(Resultados o1, Resultados o2) {
-			String[] t1 = o1.getTiempo().split(":");
-			String[] t2 = o2.getTiempo().split(":");
-
-			return (Integer.parseInt(t1[0]) * 3600
-					+ Integer.parseInt(t1[1]) * 60 + Integer.parseInt(t1[2]))
-					- (Integer.parseInt(t2[0]) * 3600
-							+ Integer.parseInt(t2[1]) * 60
-							+ Integer.parseInt(t2[2]));
+			if(o1.getTiempo().equals("DNS") || o1.getTiempo().equals("DNE"))
+				return -2;
+			if(o2.getTiempo().equals("DNS") || o2.getTiempo().equals("DNE"))
+				return -2;
+			LocalTime l1 = LocalTime.parse(o1.getTiempo());
+			LocalTime l2 = LocalTime.parse(o2.getTiempo());
+			
+			if(l1.isAfter(l2)) return 1;
+			else if (l1.isBefore(l2)) return -1;
+			return 0;
 		}
 
 	}
 
 	private void ponerPosicion() {
-		List<Resultados> prov = resultadosAbsolutos;
-		for(int i =0;i<prov.size();i++) {
-			Resultados rmin = Collections.min(prov,new ComparaResultados());
-			System.out.println("RMIN = " +rmin);
-			rmin.setPosicion(i+1);
-			prov.remove(rmin);
+		Collections.sort(resultadosAbsolutos,new ComparaResultados());
+		for(int i =0;i<resultadosAbsolutos.size();i++) {
+			resultadosAbsolutos.get(i).setPosicion(i+1);
 		}
 	}
 	
