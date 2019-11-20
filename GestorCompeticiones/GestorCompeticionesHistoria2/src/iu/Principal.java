@@ -523,9 +523,10 @@ public class Principal extends JFrame {
 			btnInscribirme.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					int row = tableCompeticionesAtleta.getSelectedRow();
-					if( row != -1) {
-					inscribirse(competiciones.get(row));
-					}else JOptionPane.showMessageDialog(getThis(), "No has seleccionado la competicion");
+					if (row != -1) {
+						inscribirse(competiciones.get(row));
+					} else
+						JOptionPane.showMessageDialog(getThis(), "No has seleccionado la competicion");
 				}
 			});
 		}
@@ -588,49 +589,53 @@ public class Principal extends JFrame {
 			ins.fechaPago = Dates.now();
 			ins.medioPago = "Tarjeta";
 			plazoMaxPago = Dates.addDays(ins.fecha, 2);// 48 h tras
-															// la
-															// inscripcion
-			
+														// la
+														// inscripcion
+
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this, "Error al obtener inscripcion");
 		}
-			// Fecha Caducidad
-			int dia = (Integer) comboBoxDiaCaducidad.getSelectedItem();
-			int mes = (Integer) comboBoxMesCaducidad.getSelectedItem();
-			int anio = (Integer) comboBoxAnioCaducidad.getSelectedItem();
-			Date caducidad = new Date(anio-1900, mes-1, dia);
+		// Fecha Caducidad
+		int dia = (Integer) comboBoxDiaCaducidad.getSelectedItem();
+		int mes = (Integer) comboBoxMesCaducidad.getSelectedItem();
+		int anio = (Integer) comboBoxAnioCaducidad.getSelectedItem();
+		Date caducidad = new Date(anio - 1900, mes - 1, dia);
 
-			if (txtNumeroTarjeta.getText().length() != 16)
-				JOptionPane.showMessageDialog(this, "La longitud del número de la tarjeta no es correcta");
-			else if (Dates.isAfter(Dates.now(), caducidad))
-				JOptionPane.showMessageDialog(this, "La tarjeta ha sobrepasado su fecha de expiración");
-			else {
+		if (txtNumeroTarjeta.getText().length() != 16)
+			JOptionPane.showMessageDialog(this,
+					"La longitud del número de la tarjeta " + txtNumeroTarjeta.getText().length() + " no es correcta. Dede ser 16");
+		else if (Dates.isAfter(Dates.now(), caducidad))
+			JOptionPane.showMessageDialog(this, "La tarjeta ha sobrepasado su fecha de expiración");
+		else {
 
-				if (ins.fechaPago.after(plazoMaxPago)) {
-					JOptionPane.showMessageDialog(this, "La fecha de pago se encuentra fuera del periodo de pago");
-				} else {
-					Plazo plazo= null;
-					try {
-						plazo = pago.obtenerPlazo(ins);
-					} catch (DataException e) {
-						JOptionPane.showMessageDialog(this, "Error al obtener plazo");
-					}
+			if (ins.fechaPago.after(plazoMaxPago)) {
+				JOptionPane.showMessageDialog(this, "La fecha de pago se encuentra fuera del periodo de pago");
+			} else {
+				Plazo plazo = null;
+				try {
+					plazo = pago.obtenerPlazo(ins);
+
 					ins.cantidad = (int) plazo.cuota;
 					ins.fechaPago = Dates.now();
 					ins.fechaModificacion = Dates.now();
-					try {
-						pago.pagarInscripcion(ins);
-						JOptionPane.showMessageDialog(this, "Su pago se realizado con exito. Generando justificante ...");
-						pago.generarJustificante(ins);
-						toAtletaMenu();
-					} catch (DataException e) {
-						JOptionPane.showMessageDialog(this, "Error al pagar inscripcion");
-					}
+					ListarCompeticiones verNombre = new ListarCompeticiones();
+					ins.nombreCompeticion = verNombre.verCompeticionInscripcion(ins);
+					ins.nombreAtleta = atleta.nombre;
+				} catch (DataException e) {
+					JOptionPane.showMessageDialog(this, "Error al obtener plazo o competicion");
+				}
+				try {
+					pago.pagarInscripcion(ins);
+					JOptionPane.showMessageDialog(this, "Su pago se realizado con exito. Generando justificante ...");
+					pago.generarJustificante(ins);
+					toAtletaMenu();
+				} catch (DataException e) {
+					JOptionPane.showMessageDialog(this, "Error al pagar inscripcion");
 				}
 			}
-		
-	}
+		}
 
+	}
 
 	private JPanel getPnPagoAtleta() {
 		if (pnPagoAtleta == null) {
@@ -962,29 +967,30 @@ public class Principal extends JFrame {
 		tableCompeticionesAtleta.removeAll();
 		tablePlazos.removeAll();
 
-		//modelCompeticiones.addColumn("Nombre");
-		//modelCompeticiones.addColumn("Fecha");
-		//modelCompeticiones.addColumn("Tipo");
-		//modelCompeticiones.addColumn("Km");
-		//modelCompeticiones.addColumn("Plazas");
+		// modelCompeticiones.addColumn("Nombre");
+		// modelCompeticiones.addColumn("Fecha");
+		// modelCompeticiones.addColumn("Tipo");
+		// modelCompeticiones.addColumn("Km");
+		// modelCompeticiones.addColumn("Plazas");
 
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 		try {
 			competiciones = listarCompeticiones.verCompeticionesDisponibles();
-			Object [][] m = new Object [competiciones.size()][competiciones.size()];
-			
-			for (int i = 0; i <  competiciones.size(); i++) {
-				m[i] = new Object[] { competiciones.get(i).nombre, competiciones.get(i).fecha, competiciones.get(i).tipo,
-						competiciones.get(i).km, competiciones.get(i).plazas };
+			Object[][] m = new Object[competiciones.size()][competiciones.size()];
+
+			for (int i = 0; i < competiciones.size(); i++) {
+				m[i] = new Object[] { competiciones.get(i).nombre, competiciones.get(i).fecha,
+						competiciones.get(i).tipo, competiciones.get(i).km, competiciones.get(i).plazas };
 			}
 
-			modelCompeticiones.setDataVector(m, new String [] {"Competicion","Fecha","Tipo","Kilometros","Plazas"});
-			
+			modelCompeticiones.setDataVector(m,
+					new String[] { "Competicion", "Fecha", "Tipo", "Kilometros", "Plazas" });
+
 			tableCompeticionesAtleta.getTableHeader().setReorderingAllowed(false);
 			scrollPaneCompeticiones.setViewportView(tableCompeticionesAtleta);
 			tableCompeticionesAtleta.revalidate();
 			tableCompeticionesAtleta.repaint();
-			
+
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
@@ -992,30 +998,30 @@ public class Principal extends JFrame {
 	}
 
 	private void loadInscripciones() {
-		
+
 		tableInscripcionesAtleta.removeAll();
 		tableCompeticionesAtleta.removeAll();
 		tablePlazos.removeAll();
-		
+
 		ListarInscripciones listarInscripciones = new ListarInscripciones();
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 		try {
 			inscripciones = listarInscripciones.verInscripcionesAtleta(atleta.getId());
-			Object [][] ins = new Object [inscripciones.size()][inscripciones.size()];
-			
+			Object[][] ins = new Object[inscripciones.size()][inscripciones.size()];
+
 			for (int i = 0; i < inscripciones.size(); i++) {
 				String nombre = listarCompeticiones.verCompeticionInscripcion(inscripciones.get(i));
 				ins[i] = new Object[] { nombre, inscripciones.get(i).fecha, inscripciones.get(i).estado };
 			}
 
-			modelInscripciones.setDataVector(ins, new String [] {"Competicion","Fecha","Estado"});
-		
+			modelInscripciones.setDataVector(ins, new String[] { "Competicion", "Fecha", "Estado" });
+
 			tableInscripcionesAtleta.getTableHeader().setReorderingAllowed(false);
 			scrollPaneInscripciones.setViewportView(tableInscripcionesAtleta);
-			
+
 			tableCompeticionesAtleta.revalidate();
 			tableCompeticionesAtleta.repaint();
-			
+
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
@@ -1023,13 +1029,11 @@ public class Principal extends JFrame {
 	}
 
 	private void toFirst() {
-		
-		
+
 		pnButtons.setVisible(false);
 		cardNumber = 0;
 		((CardLayout) pnCards.getLayout()).first(pnCards);
 	}
-
 
 	private void toPagoAtleta() {
 		lblMenAtletaPago.setText("Menu Atleta " + atleta.nombre + " " + atleta.apellidos + ": Pago Inscripcion");
@@ -1508,10 +1512,9 @@ public class Principal extends JFrame {
 	}
 
 	protected void crearCompeticionNueva() {
-		
+
 		// TODO guardar plazos y comprobar que estan bien
-		
-		
+
 		NuevaCompeticion nueva = new NuevaCompeticion();
 		try {
 			competicionNueva.nombre = txtNombreCompeticionNueva.getText();
