@@ -88,6 +88,7 @@ public class PagoInscripcion {
 			ps.execute();
 
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new DataException("Error en la conexion");
 		}
 	}

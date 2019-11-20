@@ -1,10 +1,17 @@
 package util;
 
+import java.time.DateTimeException;
+import java.time.Duration;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import logic.exception.DataException;
 import logic.model.Categoria;
 import logic.model.Resultados;
+import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 public class Parser {
 
@@ -42,15 +49,22 @@ public class Parser {
 		List<Resultados> parseada = new ArrayList<Resultados>();
 		// String infoCompeticion = line.get(0);
 		// line.remove(0);
-		line.forEach(s -> parseada.add(parseResultado(s)));
+		line.forEach(s -> {
+			try {
+				parseada.add(parseResultado(s));
+			} catch (DataException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		});
 		return parseada;
 	}
 
-	private static Resultados parseResultado(String res) {
+	private static Resultados parseResultado(String res) throws DataException {
 		Resultados r = new Resultados();
 		String[] part = res.split("\t");
 		r.setNombreCompetidor(part[0]);
-		r.setTiempo(parseTiempo(part[1], part[2]));
+		r.setTiempo(parseTiempoPrueba(part[1], part[2]));
 		return r;
 	}
 
@@ -90,4 +104,55 @@ public class Parser {
 
 		return tiempoFinal;
 	}
+
+	private static String parseTiempoPrueba(String tiempoSalida,
+			String tiempoEntrada) throws DataException {
+		String tiempoFinal = null;
+		if (tiempoSalida != null && !tiempoSalida.equals("---")) {
+			if (tiempoEntrada != null && !tiempoEntrada.equals("---")) {
+				try {
+					LocalTime tiempoSalidaTiempo = LocalTime
+							.parse(tiempoSalida);
+					LocalTime tiempoEntradaTiempo = LocalTime
+							.parse(tiempoEntrada);
+					Duration duration = Duration.between(tiempoSalidaTiempo,
+							tiempoEntradaTiempo);
+					//System.out.println("Duracion entre los tiempos en segundos"		+ duration.getSeconds());
+					int horaFinal = (int) (duration.getSeconds() / 3600);
+					//System.out.println("Prueba con duracion, hora: " + horaFinal);
+					int minFinal = (int) ((duration.getSeconds()
+							- horaFinal * 3600) / 60);
+					//System.out.println("Prueba con duracion, minutos: " + minFinal);
+					int secsFinal = (int) (duration.getSeconds()
+							- (horaFinal * 3600 + minFinal * 60));
+					//System.out.println(	"Prueba con duracion, segundos: " + secsFinal);
+
+					String stringHoraFinal = "" + horaFinal;
+					String stringMinFinal = "" + minFinal;
+					String stringSegFinal = "" + secsFinal;
+					if (horaFinal < 10) {
+						stringHoraFinal = "0" + horaFinal;
+					}
+					if (minFinal < 10) {
+						stringMinFinal = "0" + minFinal;
+					}
+					if (secsFinal < 10) {
+						stringSegFinal = "0" + secsFinal;
+					}
+					tiempoFinal = stringHoraFinal + ":" + stringMinFinal + ":"
+							+ stringSegFinal;
+				} catch (DateTimeException e) {
+					e.printStackTrace();
+					throw new DataException(
+							"El fichero esta mal formateado en los tiempos");
+				}
+			} else {
+				tiempoFinal = "DNE";
+			}
+		} else
+			tiempoFinal = "DNS";
+
+		return tiempoFinal;
+	}
+
 }
