@@ -24,7 +24,7 @@ public class VerResultados {
 	private List<Resultados> resultadosMujer = new ArrayList<Resultados>();
 	private List<Resultados> resultadosHombre = new ArrayList<Resultados>();
 
-	public void generaResultados(String fileName) {
+	public void generaResultados(String fileName) throws DataException {
 		try {
 			resultadosAbsolutos = Parser
 					.parseResultados(FileUtil.cargarArchivo(fileName));
@@ -34,8 +34,7 @@ public class VerResultados {
 			ponerPosicion(); 
 			resultadosAbsolutos.forEach(r -> System.out.println(r));
 		} catch (DataException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
+			throw new DataException("Error en ver resultados");
 		}
 		
 		//PARA LOS FUTUROS FILTROS

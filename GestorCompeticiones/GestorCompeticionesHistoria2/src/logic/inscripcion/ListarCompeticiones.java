@@ -29,7 +29,7 @@ public class ListarCompeticiones {
 	//private final String user = "UO264476";
 	//private final String pass = "PASSWORD";
 	
-	public List<Competicion> verCompeticiones(String email) throws DataException {
+	public List<Competicion> verCompeticionesDisponibles() throws DataException {
 
 		List<Competicion> competiciones = new ArrayList<Competicion>();
 		Competicion competicion = null;

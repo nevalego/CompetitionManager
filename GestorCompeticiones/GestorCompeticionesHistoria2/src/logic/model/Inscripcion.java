@@ -12,10 +12,11 @@ public class Inscripcion {
 	public double tiempo;
 	public String medioPago;
 	public Date fechaPago;
-	public double cantidad;
+	public int cantidad;
 	public long atletaId;
 	public long competicionId;
 	public String nombreCompeticion;
+	public String nombreAtleta;
 	
 	
 	
