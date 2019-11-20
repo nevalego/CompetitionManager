@@ -115,4 +115,9 @@ public class PagoInscripcion {
 		}
 		return plazo;
 	}
+
+	public void generarJustificante(Inscripcion ins) {
+		// TODO Auto-generated method stub
+		
+	}
 }

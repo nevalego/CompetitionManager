@@ -614,7 +614,9 @@ public class Principal extends JFrame {
 					ins.fechaPago = Dates.now();
 					ins.fechaModificacion = Dates.now();
 					try {
-						pago.pagarInscripcion(ins);// TODO Preguntar a claudio
+						pago.pagarInscripcion(ins);
+						JOptionPane.showMessageDialog(this, "Su pago se realizado con exito. Generando justificante ...");
+						pago.generarJustificante(ins);
 					} catch (DataException e) {
 						JOptionPane.showMessageDialog(this, "Error al pagar inscripcion");
 					}
@@ -977,10 +979,14 @@ public class Principal extends JFrame {
 
 	private void loadInscripciones() {
 		
+		tableInscripcionesAtleta.removeAll();
+		inscripciones.clear();
+		modelInscripciones.fireTableRowsDeleted(0, inscripciones.size());
+		tableInscripcionesAtleta.repaint();
+		
 		modelInscripciones.addColumn("Competicion");
 		modelInscripciones.addColumn("Fecha");
 		modelInscripciones.addColumn("Estado");
-		//modelInscripciones.removeAllElements();
 		ListarInscripciones listarInscripciones = new ListarInscripciones();
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 		try {
@@ -999,9 +1005,25 @@ public class Principal extends JFrame {
 	}
 
 	private void toFirst() {
+		
+		limpiarTablas();
+		
 		pnButtons.setVisible(false);
 		cardNumber = 0;
 		((CardLayout) pnCards.getLayout()).first(pnCards);
+	}
+
+	private void limpiarTablas() {
+		modelInscripciones.setRowCount(0);
+		modelCompeticiones.setRowCount(0);
+		modelTablaPlazos.setRowCount(0);
+		modelInscripciones.setColumnCount(0);
+		modelCompeticiones.setColumnCount(0);
+		modelTablaPlazos.setColumnCount(0);
+		
+		tableInscripcionesAtleta.removeAll();
+		tableCompeticionesAtleta.removeAll();
+		tablePlazos.removeAll();
 	}
 
 	private void toPagoAtleta() {
