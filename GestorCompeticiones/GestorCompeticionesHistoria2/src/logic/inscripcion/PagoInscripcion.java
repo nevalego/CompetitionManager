@@ -117,6 +117,8 @@ public class PagoInscripcion {
 	}
 
 	public void generarJustificante(Inscripcion ins) {
+		
+		// competicion, atleta, fecha pago, medio pago y cantidad
 		// TODO Auto-generated method stub
 		
 	}

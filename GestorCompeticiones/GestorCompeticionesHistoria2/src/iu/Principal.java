@@ -617,6 +617,7 @@ public class Principal extends JFrame {
 						pago.pagarInscripcion(ins);
 						JOptionPane.showMessageDialog(this, "Su pago se realizado con exito. Generando justificante ...");
 						pago.generarJustificante(ins);
+						toAtletaMenu();
 					} catch (DataException e) {
 						JOptionPane.showMessageDialog(this, "Error al pagar inscripcion");
 					}
@@ -952,14 +953,13 @@ public class Principal extends JFrame {
 
 	private void loadCompeticiones() {
 
-		tableCompeticionesAtleta.removeAll();
-		tableCompeticionesAtleta.repaint();
+		limpiarTablas();
 
 		modelCompeticiones.addColumn("Nombre");
 		modelCompeticiones.addColumn("Fecha");
 		modelCompeticiones.addColumn("Tipo");
 		modelCompeticiones.addColumn("Km");
-		modelCompeticiones.addColumn("Plazos");
+		modelCompeticiones.addColumn("Plazas");
 
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 
@@ -979,10 +979,7 @@ public class Principal extends JFrame {
 
 	private void loadInscripciones() {
 		
-		tableInscripcionesAtleta.removeAll();
-		inscripciones.clear();
-		modelInscripciones.fireTableRowsDeleted(0, inscripciones.size());
-		tableInscripcionesAtleta.repaint();
+		limpiarTablas();
 		
 		modelInscripciones.addColumn("Competicion");
 		modelInscripciones.addColumn("Fecha");
