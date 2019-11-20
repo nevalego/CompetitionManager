@@ -38,6 +38,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
+import com.sun.corba.se.spi.copyobject.CopierManager;
+
 import logic.exception.DataException;
 import logic.inscripcion.HacerInscripcion;
 import logic.inscripcion.HacerRegistro;
@@ -221,6 +223,7 @@ public class Principal extends JFrame {
 		contentPane.add(getPnButtons(), BorderLayout.SOUTH);
 		setContentPane(contentPane);
 		seleccionarPagoTransferencia();
+		loadCompeticiones();
 	}
 
 	private JPanel getPnEntrarOrganizador() {
@@ -341,7 +344,7 @@ public class Principal extends JFrame {
 		try {
 			atleta = ins.getAtleta(email);
 			if (atleta == null)
-				JOptionPane.showMessageDialog(this, "Tu email no est� registrado en ning�n atleta");
+				JOptionPane.showMessageDialog(this, "Tu email no esta registrado en ningun atleta");
 			else
 				toAtletaMenu();
 		} catch (DataException e) {
@@ -520,7 +523,9 @@ public class Principal extends JFrame {
 			btnInscribirme.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
 					int row = tableCompeticionesAtleta.getSelectedRow();
+					if( row != -1) {
 					inscribirse(competiciones.get(row));
+					}else JOptionPane.showMessageDialog(getThis(), "No has seleccionado la competicion");
 				}
 			});
 		}
@@ -953,24 +958,33 @@ public class Principal extends JFrame {
 
 	private void loadCompeticiones() {
 
-		limpiarTablas();
+		tableInscripcionesAtleta.removeAll();
+		tableCompeticionesAtleta.removeAll();
+		tablePlazos.removeAll();
 
-		modelCompeticiones.addColumn("Nombre");
-		modelCompeticiones.addColumn("Fecha");
-		modelCompeticiones.addColumn("Tipo");
-		modelCompeticiones.addColumn("Km");
-		modelCompeticiones.addColumn("Plazas");
+		//modelCompeticiones.addColumn("Nombre");
+		//modelCompeticiones.addColumn("Fecha");
+		//modelCompeticiones.addColumn("Tipo");
+		//modelCompeticiones.addColumn("Km");
+		//modelCompeticiones.addColumn("Plazas");
 
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
-
 		try {
-			competiciones = listarCompeticiones.verCompeticiones(atleta.getEmail());
-			for (Competicion c : competiciones) {
-				modelCompeticiones.addRow(new Object[] { c.nombre, c.fecha, c.tipo, c.km, c.plazas });
+			competiciones = listarCompeticiones.verCompeticionesDisponibles();
+			Object [][] m = new Object [competiciones.size()][competiciones.size()];
+			
+			for (int i = 0; i <  competiciones.size(); i++) {
+				m[i] = new Object[] { competiciones.get(i).nombre, competiciones.get(i).fecha, competiciones.get(i).tipo,
+						competiciones.get(i).km, competiciones.get(i).plazas };
 			}
 
+			modelCompeticiones.setDataVector(m, new String [] {"Competicion","Fecha","Tipo","Kilometros","Plazas"});
+			
 			tableCompeticionesAtleta.getTableHeader().setReorderingAllowed(false);
 			scrollPaneCompeticiones.setViewportView(tableCompeticionesAtleta);
+			tableCompeticionesAtleta.revalidate();
+			tableCompeticionesAtleta.repaint();
+			
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
@@ -979,22 +993,29 @@ public class Principal extends JFrame {
 
 	private void loadInscripciones() {
 		
-		limpiarTablas();
+		tableInscripcionesAtleta.removeAll();
+		tableCompeticionesAtleta.removeAll();
+		tablePlazos.removeAll();
 		
-		modelInscripciones.addColumn("Competicion");
-		modelInscripciones.addColumn("Fecha");
-		modelInscripciones.addColumn("Estado");
 		ListarInscripciones listarInscripciones = new ListarInscripciones();
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 		try {
 			inscripciones = listarInscripciones.verInscripcionesAtleta(atleta.getId());
-			for (Inscripcion i : inscripciones) {
-				String nombre = listarCompeticiones.verCompeticionInscripcion(i);
-				modelInscripciones.addRow(new Object[] { nombre, i.fecha, i.estado });
+			Object [][] ins = new Object [inscripciones.size()][inscripciones.size()];
+			
+			for (int i = 0; i < inscripciones.size(); i++) {
+				String nombre = listarCompeticiones.verCompeticionInscripcion(inscripciones.get(i));
+				ins[i] = new Object[] { nombre, inscripciones.get(i).fecha, inscripciones.get(i).estado };
 			}
 
+			modelInscripciones.setDataVector(ins, new String [] {"Competicion","Fecha","Estado"});
+		
 			tableInscripcionesAtleta.getTableHeader().setReorderingAllowed(false);
 			scrollPaneInscripciones.setViewportView(tableInscripcionesAtleta);
+			
+			tableCompeticionesAtleta.revalidate();
+			tableCompeticionesAtleta.repaint();
+			
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
@@ -1003,25 +1024,12 @@ public class Principal extends JFrame {
 
 	private void toFirst() {
 		
-		limpiarTablas();
 		
 		pnButtons.setVisible(false);
 		cardNumber = 0;
 		((CardLayout) pnCards.getLayout()).first(pnCards);
 	}
 
-	private void limpiarTablas() {
-		modelInscripciones.setRowCount(0);
-		modelCompeticiones.setRowCount(0);
-		modelTablaPlazos.setRowCount(0);
-		modelInscripciones.setColumnCount(0);
-		modelCompeticiones.setColumnCount(0);
-		modelTablaPlazos.setColumnCount(0);
-		
-		tableInscripcionesAtleta.removeAll();
-		tableCompeticionesAtleta.removeAll();
-		tablePlazos.removeAll();
-	}
 
 	private void toPagoAtleta() {
 		lblMenAtletaPago.setText("Menu Atleta " + atleta.nombre + " " + atleta.apellidos + ": Pago Inscripcion");
