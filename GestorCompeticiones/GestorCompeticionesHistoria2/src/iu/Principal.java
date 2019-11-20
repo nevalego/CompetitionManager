@@ -38,8 +38,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 
-import com.sun.corba.se.spi.copyobject.CopierManager;
-
 import logic.exception.DataException;
 import logic.inscripcion.HacerInscripcion;
 import logic.inscripcion.HacerRegistro;
@@ -159,7 +157,6 @@ public class Principal extends JFrame {
 	private JLabel lblPlazas;
 	private JSpinner spinnerPlazasCompeticionNueva;
 	private JLabel lblFecha;
-	private JTextField txtFechaCompeticionNueva;
 	private JPanel pnBtnCrearCompeticion;
 	private JPanel pnTablaPlazos;
 	private JScrollPane scrollPanePlazos;
@@ -183,11 +180,14 @@ public class Principal extends JFrame {
 	private JTable tableInscripcionesAtleta;
 	private JButton btnCancelar;
 	private JPanel pnInfoPagoInscripcion;
-	private JTextField txtInfoInscripcionPago;
 	private int inscripcionSeleccionada = -1;
 	private JComboBox<Integer> comboBoxDiaCaducidad;
 	private JComboBox<Integer> comboBoxMesCaducidad;
 	private JComboBox<Integer> comboBoxAnioCaducidad;
+	private JLabel lblInfoInscripcionPago;
+	private JComboBox<Integer> comboBoxDiaNuevaComp;
+	private JComboBox<Integer> comboBoxMesNuevaComp;
+	private JComboBox<Integer> comboBoxAnioNuevaComp;
 
 	/**
 	 * Launch the application.
@@ -569,14 +569,25 @@ public class Principal extends JFrame {
 				public void actionPerformed(ActionEvent arg0) {
 
 					if (inscripcionSeleccionada != -1) {
-						cardNumber++;
-						toPagoAtleta();
+						Inscripcion ins = inscripciones.get(inscripcionSeleccionada);
+						// PagoInscripcion pago = new PagoInscripcion();
+						// Inscripcion ins = pago.obtenerInscripcion(atleta.getId(),
+						// inscripcion.getId());
+
+						if (ins.estado.equals("ABONADA")) {
+							JOptionPane.showMessageDialog(getThis(), "La inscripcion seleccionada ya ha sido abonada");
+						} else {
+
+							cardNumber++;
+							toPagoAtleta();
+						}
 					} else
 						JOptionPane.showMessageDialog(getThis(), "No has seleccionado ninguna inscripcion para pagar");
 				}
 			});
 		}
 		return btnPagar;
+
 	}
 
 	protected void pagar(Inscripcion inscripcion) {
@@ -602,8 +613,8 @@ public class Principal extends JFrame {
 		Date caducidad = new Date(anio - 1900, mes - 1, dia);
 
 		if (txtNumeroTarjeta.getText().length() != 16)
-			JOptionPane.showMessageDialog(this,
-					"La longitud del número de la tarjeta " + txtNumeroTarjeta.getText().length() + " no es correcta. Dede ser 16");
+			JOptionPane.showMessageDialog(this, "La longitud del número de la tarjeta "
+					+ txtNumeroTarjeta.getText().length() + " no es correcta. Dede ser 16");
 		else if (Dates.isAfter(Dates.now(), caducidad))
 			JOptionPane.showMessageDialog(this, "La tarjeta ha sobrepasado su fecha de expiración");
 		else {
@@ -708,12 +719,12 @@ public class Principal extends JFrame {
 		lblMetodoDePago.setText("Pago por Transferencia");
 		txtpnInformacinPago.setVisible(true);
 		txtpnInformacinPago.setText("Se debe realizar la transferencia a la cuenta ES04 3379 2010 3472 0238"
-				+ "\nEl plazo de pago es de 48 horas tras la " + "fecha de inscripci�n.");
+				+ "\nEl plazo de pago es de 48 horas tras la " + "fecha de inscripcion.");
 	}
 
 	private JRadioButton getRdbtnPagoPorTarjeta() {
 		if (rdbtnPagoPorTarjeta == null) {
-			rdbtnPagoPorTarjeta = new JRadioButton("Pago por Tarjeta Cr\u00E9dito");
+			rdbtnPagoPorTarjeta = new JRadioButton("Pago por Tarjeta Credito");
 			rdbtnPagoPorTarjeta.setFont(new Font("Tahoma", Font.PLAIN, 15));
 			rdbtnPagoPorTarjeta.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -805,7 +816,7 @@ public class Principal extends JFrame {
 		if (txtpnInformacinPago == null) {
 			txtpnInformacinPago = new JTextPane();
 			txtpnInformacinPago.setFont(new Font("Tahoma", Font.PLAIN, 14));
-			txtpnInformacinPago.setText("Informaci\u00F3n Pago");
+			txtpnInformacinPago.setText("Informacion Pago");
 		}
 		return txtpnInformacinPago;
 	}
@@ -1037,6 +1048,15 @@ public class Principal extends JFrame {
 
 	private void toPagoAtleta() {
 		lblMenAtletaPago.setText("Menu Atleta " + atleta.nombre + " " + atleta.apellidos + ": Pago Inscripcion");
+		Inscripcion ins = inscripciones.get(inscripcionSeleccionada);
+
+		ListarCompeticiones verNombre = new ListarCompeticiones();
+		try {
+			lblInfoInscripcionPago.setText("Inscripcion del atleta " + atleta.nombre + " " + atleta.apellidos
+					+ " en la competicion " + verNombre.verCompeticionInscripcion(ins));
+		} catch (DataException e) {
+			JOptionPane.showMessageDialog(this, "Error al cargar la información de pago");
+		}
 		cardNumber = 2;
 		((CardLayout) pnCards.getLayout()).show(pnCards, "pagoatleta");
 	}
@@ -1414,7 +1434,7 @@ public class Principal extends JFrame {
 	private JTextField getTxtNombreCompeticionNueva() {
 		if (txtNombreCompeticionNueva == null) {
 			txtNombreCompeticionNueva = new JTextField();
-			txtNombreCompeticionNueva.setBounds(12, 31, 192, 23);
+			txtNombreCompeticionNueva.setBounds(12, 31, 204, 23);
 			txtNombreCompeticionNueva.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			txtNombreCompeticionNueva.setColumns(10);
 		}
@@ -1433,7 +1453,7 @@ public class Principal extends JFrame {
 	private JTextField getTxtTipoCompeticionNueva() {
 		if (txtTipoCompeticionNueva == null) {
 			txtTipoCompeticionNueva = new JTextField();
-			txtTipoCompeticionNueva.setBounds(55, 96, 149, 23);
+			txtTipoCompeticionNueva.setBounds(55, 96, 161, 23);
 			txtTipoCompeticionNueva.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			txtTipoCompeticionNueva.setColumns(10);
 		}
@@ -1452,7 +1472,7 @@ public class Principal extends JFrame {
 	private JTextField getTxtKmCompeticionNueva() {
 		if (txtKmCompeticionNueva == null) {
 			txtKmCompeticionNueva = new JTextField();
-			txtKmCompeticionNueva.setBounds(121, 64, 83, 23);
+			txtKmCompeticionNueva.setBounds(121, 64, 95, 23);
 			txtKmCompeticionNueva.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			txtKmCompeticionNueva.setColumns(10);
 		}
@@ -1473,7 +1493,9 @@ public class Principal extends JFrame {
 			pnInfoNuevaCompeticion.add(getLblPlazas());
 			pnInfoNuevaCompeticion.add(getSpinnerPlazasCompeticionNueva());
 			pnInfoNuevaCompeticion.add(getLblFecha());
-			pnInfoNuevaCompeticion.add(getTxtFechaCompeticionNueva());
+			pnInfoNuevaCompeticion.add(getComboBoxDiaNuevaComp());
+			pnInfoNuevaCompeticion.add(getComboBoxMesNuevaComp());
+			pnInfoNuevaCompeticion.add(getComboBoxAnioNuevaComp());
 		}
 		return pnInfoNuevaCompeticion;
 	}
@@ -1514,35 +1536,63 @@ public class Principal extends JFrame {
 	protected void crearCompeticionNueva() {
 
 		// TODO guardar plazos y comprobar que estan bien
+		leerPlazosTabla();
 
 		NuevaCompeticion nueva = new NuevaCompeticion();
 		try {
 			competicionNueva.nombre = txtNombreCompeticionNueva.getText();
 			competicionNueva.tipo = txtTipoCompeticionNueva.getText();
 			competicionNueva.km = ((Integer) spinnerPlazasCompeticionNueva.getValue());
-			competicionNueva.fecha = Dates.fromDdMmYyyy(
-					Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[0]),
-					Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[1]),
-					Integer.parseInt(txtFechaCompeticionNueva.getText().split("/")[2].substring(2)));
-			nueva.crearCompeticion(competicionNueva);
+			competicionNueva.fecha = Dates.fromDdMmYyyy((Integer) comboBoxDiaNuevaComp.getSelectedItem(),
+					(Integer) comboBoxMesNuevaComp.getSelectedItem(),
+					(Integer) comboBoxAnioNuevaComp.getSelectedItem());
 
-			for (Plazo plazo : plazosNuevaCompeticion)
-				nueva.añadirPlazoCompeticion(competicionNueva.id, plazo);
+			if (competicionNueva.fecha.before(Dates.now())) {
+				JOptionPane.showMessageDialog(this, "La fecha de la competicion no puede ser anterior al presente");
+			} else {
 
+				nueva.crearCompeticion(competicionNueva);
+
+				for (Plazo plazo : plazosNuevaCompeticion)
+					nueva.añadirPlazoCompeticion(competicionNueva.id, plazo);
+
+				tablePlazos.revalidate();
+				tablePlazos.repaint();
+				JOptionPane.showMessageDialog(this, "Competicion Creada");
+			}
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this, "Error al crear la competicion");
 		}
 	}
 
+	private void leerPlazosTabla() {
+
+		// La lista plazosNuevaCompeticion guarda primero el plazo por defecto y despues
+		// todos los plazos hasta crearla
+		// Una vez creada esa lista debe vaciarse
+
+		// Por cada fila de la tabla plazos
+		for (int i = 0; i < tablePlazos.getRowCount(); i++) {
+			// Guardar objeto en el model
+
+			Plazo plazo = new Plazo();
+			plazo.fechaInicio = (Date) modelTablaPlazos.getValueAt(i, 0);
+			plazo.fechaFin = (Date) modelTablaPlazos.getValueAt(i, 1);
+			plazo.cuota = (int) modelTablaPlazos.getValueAt(i, 2);
+
+			plazosNuevaCompeticion.add(plazo);
+		}
+
+	}
+
 	protected boolean camposVacios() {
-		return txtNombreCompeticionNueva.getText().equals("") || txtFechaCompeticionNueva.getText().equals("")
-				|| txtTipoCompeticionNueva.getText().equals("");
+		return txtNombreCompeticionNueva.getText().equals("") || txtTipoCompeticionNueva.getText().equals("");
 	}
 
 	private JLabel getLblPlazas() {
 		if (lblPlazas == null) {
 			lblPlazas = new JLabel("Plazas:");
-			lblPlazas.setBounds(12, 197, 41, 17);
+			lblPlazas.setBounds(12, 210, 41, 17);
 			lblPlazas.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return lblPlazas;
@@ -1553,7 +1603,7 @@ public class Principal extends JFrame {
 			spinnerPlazasCompeticionNueva = new JSpinner();
 			spinnerPlazasCompeticionNueva
 					.setModel(new SpinnerNumberModel(new Integer(50), new Integer(10), null, new Integer(10)));
-			spinnerPlazasCompeticionNueva.setBounds(65, 195, 68, 20);
+			spinnerPlazasCompeticionNueva.setBounds(65, 210, 62, 30);
 			spinnerPlazasCompeticionNueva.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return spinnerPlazasCompeticionNueva;
@@ -1561,20 +1611,11 @@ public class Principal extends JFrame {
 
 	private JLabel getLblFecha() {
 		if (lblFecha == null) {
-			lblFecha = new JLabel("Fecha (dd/mm/aaaa):");
-			lblFecha.setBounds(12, 132, 133, 17);
+			lblFecha = new JLabel("Fecha:");
+			lblFecha.setBounds(12, 132, 68, 23);
 			lblFecha.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return lblFecha;
-	}
-
-	private JTextField getTxtFechaCompeticionNueva() {
-		if (txtFechaCompeticionNueva == null) {
-			txtFechaCompeticionNueva = new JTextField();
-			txtFechaCompeticionNueva.setBounds(12, 162, 116, 22);
-			txtFechaCompeticionNueva.setColumns(10);
-		}
-		return txtFechaCompeticionNueva;
 	}
 
 	private JPanel getPnBtnCrearCompeticion() {
@@ -1782,18 +1823,11 @@ public class Principal extends JFrame {
 	private JPanel getPnInfoPagoInscripcion() {
 		if (pnInfoPagoInscripcion == null) {
 			pnInfoPagoInscripcion = new JPanel();
+			pnInfoPagoInscripcion.setBackground(Color.WHITE);
 			pnInfoPagoInscripcion.setLayout(new BorderLayout(0, 0));
-			pnInfoPagoInscripcion.add(getTxtInfoInscripcionPago(), BorderLayout.SOUTH);
+			pnInfoPagoInscripcion.add(getLblInfoInscripcionPago(), BorderLayout.NORTH);
 		}
 		return pnInfoPagoInscripcion;
-	}
-
-	private JTextField getTxtInfoInscripcionPago() {
-		if (txtInfoInscripcionPago == null) {
-			txtInfoInscripcionPago = new JTextField();
-			txtInfoInscripcionPago.setColumns(10);
-		}
-		return txtInfoInscripcionPago;
 	}
 
 	private JComboBox<Integer> getComboBoxDiaCaducidad() {
@@ -1847,5 +1881,44 @@ public class Principal extends JFrame {
 			index++;
 		}
 		return new DefaultComboBoxModel<Integer>(anios);
+	}
+
+	private JLabel getLblInfoInscripcionPago() {
+		if (lblInfoInscripcionPago == null) {
+			lblInfoInscripcionPago = new JLabel("Informacion");
+			lblInfoInscripcionPago.setFont(new Font("Tahoma", Font.PLAIN, 15));
+			lblInfoInscripcionPago.setBackground(Color.WHITE);
+		}
+		return lblInfoInscripcionPago;
+	}
+
+	private JComboBox<Integer> getComboBoxDiaNuevaComp() {
+		if (comboBoxDiaNuevaComp == null) {
+			comboBoxDiaNuevaComp = new JComboBox<Integer>();
+			comboBoxDiaNuevaComp.setModel(getModelDias());
+			comboBoxDiaNuevaComp.setSelectedIndex(1);
+			comboBoxDiaNuevaComp.setBounds(35, 162, 45, 29);
+		}
+		return comboBoxDiaNuevaComp;
+	}
+
+	private JComboBox<Integer> getComboBoxMesNuevaComp() {
+		if (comboBoxMesNuevaComp == null) {
+			comboBoxMesNuevaComp = new JComboBox<Integer>();
+			comboBoxMesNuevaComp.setModel(getModelMeses());
+			comboBoxMesNuevaComp.setSelectedIndex(1);
+			comboBoxMesNuevaComp.setBounds(95, 161, 51, 30);
+		}
+		return comboBoxMesNuevaComp;
+	}
+
+	private JComboBox<Integer> getComboBoxAnioNuevaComp() {
+		if (comboBoxAnioNuevaComp == null) {
+			comboBoxAnioNuevaComp = new JComboBox<Integer>();
+			comboBoxAnioNuevaComp.setModel(getModelAnios());
+			comboBoxAnioNuevaComp.setSelectedIndex(1);
+			comboBoxAnioNuevaComp.setBounds(161, 160, 77, 30);
+		}
+		return comboBoxAnioNuevaComp;
 	}
 }
