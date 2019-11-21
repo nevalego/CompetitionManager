@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import logic.dto.InscripcionDto;
 import logic.exception.DataException;
 import logic.model.AtletaInscripcion;
 import logic.model.Inscripcion;

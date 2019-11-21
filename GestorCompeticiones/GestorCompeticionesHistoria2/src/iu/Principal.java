@@ -963,9 +963,9 @@ public class Principal extends JFrame {
 
 	private void toNuevaCompeticion() {
 		NuevaCompeticion nueva = new NuevaCompeticion();
-		competicionNueva.fecha = Dates.now();
 		try {
 			competicionNueva.id = nueva.obtenerUltimoIdCompeticion();
+
 			Plazo plazo = new Plazo();
 			plazo.competicionId = competicionNueva.id;
 			plazo.fechaInicio = Dates.now();
@@ -990,12 +990,6 @@ public class Principal extends JFrame {
 		tableInscripcionesAtleta.removeAll();
 		tableCompeticionesAtleta.removeAll();
 		tablePlazos.removeAll();
-
-		// modelCompeticiones.addColumn("Nombre");
-		// modelCompeticiones.addColumn("Fecha");
-		// modelCompeticiones.addColumn("Tipo");
-		// modelCompeticiones.addColumn("Km");
-		// modelCompeticiones.addColumn("Plazas");
 
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 		try {
@@ -1035,7 +1029,7 @@ public class Principal extends JFrame {
 
 			for (int i = 0; i < inscripciones.size(); i++) {
 				String nombre = listarCompeticiones.verCompeticionInscripcion(inscripciones.get(i));
-				ins[i] = new Object[] { nombre, inscripciones.get(i).fecha, inscripciones.get(i).estado };
+				ins[i] = new String[] { nombre, inscripciones.get(i).fecha.toString(), inscripciones.get(i).estado };
 			}
 
 			modelInscripciones.setDataVector(ins, new String[] { "Competicion", "Fecha", "Estado" });
@@ -1550,51 +1544,55 @@ public class Principal extends JFrame {
 
 	protected void crearCompeticionNueva() {
 
-		// TODO guardar plazos y comprobar que estan bien
 		leerPlazosTabla();
-
 		NuevaCompeticion nueva = new NuevaCompeticion();
-		try {
-			competicionNueva.nombre = txtNombreCompeticionNueva.getText();
-			competicionNueva.tipo = txtTipoCompeticionNueva.getText();
-			competicionNueva.km = ((Integer) spinnerPlazasCompeticionNueva.getValue());
-			competicionNueva.fecha = Dates.fromDdMmYyyy((Integer) comboBoxDiaNuevaComp.getSelectedItem(),
-					(Integer) comboBoxMesNuevaComp.getSelectedItem(),
-					(Integer) comboBoxAnioNuevaComp.getSelectedItem());
-			competicionNueva.plazas = (int)spinnerPlazasCompeticionNueva.getValue();
-			
-			if (competicionNueva.fecha.before(Dates.now())) {
-				JOptionPane.showMessageDialog(this, "La fecha de la competicion no puede ser anterior al presente");
-			} else {
 
+		competicionNueva.nombre = txtNombreCompeticionNueva.getText();
+		competicionNueva.tipo = txtTipoCompeticionNueva.getText();
+		competicionNueva.km = ((Integer) spinnerPlazasCompeticionNueva.getValue());
+		int dia = (Integer) comboBoxDiaNuevaComp.getSelectedItem();
+		int mes = (Integer) comboBoxMesNuevaComp.getSelectedItem();
+		int anio = (Integer) comboBoxAnioNuevaComp.getSelectedItem();
+
+		competicionNueva.fecha = new Date(anio, mes, dia);
+		competicionNueva.plazas = (int) spinnerPlazasCompeticionNueva.getValue();
+
+		if (competicionNueva.fecha.before(Dates.now())) {
+			JOptionPane.showMessageDialog(this, "La fecha de la competicion no puede ser anterior al presente");
+		} else {
+			try {
 				nueva.crearCompeticion(competicionNueva);
-				plazosNuevaCompeticion.forEach(r -> {
-					try {
-						nueva.añadirPlazoCompeticion(competicionNueva.id, r);
-					} catch (DataException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				});
+				if (plazosCorrectos()) {
+					for (Plazo plazo : plazosNuevaCompeticion)
+						nueva.añadirPlazoCompeticion(competicionNueva.id, plazo);
+					tablePlazos.revalidate();
+					tablePlazos.repaint();
+					JOptionPane.showMessageDialog(this, "Competicion Creada");
+					toOrganizadorMenu();
+				} else
+					JOptionPane.showMessageDialog(this, "Fechas incorrectas");
 
-				tablePlazos.revalidate();
-				tablePlazos.repaint();
-				JOptionPane.showMessageDialog(this, "Competicion Creada");
+			} catch (DataException e) {
+				JOptionPane.showMessageDialog(this, "Error al crear la competicion");
 			}
-		} catch (DataException e) {
-			JOptionPane.showMessageDialog(this, "Error al crear la competicion");
 		}
+
+	}
+
+	private boolean plazosCorrectos() {
+		for (Plazo plazo : plazosNuevaCompeticion) {
+			if (Dates.isBefore(plazo.fechaFin, plazo.fechaInicio))
+				return false;
+			if (Dates.isAfter(plazo.fechaFin, competicionNueva.fecha))
+				return false;
+		}
+		return true;
 	}
 
 	private void leerPlazosTabla() {
 
-		// La lista plazosNuevaCompeticion guarda primero el plazo por defecto y despues
-		// todos los plazos hasta crearla
-		// Una vez creada esa lista debe vaciarse
-
-		// Por cada fila de la tabla plazos
+		plazosNuevaCompeticion.removeAll(plazosNuevaCompeticion);
 		for (int i = 0; i < tablePlazos.getRowCount(); i++) {
-			// Guardar objeto en el model
 
 			Plazo plazo = new Plazo();
 			int anio = 2000 + (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[2]));
@@ -1608,10 +1606,10 @@ public class Principal extends JFrame {
 			dia = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[0]));
 
 			plazo.fechaFin = new Date(anio, mes, dia);
-			if (i == 0)
-				plazo.cuota += (int) modelTablaPlazos.getValueAt(i, 2);
-			if (i == 1)
-				plazo.cuota += Integer.valueOf((String) modelTablaPlazos.getValueAt(i, 2));
+			// if (i == 0)
+			// plazo.cuota += (int) modelTablaPlazos.getValueAt(i, 2);
+			// if (i == 1)
+			plazo.cuota += Integer.parseInt((String) (modelTablaPlazos.getValueAt(i, 2)));
 			plazosNuevaCompeticion.add(plazo);
 		}
 
@@ -1697,8 +1695,8 @@ public class Principal extends JFrame {
 		modelTablaPlazos.addColumn("Cuota");
 
 		for (Plazo p : plazosNuevaCompeticion) {
-			modelTablaPlazos
-					.addRow(new Object[] { Dates.toString(p.fechaInicio), Dates.toString(p.fechaFin), p.cuota });
+			modelTablaPlazos.addRow(new Object[] { Dates.toString(p.fechaInicio), Dates.toString(p.fechaFin),
+					String.valueOf(p.cuota) });
 		}
 		tablePlazos.getTableHeader().setReorderingAllowed(false);
 		scrollPanePlazos.setViewportView(tablePlazos);
@@ -1759,7 +1757,7 @@ public class Principal extends JFrame {
 	}
 
 	protected void nuevaFilaTablaPlazos() {
-		modelTablaPlazos.addRow(new Object[] { "", "", });
+		modelTablaPlazos.addRow(new Object[] { "", "", "" });
 	}
 
 	private JButton getButtonBorrarFilaPlazo() {
