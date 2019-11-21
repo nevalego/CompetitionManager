@@ -53,7 +53,7 @@ public class ListarCompeticiones {
 				competiciones.add(competicion);
 			}
 		} catch (SQLException e) {
-			throw new DataException("Fallo en la conexion");
+			throw new DataException("Fallo en la conexion al listar competiciones abiertas");
 		}
 		return competiciones;
 	}

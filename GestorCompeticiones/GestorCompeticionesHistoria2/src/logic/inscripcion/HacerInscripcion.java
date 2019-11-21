@@ -238,45 +238,6 @@ public class HacerInscripcion {
 	}
 
 	/**
-	 * Metodo que comprueba si el atleta esta ya inscrito o no
-	 * 
-	 * @param EL id, dni o primary key de la clase atleta para comprobar en la tabla
-	 *           inscripcion
-	 * @param EL id, dni o primary key de la clase competicion para comprobar en la
-	 *           tabla inscripcion
-	 * @return true si se puede proceder, false si no
-	 * @throws SQLException, es una estandarizacion por si falla algo, imprime
-	 *                       mensaje habitualmente
-	 */
-	private boolean comprobarNoInscrito(String email, Long id) throws SQLException {
-		String querySacaId = "SELECT ID FROM ATLETA WHERE EMAIL = ?";
-		PreparedStatement ps = c.prepareStatement(querySacaId);
-		ps.setString(1, email);
-		ResultSet rs = ps.executeQuery();
-		int idatleta = 0;
-		if (rs.next()) {
-			idatleta = rs.getInt(1);
-		} else {
-			return false;
-		}
-		String query = "SELECT * FROM INSCRIPCION WHERE ATLETA_ID = ? AND COMPETICION_ID = ? ";
-		PreparedStatement s = null;
-		try {
-			s = c.prepareStatement(query);
-			s.setInt(1, idatleta);
-			s.setLong(2, id);
-		} catch (SQLException e) {
-			System.out.println("Problema con la conexion");
-		}
-		try {
-			s.execute();
-		} catch (SQLException e) {
-			return false;
-		}
-		return true;
-	}
-
-	/**
 	 * Metodo PROVISIONAL que comprueba la fecha de la tabla
 	 * 
 	 * @param deberian pasarse, idatleta, idtabla, fecha actual

@@ -188,6 +188,19 @@ public class Principal extends JFrame {
 	private JComboBox<Integer> comboBoxDiaNuevaComp;
 	private JComboBox<Integer> comboBoxMesNuevaComp;
 	private JComboBox<Integer> comboBoxAnioNuevaComp;
+	private JPanel pnTablasOrganizador;
+	private JLabel lblMenuOrganizador;
+	private JScrollPane scrollPaneTablaOrganIns;
+	private JScrollPane scrollPaneTablaOrganComp;
+	private JTable tableCompeticionesOrganizador;
+	private JTable tableIInscripcionesOrganizador;
+	private JLabel lblTodasCompeticiones;
+	private JLabel lblTodasInscripciones;
+	private JPanel pnTablaCompeticionesOrgan;
+	private JPanel pnTablaInscripcionesOrgan;
+	private JPanel pnOrganizadorCompeticion;
+	private JButton btnCargarPagos;
+	private JButton btnCargarResultados;
 
 	/**
 	 * Launch the application.
@@ -1389,6 +1402,8 @@ public class Principal extends JFrame {
 			pnOrganizador.setBackground(Color.WHITE);
 			pnOrganizador.setLayout(new BorderLayout(0, 0));
 			pnOrganizador.add(getPnBtnCrearCompeticion(), BorderLayout.SOUTH);
+			pnOrganizador.add(getPnTablasOrganizador(), BorderLayout.CENTER);
+			pnOrganizador.add(getLblMenuOrganizador(), BorderLayout.NORTH);
 		}
 		return pnOrganizador;
 	}
@@ -1546,15 +1561,21 @@ public class Principal extends JFrame {
 			competicionNueva.fecha = Dates.fromDdMmYyyy((Integer) comboBoxDiaNuevaComp.getSelectedItem(),
 					(Integer) comboBoxMesNuevaComp.getSelectedItem(),
 					(Integer) comboBoxAnioNuevaComp.getSelectedItem());
-
+			competicionNueva.plazas = (int)spinnerPlazasCompeticionNueva.getValue();
+			
 			if (competicionNueva.fecha.before(Dates.now())) {
 				JOptionPane.showMessageDialog(this, "La fecha de la competicion no puede ser anterior al presente");
 			} else {
 
 				nueva.crearCompeticion(competicionNueva);
-
-				for (Plazo plazo : plazosNuevaCompeticion)
-					nueva.añadirPlazoCompeticion(competicionNueva.id, plazo);
+				plazosNuevaCompeticion.forEach(r -> {
+					try {
+						nueva.añadirPlazoCompeticion(competicionNueva.id, r);
+					} catch (DataException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				});
 
 				tablePlazos.revalidate();
 				tablePlazos.repaint();
@@ -1576,10 +1597,21 @@ public class Principal extends JFrame {
 			// Guardar objeto en el model
 
 			Plazo plazo = new Plazo();
-			plazo.fechaInicio = (Date) modelTablaPlazos.getValueAt(i, 0);
-			plazo.fechaFin = (Date) modelTablaPlazos.getValueAt(i, 1);
-			plazo.cuota = (int) modelTablaPlazos.getValueAt(i, 2);
+			int anio = 2000 + (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[2]));
+			int mes = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[1]));
+			int dia = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[0]));
 
+			plazo.fechaInicio = new Date(anio, mes, dia);
+
+			anio = 2000 + (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[2]));
+			mes = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[1]));
+			dia = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[0]));
+
+			plazo.fechaFin = new Date(anio, mes, dia);
+			if (i == 0)
+				plazo.cuota += (int) modelTablaPlazos.getValueAt(i, 2);
+			if (i == 1)
+				plazo.cuota += Integer.valueOf((String) modelTablaPlazos.getValueAt(i, 2));
 			plazosNuevaCompeticion.add(plazo);
 		}
 
@@ -1916,9 +1948,123 @@ public class Principal extends JFrame {
 		if (comboBoxAnioNuevaComp == null) {
 			comboBoxAnioNuevaComp = new JComboBox<Integer>();
 			comboBoxAnioNuevaComp.setModel(getModelAnios());
-			comboBoxAnioNuevaComp.setSelectedIndex(1);
+			comboBoxAnioNuevaComp.setSelectedIndex(69);
 			comboBoxAnioNuevaComp.setBounds(161, 160, 77, 30);
 		}
 		return comboBoxAnioNuevaComp;
+	}
+
+	private JPanel getPnTablasOrganizador() {
+		if (pnTablasOrganizador == null) {
+			pnTablasOrganizador = new JPanel();
+			pnTablasOrganizador.setBackground(Color.WHITE);
+			pnTablasOrganizador.setLayout(new GridLayout(1, 0, 0, 0));
+			pnTablasOrganizador.add(getPnTablaCompeticionesOrgan());
+			pnTablasOrganizador.add(getPnTablaInscripcionesOrgan());
+		}
+		return pnTablasOrganizador;
+	}
+
+	private JLabel getLblMenuOrganizador() {
+		if (lblMenuOrganizador == null) {
+			lblMenuOrganizador = new JLabel("Menu Organizador");
+			lblMenuOrganizador.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		}
+		return lblMenuOrganizador;
+	}
+
+	private JScrollPane getScrollPaneTablaOrganIns() {
+		if (scrollPaneTablaOrganIns == null) {
+			scrollPaneTablaOrganIns = new JScrollPane();
+			scrollPaneTablaOrganIns.setViewportView(getTableIInscripcionesOrganizador());
+		}
+		return scrollPaneTablaOrganIns;
+	}
+
+	private JScrollPane getScrollPaneTablaOrganComp() {
+		if (scrollPaneTablaOrganComp == null) {
+			scrollPaneTablaOrganComp = new JScrollPane();
+			scrollPaneTablaOrganComp.setViewportView(getTableCompeticionesOrganizador());
+		}
+		return scrollPaneTablaOrganComp;
+	}
+
+	private JTable getTableCompeticionesOrganizador() {
+		if (tableCompeticionesOrganizador == null) {
+			tableCompeticionesOrganizador = new JTable();
+			tableCompeticionesOrganizador.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return tableCompeticionesOrganizador;
+	}
+
+	private JTable getTableIInscripcionesOrganizador() {
+		if (tableIInscripcionesOrganizador == null) {
+			tableIInscripcionesOrganizador = new JTable();
+			tableIInscripcionesOrganizador.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return tableIInscripcionesOrganizador;
+	}
+
+	private JLabel getLblTodasCompeticiones() {
+		if (lblTodasCompeticiones == null) {
+			lblTodasCompeticiones = new JLabel("Competiciones");
+			lblTodasCompeticiones.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return lblTodasCompeticiones;
+	}
+
+	private JLabel getLblTodasInscripciones() {
+		if (lblTodasInscripciones == null) {
+			lblTodasInscripciones = new JLabel("Inscripciones");
+			lblTodasInscripciones.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return lblTodasInscripciones;
+	}
+
+	private JPanel getPnTablaCompeticionesOrgan() {
+		if (pnTablaCompeticionesOrgan == null) {
+			pnTablaCompeticionesOrgan = new JPanel();
+			pnTablaCompeticionesOrgan.setBackground(Color.WHITE);
+			pnTablaCompeticionesOrgan.setLayout(new BorderLayout(0, 0));
+			pnTablaCompeticionesOrgan.add(getScrollPaneTablaOrganComp());
+			pnTablaCompeticionesOrgan.add(getLblTodasCompeticiones(), BorderLayout.NORTH);
+			pnTablaCompeticionesOrgan.add(getPnOrganizadorCompeticion(), BorderLayout.SOUTH);
+		}
+		return pnTablaCompeticionesOrgan;
+	}
+
+	private JPanel getPnTablaInscripcionesOrgan() {
+		if (pnTablaInscripcionesOrgan == null) {
+			pnTablaInscripcionesOrgan = new JPanel();
+			pnTablaInscripcionesOrgan.setBackground(Color.WHITE);
+			pnTablaInscripcionesOrgan.setLayout(new BorderLayout(0, 0));
+			pnTablaInscripcionesOrgan.add(getScrollPaneTablaOrganIns());
+			pnTablaInscripcionesOrgan.add(getLblTodasInscripciones(), BorderLayout.NORTH);
+		}
+		return pnTablaInscripcionesOrgan;
+	}
+
+	private JPanel getPnOrganizadorCompeticion() {
+		if (pnOrganizadorCompeticion == null) {
+			pnOrganizadorCompeticion = new JPanel();
+			pnOrganizadorCompeticion.setBackground(Color.WHITE);
+			pnOrganizadorCompeticion.add(getBtnCargarPagos());
+			pnOrganizadorCompeticion.add(getBtnCargarResultados());
+		}
+		return pnOrganizadorCompeticion;
+	}
+
+	private JButton getBtnCargarPagos() {
+		if (btnCargarPagos == null) {
+			btnCargarPagos = new JButton("Cargar Pagos");
+		}
+		return btnCargarPagos;
+	}
+
+	private JButton getBtnCargarResultados() {
+		if (btnCargarResultados == null) {
+			btnCargarResultados = new JButton("Cargar Resultados");
+		}
+		return btnCargarResultados;
 	}
 }

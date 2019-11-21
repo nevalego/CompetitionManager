@@ -1,11 +1,15 @@
 package logic.model;
 
+import java.util.Date;
+
 public class Resultados {
 
 	private String nombreCompetidor;
 	private String tiempo;
 	private String sexo;
 	private int posicion;
+	private Date fecha;
+	private String nombreCompeticion;
 	public String getNombreCompetidor() {
 		return nombreCompetidor;
 	}
@@ -29,6 +33,19 @@ public class Resultados {
 	}
 	public void setPosicion(int posicion) {
 		this.posicion = posicion;
+	}
+	
+	public Date getFecha() {
+		return fecha;
+	}
+	public void setFecha(Date fecha) {
+		this.fecha = fecha;
+	}
+	public String getNombreCompeticion() {
+		return nombreCompeticion;
+	}
+	public void setNombreCompeticion(String nombreCompeticion) {
+		this.nombreCompeticion = nombreCompeticion;
 	}
 	@Override
 	public String toString() {

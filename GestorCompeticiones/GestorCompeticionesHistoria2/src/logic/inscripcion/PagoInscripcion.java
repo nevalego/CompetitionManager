@@ -109,7 +109,7 @@ public class PagoInscripcion {
 				plazo.id = rs.getLong("id");
 				plazo.fechaInicio = rs.getDate("fechainicio");
 				plazo.fechaFin = rs.getDate("fechafin");
-				plazo.cuota = rs.getDouble("cuota");
+				plazo.cuota = rs.getInt("cuota");
 				plazo.competicionId = rs.getLong("competicion_id");
 			}
 
