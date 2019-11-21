@@ -34,7 +34,7 @@ public class NuevaCompeticion {
 		PreparedStatement ps = null;
 
 		try (Connection c = Jdbc.getConnection()) {
-			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_AÑADIR_COMPETICION"));
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_ANADIR_COMPETICION"));
 			ps.setLong(1, comp.id);
 			ps.setString(2, comp.nombre);
 			ps.setString(3, comp.tipo);
@@ -50,7 +50,7 @@ public class NuevaCompeticion {
 		PreparedStatement ps = null;
 
 		try (Connection c = Jdbc.getConnection()) {
-			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_AÑADIR_PLAZO"));
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_ANADIR_PLAZO"));
 			ps.setDate(2, new java.sql.Date(plazo.fechaInicio.getTime()));
 			ps.setDate(3, new java.sql.Date(plazo.fechaFin.getTime()));
 			ps.setDouble(4,plazo.cuota);

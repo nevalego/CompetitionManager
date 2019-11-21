@@ -1591,10 +1591,22 @@ public class Principal extends JFrame {
 			// Guardar objeto en el model
 
 			Plazo plazo = new Plazo();
-			plazo.fechaInicio = (Date) modelTablaPlazos.getValueAt(i, 0);
-			plazo.fechaFin = (Date) modelTablaPlazos.getValueAt(i, 1);
-			plazo.cuota = (int) modelTablaPlazos.getValueAt(i, 2);
-
+			int anio = 2000+(Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[2]));
+			int mes = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[1]));
+			int dia = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[0]));
+			
+			plazo.fechaInicio = new Date(anio, mes, dia);
+			
+			anio = 2000+(Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[2]));
+			mes = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[1]));
+			dia = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[0]));
+			
+			plazo.fechaFin = new Date(anio, mes ,dia);
+			System.out.println(modelTablaPlazos.getValueAt(i, 2).getClass());
+			if( i == 0)
+				plazo.cuota +=  (int) modelTablaPlazos.getValueAt(i, 2);
+			if( i == 1)
+				plazo.cuota +=  Integer.valueOf((String)modelTablaPlazos.getValueAt(i, 2));
 			plazosNuevaCompeticion.add(plazo);
 		}
 
