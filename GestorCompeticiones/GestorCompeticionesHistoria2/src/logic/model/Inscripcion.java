@@ -9,7 +9,7 @@ public class Inscripcion {
 	public String estado;
 	public long categoriaId;
 	public Date fechaModificacion;
-	public double tiempo;
+	public String tiempo;
 	public String medioPago;
 	public Date fechaPago;
 	public int cantidad;

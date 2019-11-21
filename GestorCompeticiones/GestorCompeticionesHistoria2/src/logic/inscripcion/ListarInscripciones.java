@@ -37,7 +37,7 @@ public class ListarInscripciones {
 				ins.estado = rs.getString("estado");
 				ins.categoriaId= rs.getLong("categoria_id");
 				ins.fechaModificacion = rs.getDate("fechamodificacion");
-				ins.tiempo = rs.getDouble("tiempo");
+				ins.tiempo = rs.getString("tiempo");
 				ins.atletaId = rs.getLong("atleta_id");
 				ins.competicionId = rs.getLong("competicion_id");
 				ins.medioPago = rs.getString("mediopago");
@@ -70,7 +70,7 @@ public class ListarInscripciones {
 				ins.estado = rs.getString("estado");
 				ins.categoriaId= rs.getLong("categoria_id");
 				ins.fechaModificacion = rs.getDate("fechamodificacion");
-				ins.tiempo = rs.getDouble("tiempo");
+				ins.tiempo = rs.getString("tiempo");
 				ins.atletaId = rs.getLong("atleta_id");
 				ins.competicionId = rs.getLong("competicion_id");
 				ins.medioPago = rs.getString("mediopago");

@@ -24,20 +24,21 @@ public class VerResultados {
 	private List<Resultados> resultadosMujer = new ArrayList<Resultados>();
 	private List<Resultados> resultadosHombre = new ArrayList<Resultados>();
 
-	public void generaResultados(String fileName) throws DataException {
+	public void generaResultados(String fileName) {
 		try {
 			resultadosAbsolutos = Parser
 					.parseResultados(FileUtil.cargarArchivo(fileName));
 			asignaSexos();
-			asignaNombre();
+			//asignaNombre();
 			// Collections.sort(resultadosAbsolutos); -> DA ERROR????
-			ponerPosicion(); 
+			ponerPosicion();
 			resultadosAbsolutos.forEach(r -> System.out.println(r));
 		} catch (DataException e) {
-			throw new DataException("Error en ver resultados");
+			System.out.println(e.getMessage());
+			e.printStackTrace();
 		}
-		
-		//PARA LOS FUTUROS FILTROS
+
+		// PARA LOS FUTUROS FILTROS
 		resultadosMujer = resultadosAbsolutos.stream()
 				.filter(s -> s.getSexo() == "Femenino")
 				.collect(Collectors.toList());
@@ -72,35 +73,35 @@ public class VerResultados {
 					Conf.getInstance().getProperty("SQL_GET_SEXO_FROM_EMAIL"));
 			ps.setString(1, r.getNombreCompetidor());
 			rs = ps.executeQuery();
-			if(rs.next())
+			if (rs.next())
 				r.setSexo(rs.getString("SEXO"));
 		} catch (SQLException e) {
 			e.printStackTrace();
 
 		}
 	}
-	
+
 	private void asignaNombre() {
 		resultadosAbsolutos.forEach(r -> asignadorNombres(r));
 	}
-	
+
 	private void asignadorNombres(Resultados r) {
 		ResultSet rs = null;
 		PreparedStatement ps = null;
 		try (Connection c = Jdbc.getConnection()) {
 
-			ps = c.prepareStatement(
-					Conf.getInstance().getProperty("SQL_GET_NOMBRE_FROM_EMAIL"));
+			ps = c.prepareStatement(Conf.getInstance()
+					.getProperty("SQL_GET_NOMBRE_FROM_EMAIL"));
 			ps.setString(1, r.getNombreCompetidor());
 			rs = ps.executeQuery();
-			if(rs.next())
-				r.setNombreCompetidor(rs.getString("NOMBRE") + " " + rs.getString("APELLIDOS"));
+			if (rs.next())
+				r.setNombreCompetidor(rs.getString("NOMBRE") + " "
+						+ rs.getString("APELLIDOS"));
 		} catch (SQLException e) {
 			e.printStackTrace();
 
 		}
 	}
-	
 
 	/**
 	 * Este metodo envia los resultados a la base de datos
@@ -111,21 +112,20 @@ public class VerResultados {
 
 	private void upload(Resultados r) {
 		PreparedStatement ps = null;
-		PreparedStatement ps2 = null;
-		ResultSet rs2 = null;
+		PreparedStatement psGetId = null;
+		ResultSet rsGetID = null;
 		try (Connection c = Jdbc.getConnection()) {
-			ps2 = c.prepareStatement(
-					Conf.getInstance().getProperty("SQL_GET_ID_FROM_EMAIL"));
-			ps2.setString(1, r.getNombreCompetidor());
-			rs2 = ps2.executeQuery();
+			psGetId = getConsulta(c, "SQL_GET_ID_FROM_EMAIL");
+			psGetId.setString(1, r.getNombreCompetidor());
+			rsGetID = psGetId.executeQuery();
 			int id = 0;
-			if(rs2.next())
-				rs2.getInt("ID");
-			ps = c.prepareStatement(
-					Conf.getInstance().getProperty("SQL_UPDATE_RESULT"));
+			if (rsGetID.next())
+				id = rsGetID.getInt("ID");
+			System.out.println("LLEGUE AQUI, ID: " + id + " email?: " + r.getNombreCompetidor());
+			ps = getConsulta(c, "SQL_UPDATE_RESULT");
 			ps.setString(1, r.getTiempo());
-			//ps.setInt(2,r.getPosicion());
-			ps.setInt(2,id);
+		//	ps.setInt(2, r.getPosicion());
+			ps.setInt(2, id);
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -141,20 +141,20 @@ public class VerResultados {
 		PreparedStatement ps3 = null;
 		ResultSet rs3 = null;
 		try (Connection c = Jdbc.getConnection()) {
-			ps2 = getConsulta(c,"SQL_GET_ID_FROM_NAME");
+			ps2 = getConsulta(c, "SQL_GET_ID_FROM_NAME");
 			rs2 = ps2.executeQuery();
 			rs2.next();
 			int cid = rs2.getInt("ID");
-			ps = getConsulta(c,"SQL_GET_TIEMPOS");
-			ps.setInt(1,cid);
+			ps = getConsulta(c, "SQL_GET_TIEMPOS");
+			ps.setInt(1, cid);
 			rs = ps.executeQuery();
-			while(rs.next()) {
-				ps3 =getConsulta(c,"SQL_GET_EMAIL_FROM_ID");
-				ps3.setInt(1,rs.getInt("ATLETA_ID"));
+			while (rs.next()) {
+				ps3 = getConsulta(c, "SQL_GET_EMAIL_FROM_ID");
+				ps3.setInt(1, rs.getInt("ATLETA_ID"));
 				rs3 = ps3.executeQuery();
 				rs.next();
 				String email = rs3.getString("EMAIL");
-				Resultados res =  new Resultados();
+				Resultados res = new Resultados();
 				res.setNombreCompetidor(email);
 				res.setTiempo(rs.getString("TIEMPO"));
 				res.setPosicion(rs.getInt("POSICION"));
@@ -171,32 +171,34 @@ public class VerResultados {
 
 		@Override
 		public int compare(Resultados o1, Resultados o2) {
-			if(o1.getTiempo().equals("DNS") || o1.getTiempo().equals("DNE"))
+			if (o1.getTiempo().equals("DNS") || o1.getTiempo().equals("DNE"))
 				return -2;
-			if(o2.getTiempo().equals("DNS") || o2.getTiempo().equals("DNE"))
+			if (o2.getTiempo().equals("DNS") || o2.getTiempo().equals("DNE"))
 				return -2;
 			LocalTime l1 = LocalTime.parse(o1.getTiempo());
 			LocalTime l2 = LocalTime.parse(o2.getTiempo());
-			
-			if(l1.isAfter(l2)) return 1;
-			else if (l1.isBefore(l2)) return -1;
+
+			if (l1.isAfter(l2))
+				return 1;
+			else if (l1.isBefore(l2))
+				return -1;
 			return 0;
 		}
 
 	}
 
 	private void ponerPosicion() {
-		Collections.sort(resultadosAbsolutos,new ComparaResultados());
-		for(int i =0;i<resultadosAbsolutos.size();i++) {
-			resultadosAbsolutos.get(i).setPosicion(i+1);
+		Collections.sort(resultadosAbsolutos, new ComparaResultados());
+		for (int i = 0; i < resultadosAbsolutos.size(); i++) {
+			resultadosAbsolutos.get(i).setPosicion(i + 1);
 		}
 	}
-	
-	private PreparedStatement getConsulta(Connection c, String consultaName) throws SQLException {
-		return c.prepareStatement(
-				Conf.getInstance().getProperty(consultaName));
+
+	private PreparedStatement getConsulta(Connection c, String consultaName)
+			throws SQLException {
+		return c.prepareStatement(Conf.getInstance().getProperty(consultaName));
 	}
-	
+
 	public List<Resultados> generateResultByCategory(String categoria) {
 		List<Resultados> r = new ArrayList<Resultados>();
 		PreparedStatement ps = null;
@@ -204,10 +206,10 @@ public class VerResultados {
 		ResultSet rs = null;
 		ResultSet rs2 = null;
 		try (Connection c = Jdbc.getConnection()) {
-			ps = getConsulta(c,"SQL_GET_ATLETAS_BY_COMPETITION");
-			ps2 = getConsulta(c,"SQL_GET_RESULT_BY_CATEGRY");
+			ps = getConsulta(c, "SQL_GET_ATLETAS_BY_COMPETITION");
+			ps2 = getConsulta(c, "SQL_GET_RESULT_BY_CATEGRY");
 			rs2 = ps2.executeQuery();
-			while(rs.next()) {
+			while (rs.next()) {
 				Resultados res = new Resultados();
 				res.setNombreCompetidor(rs.getString("DORSAL"));
 				res.setTiempo(rs.getString("TIEMPO"));
@@ -216,7 +218,50 @@ public class VerResultados {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		//asignarPosiciones(res);
+		// asignarPosiciones(res);
 		return r;
 	}
+
+	public List<Resultados> generaHistorialAtleta(String email) {
+		List<Resultados> historial = new ArrayList<Resultados>();
+		PreparedStatement psAtletaId = null;
+		PreparedStatement psNombreCompeticion = null;
+		PreparedStatement psResultado = null;
+		ResultSet rsAtletaId = null;
+		ResultSet rsNombreCompeticion = null;
+		ResultSet rsResultado = null;
+		try (Connection c = Jdbc.getConnection()) {
+			psAtletaId = getConsulta(c, "SQL_GET_ID_FROM_EMAIL");
+			psAtletaId.setString(1, email);
+			rsAtletaId = psAtletaId.executeQuery();
+			long idatleta = 0;
+			if (rsAtletaId.next())
+				idatleta = rsAtletaId.getLong("ID");
+			psResultado = getConsulta(c, "SQL_GET_HISTORIAL");
+			psResultado.setLong(1, idatleta);
+			rsResultado = psResultado.executeQuery();
+			while (rsResultado.next()) {
+				psNombreCompeticion = getConsulta(c, "SQL_GET_NAME_LISTAR");
+				psNombreCompeticion.setLong(1, rsResultado.getLong("COMPETICION_ID"));
+				rsNombreCompeticion = psNombreCompeticion.executeQuery();
+				String nombrecompeticion = "";
+				if (rsNombreCompeticion.next())
+					nombrecompeticion = rsNombreCompeticion.getString("NOMBRE");
+				Resultados r = new Resultados();
+				r.setFecha(rsResultado.getDate("FECHA"));
+				r.setNombreCompeticion(nombrecompeticion);
+				//r.setPosicion(rsResultado.getInt("POSICION"));
+				r.setTiempo(rsResultado.getString("TIEMPO"));
+				historial.add(r);
+			}
+
+		} catch (SQLException e) {
+			System.out.println("Fallo en la generacion de historiales"); // For
+																			// Debug
+			e.printStackTrace();
+		}
+
+		return historial;
+	}
+
 }

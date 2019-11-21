@@ -38,11 +38,12 @@ public class NuevaCompeticion {
 			ps.setLong(1, comp.id);
 			ps.setString(2, comp.nombre);
 			ps.setString(3, comp.tipo);
-			ps.setDate(4, new java.sql.Date(comp.fecha.getTime()));
-			ps.setInt(5,comp.plazas);
+			ps.setInt(4, comp.km);
+			ps.setDate(5, new java.sql.Date(comp.fecha.getTime()));
+			ps.setInt(6,comp.plazas);
 			ps.executeUpdate();
 		} catch (SQLException e) {
-			throw new DataException("Fallo en la conexion");
+			throw new DataException("Fallo en la conexion de crear competicion");
 		}
 	}
 
@@ -51,12 +52,13 @@ public class NuevaCompeticion {
 
 		try (Connection c = Jdbc.getConnection()) {
 			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_ANADIR_PLAZO"));
-			ps.setDate(2, new java.sql.Date(plazo.fechaInicio.getTime()));
-			ps.setDate(3, new java.sql.Date(plazo.fechaFin.getTime()));
-			ps.setDouble(4,plazo.cuota);
-			ps.setLong(5, competicionId);
+			ps.setDate(1, new java.sql.Date(plazo.fechaInicio.getTime()));
+			ps.setDate(2, new java.sql.Date(plazo.fechaFin.getTime()));
+			ps.setInt(3,plazo.cuota);
+			ps.setLong(4, competicionId);
 			ps.executeUpdate();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			throw new DataException("Fallo en la conexion");
 		}
 	}

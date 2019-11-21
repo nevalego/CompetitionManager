@@ -1561,15 +1561,21 @@ public class Principal extends JFrame {
 			competicionNueva.fecha = Dates.fromDdMmYyyy((Integer) comboBoxDiaNuevaComp.getSelectedItem(),
 					(Integer) comboBoxMesNuevaComp.getSelectedItem(),
 					(Integer) comboBoxAnioNuevaComp.getSelectedItem());
-
+			competicionNueva.plazas = (int)spinnerPlazasCompeticionNueva.getValue();
+			
 			if (competicionNueva.fecha.before(Dates.now())) {
 				JOptionPane.showMessageDialog(this, "La fecha de la competicion no puede ser anterior al presente");
 			} else {
 
 				nueva.crearCompeticion(competicionNueva);
-
-				for (Plazo plazo : plazosNuevaCompeticion)
-					nueva.añadirPlazoCompeticion(competicionNueva.id, plazo);
+				plazosNuevaCompeticion.forEach(r -> {
+					try {
+						nueva.añadirPlazoCompeticion(competicionNueva.id, r);
+					} catch (DataException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				});
 
 				tablePlazos.revalidate();
 				tablePlazos.repaint();
@@ -1591,22 +1597,21 @@ public class Principal extends JFrame {
 			// Guardar objeto en el model
 
 			Plazo plazo = new Plazo();
-			int anio = 2000+(Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[2]));
+			int anio = 2000 + (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[2]));
 			int mes = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[1]));
 			int dia = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[0]));
-			
+
 			plazo.fechaInicio = new Date(anio, mes, dia);
-			
-			anio = 2000+(Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[2]));
+
+			anio = 2000 + (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[2]));
 			mes = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[1]));
 			dia = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[0]));
-			
-			plazo.fechaFin = new Date(anio, mes ,dia);
-			System.out.println(modelTablaPlazos.getValueAt(i, 2).getClass());
-			if( i == 0)
-				plazo.cuota +=  (int) modelTablaPlazos.getValueAt(i, 2);
-			if( i == 1)
-				plazo.cuota +=  Integer.valueOf((String)modelTablaPlazos.getValueAt(i, 2));
+
+			plazo.fechaFin = new Date(anio, mes, dia);
+			if (i == 0)
+				plazo.cuota += (int) modelTablaPlazos.getValueAt(i, 2);
+			if (i == 1)
+				plazo.cuota += Integer.valueOf((String) modelTablaPlazos.getValueAt(i, 2));
 			plazosNuevaCompeticion.add(plazo);
 		}
 
@@ -1948,6 +1953,7 @@ public class Principal extends JFrame {
 		}
 		return comboBoxAnioNuevaComp;
 	}
+
 	private JPanel getPnTablasOrganizador() {
 		if (pnTablasOrganizador == null) {
 			pnTablasOrganizador = new JPanel();
@@ -1958,6 +1964,7 @@ public class Principal extends JFrame {
 		}
 		return pnTablasOrganizador;
 	}
+
 	private JLabel getLblMenuOrganizador() {
 		if (lblMenuOrganizador == null) {
 			lblMenuOrganizador = new JLabel("Menu Organizador");
@@ -1965,6 +1972,7 @@ public class Principal extends JFrame {
 		}
 		return lblMenuOrganizador;
 	}
+
 	private JScrollPane getScrollPaneTablaOrganIns() {
 		if (scrollPaneTablaOrganIns == null) {
 			scrollPaneTablaOrganIns = new JScrollPane();
@@ -1972,6 +1980,7 @@ public class Principal extends JFrame {
 		}
 		return scrollPaneTablaOrganIns;
 	}
+
 	private JScrollPane getScrollPaneTablaOrganComp() {
 		if (scrollPaneTablaOrganComp == null) {
 			scrollPaneTablaOrganComp = new JScrollPane();
@@ -1979,6 +1988,7 @@ public class Principal extends JFrame {
 		}
 		return scrollPaneTablaOrganComp;
 	}
+
 	private JTable getTableCompeticionesOrganizador() {
 		if (tableCompeticionesOrganizador == null) {
 			tableCompeticionesOrganizador = new JTable();
@@ -1986,6 +1996,7 @@ public class Principal extends JFrame {
 		}
 		return tableCompeticionesOrganizador;
 	}
+
 	private JTable getTableIInscripcionesOrganizador() {
 		if (tableIInscripcionesOrganizador == null) {
 			tableIInscripcionesOrganizador = new JTable();
@@ -1993,6 +2004,7 @@ public class Principal extends JFrame {
 		}
 		return tableIInscripcionesOrganizador;
 	}
+
 	private JLabel getLblTodasCompeticiones() {
 		if (lblTodasCompeticiones == null) {
 			lblTodasCompeticiones = new JLabel("Competiciones");
@@ -2000,6 +2012,7 @@ public class Principal extends JFrame {
 		}
 		return lblTodasCompeticiones;
 	}
+
 	private JLabel getLblTodasInscripciones() {
 		if (lblTodasInscripciones == null) {
 			lblTodasInscripciones = new JLabel("Inscripciones");
@@ -2007,6 +2020,7 @@ public class Principal extends JFrame {
 		}
 		return lblTodasInscripciones;
 	}
+
 	private JPanel getPnTablaCompeticionesOrgan() {
 		if (pnTablaCompeticionesOrgan == null) {
 			pnTablaCompeticionesOrgan = new JPanel();
@@ -2018,6 +2032,7 @@ public class Principal extends JFrame {
 		}
 		return pnTablaCompeticionesOrgan;
 	}
+
 	private JPanel getPnTablaInscripcionesOrgan() {
 		if (pnTablaInscripcionesOrgan == null) {
 			pnTablaInscripcionesOrgan = new JPanel();
@@ -2028,6 +2043,7 @@ public class Principal extends JFrame {
 		}
 		return pnTablaInscripcionesOrgan;
 	}
+
 	private JPanel getPnOrganizadorCompeticion() {
 		if (pnOrganizadorCompeticion == null) {
 			pnOrganizadorCompeticion = new JPanel();
@@ -2037,12 +2053,14 @@ public class Principal extends JFrame {
 		}
 		return pnOrganizadorCompeticion;
 	}
+
 	private JButton getBtnCargarPagos() {
 		if (btnCargarPagos == null) {
 			btnCargarPagos = new JButton("Cargar Pagos");
 		}
 		return btnCargarPagos;
 	}
+
 	private JButton getBtnCargarResultados() {
 		if (btnCargarResultados == null) {
 			btnCargarResultados = new JButton("Cargar Resultados");
