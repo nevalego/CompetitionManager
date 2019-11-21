@@ -15,6 +15,8 @@ public class Inscripcion {
 	public int cantidad;
 	public long atletaId;
 	public long competicionId;
+	public int posicion;
+	public int dorsal;
 	public String nombreCompeticion;
 	public String nombreAtleta;
 	
