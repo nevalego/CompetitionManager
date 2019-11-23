@@ -182,4 +182,38 @@ public class ListarInscripciones {
 		}
 		return inscripciones;	}
 
+	public List<Inscripcion> verInscripcionesCompeticion(Long id) throws DataException {
+		List<Inscripcion> inscripciones = new ArrayList<Inscripcion>();
+		Inscripcion ins = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		try (Connection c = Jdbc.getConnection()) {
+			ps = c.prepareStatement(Conf.getInstance()
+					.getProperty("SQL_VER_INSCRIPCIONES_COMPETICION_ID"));
+			ps.setLong(1,id);
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				ins = new Inscripcion();
+				ins.id= rs.getLong("id");
+				ins.fecha = rs.getDate("fecha");
+				ins.estado = rs.getString("estado");
+				ins.categoriaId= rs.getLong("categoria_id");
+				ins.fechaModificacion = rs.getDate("fechamodificacion");
+				ins.tiempo = rs.getString("tiempo");
+				ins.posicion = rs.getInt("posicion");
+				ins.dorsal = rs.getInt("dorsal");
+				ins.atletaId = rs.getLong("atleta_id");
+				ins.competicionId = rs.getLong("competicion_id");
+				ins.medioPago = rs.getString("mediopago");
+				ins.fechaPago = rs.getDate("fechapago");
+				ins.cantidad = rs.getInt("cantidad");
+				inscripciones.add(ins);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DataException("Fallo al devolver todas las inscripciones");
+		}
+		return inscripciones;
+	}
 }

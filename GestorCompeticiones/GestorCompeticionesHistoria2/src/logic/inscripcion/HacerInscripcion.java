@@ -200,25 +200,25 @@ public class HacerInscripcion {
 		throw new DataException("Age " + age + " is not valid for this competition");
 	}
 
-	public Atleta getAtleta(long atletaId) {
+	public Atleta getAtleta(long atletaId) throws DataException {
 		PreparedStatement ps;
 		Atleta result = null;
-		try {
+		try(Connection c = Jdbc.getConnection()) {
 			ps = c.prepareStatement("SELECT * FROM ATLETA WHERE ID = ?");
 			ps.setLong(1, atletaId);
 			ResultSet rs = ps.executeQuery();
 			if (rs.next()) {
 				result = new Atleta();
-				result.id = rs.getLong("idAtleta");
+				result.id = rs.getLong("id");
 				result.dni = rs.getString("dni");
 				result.nombre = rs.getString("nombre");
 				result.apellidos = rs.getString("apellidos");
 				result.email = rs.getString("email");
 				result.sexo = rs.getString("sexo");
-				result.fechaNacimiento = rs.getDate("fechaNacimiento");
+				result.fechaNacimiento = rs.getDate("fechanacimiento");
 			}
 		} catch (SQLException e) {
-			return null;
+			throw new DataException("Error al obtener atleta por id");
 		}
 		return result;
 	}

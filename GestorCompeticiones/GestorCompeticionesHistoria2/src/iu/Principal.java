@@ -45,6 +45,7 @@ import logic.inscripcion.ListarCompeticiones;
 import logic.inscripcion.ListarInscripciones;
 import logic.inscripcion.NuevaCompeticion;
 import logic.inscripcion.PagoInscripcion;
+import logic.inscripcion.VerResultados;
 import logic.model.Atleta;
 import logic.model.AtletaInscripcion;
 import logic.model.Competicion;
@@ -52,6 +53,7 @@ import logic.model.Inscripcion;
 import logic.model.Plazo;
 import logic.model.Resultados;
 import util.Dates;
+import javax.swing.BoxLayout;
 
 public class Principal extends JFrame {
 
@@ -171,6 +173,8 @@ public class Principal extends JFrame {
 	private DefaultTableModel modelTodasInscripciones = new DefaultTableModel();
 	private List<Resultados> resultados = new ArrayList<>();
 	private DefaultTableModel modelResultados = new DefaultTableModel();
+	private List<Inscripcion> inscripcionesResultadosCompeticion = new ArrayList<>();
+	private DefaultTableModel modelInscripcionesResultadosCompeticion = new DefaultTableModel();
 	private JPanel pnCentralCompeticionNueva;
 	private JPanel pnTablaCategorias;
 	private JLabel lblTablaPlazos;
@@ -952,13 +956,14 @@ public class Principal extends JFrame {
 			toAtletaMenu();
 		} else if (cardNumber == 3) { // Panel Registro Atleta
 			toFirst();
+
 		} else if (cardNumber == 4) {// Panel Menu Organizador
 			toFirst();
 		} else if (cardNumber == 5) { // Panel Nueva Competicion
 			toOrganizadorMenu();
 		} else if (cardNumber == 6) { // Panel Resultados Competicion
 			toOrganizadorMenu();
-		} else if(cardNumber == 7) { // Panel Pagos Transferencia Competicion
+		} else if (cardNumber == 7) { // Panel Pagos Transferencia Competicion
 			// toPagos();
 		}
 
@@ -975,7 +980,7 @@ public class Principal extends JFrame {
 	private void loadCompeticionesOrganizador() {
 
 		tableCompeticionesOrganizador.removeAll();
-		
+
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 		try {
 			todasCompeticiones = listarCompeticiones.verCompeticiones();
@@ -983,7 +988,8 @@ public class Principal extends JFrame {
 
 			for (int i = 0; i < todasCompeticiones.size(); i++) {
 				m[i] = new Object[] { todasCompeticiones.get(i).nombre, todasCompeticiones.get(i).fecha,
-						todasCompeticiones.get(i).tipo, todasCompeticiones.get(i).km, todasCompeticiones.get(i).plazas };
+						todasCompeticiones.get(i).tipo, todasCompeticiones.get(i).km,
+						todasCompeticiones.get(i).plazas };
 			}
 
 			modelTodasCompeticiones.setDataVector(m,
@@ -1004,7 +1010,7 @@ public class Principal extends JFrame {
 	private void loadInscripcionesOrganizador() {
 
 		tableIInscripcionesOrganizador.removeAll();
-		
+
 		ListarInscripciones listar = new ListarInscripciones();
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 		try {
@@ -1013,12 +1019,11 @@ public class Principal extends JFrame {
 
 			for (int i = 0; i < todasInscripciones.size(); i++) {
 				String nombreCompeticion = listarCompeticiones.verCompeticionInscripcion(todasInscripciones.get(i));
-				m[i] = new Object[] {nombreCompeticion, todasInscripciones.get(i).fecha,
-						todasInscripciones.get(i).estado};
+				m[i] = new Object[] { nombreCompeticion, todasInscripciones.get(i).fecha,
+						todasInscripciones.get(i).estado };
 			}
 
-			modelTodasInscripciones.setDataVector(m,
-					new String[] { "Competicion", "Fecha", "Estado" });
+			modelTodasInscripciones.setDataVector(m, new String[] { "Competicion", "Fecha", "Estado" });
 
 			tableIInscripcionesOrganizador.getTableHeader().setReorderingAllowed(false);
 			scrollPaneTablaOrganIns.setViewportView(tableIInscripcionesOrganizador);
@@ -1031,7 +1036,7 @@ public class Principal extends JFrame {
 		}
 
 	}
-	
+
 	private void toAtletaMenu() {
 
 		loadCompeticiones();
@@ -2165,18 +2170,25 @@ public class Principal extends JFrame {
 	}
 
 	protected void cargarPagos(Competicion competicion) {
-		// TODO YO
-		
-		String file = JOptionPane.showInputDialog(this,"Escribe el nombre del fichero con los pagos por transferencia");
-		toPagos();
-		
-	}
 
-	private void toPagos() {
-		//loadPagos();
-		pnButtons.setVisible(true);
-		cardNumber = 7;
-		((CardLayout) pnCards.getLayout()).show(pnCards, "pagos");
+		String file = JOptionPane.showInputDialog(this,
+				"Escribe el nombre del fichero con los pagos por transferencia");
+		PagoInscripcion pago = new PagoInscripcion();
+
+		try {
+			int[] pagos = pago.leerPagos(file);
+			int oks = pagos[0];
+			int kos = pagos[1];
+			int total = oks + kos;
+
+			JOptionPane.showMessageDialog(this, 
+					"** Total registro procesados " + total + 
+					" ** OKs " + oks + " ** KOs "
+					+ kos + "\nSe ha generado un fichero con los pagos no completados con exito");
+
+		} catch (DataException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage());
+		}
 	}
 
 	private JButton getBtnCargarResultados() {
@@ -2195,19 +2207,56 @@ public class Principal extends JFrame {
 		}
 		return btnCargarResultados;
 	}
+
 	protected void cargarResultados(Competicion competicion) {
-		// TODO (aqui tu codigo AITOR)
-		String file = JOptionPane.showInputDialog(this,"Escribe el nombre del fichero con los resultados de la competicion");
-		toResultados();
-		
+		// TODO (aqui tu codigo AITOR) Yo pense en poner un metodo que leyera el fichero
+		// y devolviera una lista de Inscripciones actualizadas(con los tiempos,
+		// posiciones y tal)
+		String file = JOptionPane.showInputDialog(this,
+				"Escribe el nombre del fichero con los resultados de la competicion");
+		VerResultados ver = new VerResultados();
+		// resultados = ver.guardarResultados(file);
+		toResultados(competicion);
+
 	}
 
-	private void toResultados() {
-		// TODO Auto-generated method stub
-		//loadResultados();
+	private void toResultados(Competicion competicion) {
+
+		loadResultadosCompeticion(competicion);
+
 		pnButtons.setVisible(true);
 		cardNumber = 6;
 		((CardLayout) pnCards.getLayout()).show(pnCards, "resultados");
+	}
+
+	private void loadResultadosCompeticion(Competicion competicion) {
+		tableResultados.removeAll();
+
+		ListarInscripciones listar = new ListarInscripciones();
+		HacerInscripcion obtenerAtleta = new HacerInscripcion();
+		try {
+			inscripcionesResultadosCompeticion = listar.verInscripcionesCompeticion(competicion.id);
+			Object[][] m = new Object[todasInscripciones.size()][todasInscripciones.size()];
+
+			for (int i = 0; i < inscripcionesResultadosCompeticion.size(); i++) {
+				String nombreAtleta = obtenerAtleta
+						.getAtleta(inscripcionesResultadosCompeticion.get(i).atletaId).nombre;
+
+				m[i] = new String[] { nombreAtleta, inscripcionesResultadosCompeticion.get(i).tiempo,
+						String.valueOf(inscripcionesResultadosCompeticion.get(i).posicion) };
+			}
+
+			modelTodasInscripciones.setDataVector(m, new String[] { "Nombre", "Tiempo", "Posicion" });
+
+			tableResultados.getTableHeader().setReorderingAllowed(false);
+			scrollPaneTablaResultados.setViewportView(tableResultados);
+			tableResultados.revalidate();
+			tableResultados.repaint();
+
+		} catch (DataException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, e.getMessage());
+		}
 	}
 
 	private JPanel getPnAtletaHistorial() {
@@ -2221,6 +2270,7 @@ public class Principal extends JFrame {
 		}
 		return pnAtletaHistorial;
 	}
+
 	private JButton getBtnVerMiHistorial() {
 		if (btnVerMiHistorial == null) {
 			btnVerMiHistorial = new JButton("Ver Mi Historial");
@@ -2228,6 +2278,7 @@ public class Principal extends JFrame {
 		}
 		return btnVerMiHistorial;
 	}
+
 	private JPanel getPnResultados() {
 		if (pnResultados == null) {
 			pnResultados = new JPanel();
@@ -2238,6 +2289,7 @@ public class Principal extends JFrame {
 		}
 		return pnResultados;
 	}
+
 	private JLabel getLblMenuOrganizadorResultados() {
 		if (lblMenuOrganizadorResultados == null) {
 			lblMenuOrganizadorResultados = new JLabel("Menu Organizador: Resultados ");
@@ -2245,6 +2297,7 @@ public class Principal extends JFrame {
 		}
 		return lblMenuOrganizadorResultados;
 	}
+
 	private JScrollPane getScrollPaneTablaResultados() {
 		if (scrollPaneTablaResultados == null) {
 			scrollPaneTablaResultados = new JScrollPane();
@@ -2252,11 +2305,13 @@ public class Principal extends JFrame {
 		}
 		return scrollPaneTablaResultados;
 	}
+
 	private JTable getTableResultados() {
 		if (tableResultados == null) {
 			tableResultados = new JTable();
 			tableResultados.setModel(modelResultados);
 			tableResultados.setRowSelectionAllowed(true);
+			tableResultados.setModel(modelInscripcionesResultadosCompeticion);
 		}
 		return tableResultados;
 	}
