@@ -10,6 +10,7 @@ public class Resultados {
 	private int posicion;
 	private Date fecha;
 	private String nombreCompeticion;
+	private int dorsal;
 	public String getNombreCompetidor() {
 		return nombreCompetidor;
 	}
@@ -46,6 +47,13 @@ public class Resultados {
 	}
 	public void setNombreCompeticion(String nombreCompeticion) {
 		this.nombreCompeticion = nombreCompeticion;
+	}
+	
+	public int getDorsal() {
+		return dorsal;
+	}
+	public void setDorsal(int dorsal) {
+		this.dorsal = dorsal;
 	}
 	@Override
 	public String toString() {

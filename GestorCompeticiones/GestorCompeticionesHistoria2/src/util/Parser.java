@@ -63,49 +63,11 @@ public class Parser {
 	private static Resultados parseResultado(String res) throws DataException {
 		Resultados r = new Resultados();
 		String[] part = res.split("\t");
-		r.setNombreCompetidor(part[0]);
-		r.setTiempo(parseTiempoPrueba(part[1], part[2]));
+		r.setDorsal(Integer.parseInt(part[0]));
+		r.setTiempo(parseTiempo(part[1], part[2]));
 		return r;
 	}
-
 	private static String parseTiempo(String tiempoSalida,
-			String tiempoEntrada) {
-		String tiempoFinal = null;
-		if (tiempoSalida != null && !tiempoSalida.equals("---")) {
-			if (tiempoEntrada != null && !tiempoEntrada.equals("---")) {
-				String[] tiempoSalidaCalculo = tiempoSalida.split(":");
-				String[] tiempoEntradaCalculo = tiempoEntrada.split(":");
-
-				int horaFinal = Integer.parseInt(tiempoEntradaCalculo[0])
-						- Integer.parseInt(tiempoSalidaCalculo[0]);
-				int minFinal = Integer.parseInt(tiempoEntradaCalculo[1])
-						- Integer.parseInt(tiempoSalidaCalculo[1]);
-				int segFinal = Integer.parseInt(tiempoEntradaCalculo[2])
-						- Integer.parseInt(tiempoSalidaCalculo[2]);
-				String stringHoraFinal = "" + horaFinal;
-				String stringMinFinal = "" + minFinal;
-				String stringSegFinal = "" + segFinal;
-				if (horaFinal < 10) {
-					stringHoraFinal = "0" + horaFinal;
-				}
-				if (minFinal < 10) {
-					stringMinFinal = "0" + minFinal;
-				}
-				if (segFinal < 10) {
-					stringSegFinal = "0" + segFinal;
-				}
-				tiempoFinal = stringHoraFinal + ":" + stringMinFinal + ":"
-						+ stringSegFinal;
-			} else {
-				tiempoFinal = "DNE";
-			}
-		} else
-			tiempoFinal = "DNS";
-
-		return tiempoFinal;
-	}
-
-	private static String parseTiempoPrueba(String tiempoSalida,
 			String tiempoEntrada) throws DataException {
 		String tiempoFinal = null;
 		if (tiempoSalida != null && !tiempoSalida.equals("---")) {

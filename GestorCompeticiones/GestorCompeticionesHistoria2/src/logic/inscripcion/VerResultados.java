@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import logic.exception.DataException;
 import logic.model.Resultados;
@@ -21,64 +20,91 @@ import util.Parser;
 public class VerResultados {
 
 	private List<Resultados> resultadosAbsolutos = new ArrayList<Resultados>();
-	private List<Resultados> resultadosMujer = new ArrayList<Resultados>();
-	private List<Resultados> resultadosHombre = new ArrayList<Resultados>();
+	private List<Resultados> resultadosErroneos = new ArrayList<Resultados>();
+	private long competicionId;
 
-	public void generaResultados(String fileName) {
+	/**
+	 * Metodo que calcula los resultados de una competicion en base a un fichero
+	 * 
+	 * @param competicion_id, el id de la competicion seleccionada
+	 * @param fileName,       el fichero que contiene los resultados
+	 */
+	public void generaResultados(long competicion_id, String fileName) {
+		this.competicionId = competicion_id;
 		try {
 			resultadosAbsolutos = Parser
 					.parseResultados(FileUtil.cargarArchivo(fileName));
-			asignaSexos();
-			//asignaNombre();
-			// Collections.sort(resultadosAbsolutos); -> DA ERROR????
+			isAllowed(resultadosAbsolutos);
+			asignadorSexos();
+			asignaNombre();
 			ponerPosicion();
 			resultadosAbsolutos.forEach(r -> System.out.println(r));
 		} catch (DataException e) {
 			System.out.println(e.getMessage());
 			e.printStackTrace();
 		}
-
-		// PARA LOS FUTUROS FILTROS
-		resultadosMujer = resultadosAbsolutos.stream()
-				.filter(s -> s.getSexo() == "Femenino")
-				.collect(Collectors.toList());
-		resultadosHombre = resultadosAbsolutos.stream()
-				.filter(s -> s.getSexo() == "Masculino")
-				.collect(Collectors.toList());
 		uploadResults();
+		updateStatus();
 	}
 
-	public List<Resultados> getResultadosAbsolutos() {
-		return resultadosAbsolutos;
+	private void isAllowed(List<Resultados> provisionales) {
+		for (Resultados result : provisionales) {
+			if (!removeWrongs(result)) {
+				provisionales.remove(result);
+				resultadosErroneos.add(result);
+			}
+		}
 	}
 
-	public List<Resultados> getResultadosMujer() {
-		return resultadosMujer;
-	}
+	private boolean removeWrongs(Resultados resultado) {
+		ResultSet rsGetId = null;
+		PreparedStatement psGetId = null;
 
-	public List<Resultados> getResultadosHombre() {
-		return resultadosHombre;
-	}
-
-	private void asignaSexos() {
-		resultadosAbsolutos.forEach(r -> asignador(r));
-	}
-
-	private void asignador(Resultados r) {
-		ResultSet rs = null;
-		PreparedStatement ps = null;
 		try (Connection c = Jdbc.getConnection()) {
 
-			ps = c.prepareStatement(
-					Conf.getInstance().getProperty("SQL_GET_SEXO_FROM_EMAIL"));
-			ps.setString(1, r.getNombreCompetidor());
-			rs = ps.executeQuery();
-			if (rs.next())
-				r.setSexo(rs.getString("SEXO"));
+			psGetId = getConsulta(c, "SQL_GET_ID_FROM_DORSAL_COMPETICION");
+			psGetId.setInt(1, resultado.getDorsal());
+			psGetId.setLong(2, competicionId);
+			rsGetId = psGetId.executeQuery();
+			return rsGetId.next();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return false;
+	}
+
+	private void asignadorSexos() {
+		resultadosAbsolutos.forEach(r -> sexWorker(r));
+	}
+
+	private void sexWorker(Resultados r) {
+		ResultSet rsGetId = null;
+		PreparedStatement psGetId = null;
+		ResultSet rsGetSexo = null;
+		PreparedStatement psGetSexo = null;
+		try (Connection c = Jdbc.getConnection()) {
+
+			psGetId = getConsulta(c, "SQL_GET_ID_FROM_DORSAL_COMPETICION");
+			psGetId.setInt(1, r.getDorsal());
+			psGetId.setLong(2, competicionId);
+			rsGetId = psGetId.executeQuery();
+			int id = 0;
+			if (rsGetId.next())
+				id = rsGetId.getInt("ATLETA_ID");
+
+			psGetSexo = getConsulta(c, "SQL_GET_SEXO_FROM_ID");
+			psGetSexo.setInt(1, id);
+			rsGetSexo = psGetSexo.executeQuery();
+			if (rsGetSexo.next())
+				r.setSexo(rsGetSexo.getString("SEXO"));
 		} catch (SQLException e) {
 			e.printStackTrace();
 
 		}
+	}
+
+	public List<Resultados> getResultadosAbsolutos() {
+		return resultadosAbsolutos;
 	}
 
 	private void asignaNombre() {
@@ -86,17 +112,25 @@ public class VerResultados {
 	}
 
 	private void asignadorNombres(Resultados r) {
-		ResultSet rs = null;
-		PreparedStatement ps = null;
+		ResultSet rsGetNombre = null;
+		PreparedStatement psGetNombre = null;
+		ResultSet rsGetId = null;
+		PreparedStatement psGetId = null;
 		try (Connection c = Jdbc.getConnection()) {
+			psGetId = getConsulta(c, "SQL_GET_ID_FROM_DORSAL_COMPETICION");
+			psGetId.setInt(1, r.getDorsal());
+			psGetId.setLong(2, competicionId);
+			rsGetId = psGetId.executeQuery();
+			int id = 0;
+			if (rsGetId.next())
+				id = rsGetId.getInt("ATLETA_ID");
 
-			ps = c.prepareStatement(Conf.getInstance()
-					.getProperty("SQL_GET_NOMBRE_FROM_EMAIL"));
-			ps.setString(1, r.getNombreCompetidor());
-			rs = ps.executeQuery();
-			if (rs.next())
-				r.setNombreCompetidor(rs.getString("NOMBRE") + " "
-						+ rs.getString("APELLIDOS"));
+			psGetNombre = getConsulta(c, "SQL_GET_NOMBRE_FROM_ID");
+			psGetNombre.setInt(1, id);
+			rsGetNombre = psGetNombre.executeQuery();
+			if (rsGetNombre.next())
+				r.setNombreCompetidor(rsGetNombre.getString("NOMBRE") + " "
+						+ rsGetNombre.getString("APELLIDOS"));
 		} catch (SQLException e) {
 			e.printStackTrace();
 
@@ -115,21 +149,39 @@ public class VerResultados {
 		PreparedStatement psGetId = null;
 		ResultSet rsGetID = null;
 		try (Connection c = Jdbc.getConnection()) {
-			psGetId = getConsulta(c, "SQL_GET_ID_FROM_EMAIL");
-			psGetId.setString(1, r.getNombreCompetidor());
+			psGetId = getConsulta(c, "SQL_GET_ID_FROM_DORSAL");
+			psGetId.setInt(1, r.getDorsal());
 			rsGetID = psGetId.executeQuery();
 			int id = 0;
 			if (rsGetID.next())
-				id = rsGetID.getInt("ID");
-			System.out.println("LLEGUE AQUI, ID: " + id + " email?: " + r.getNombreCompetidor());
+				id = rsGetID.getInt("ATLETA_ID");
+			else
+				resultadosErroneos.add(r);
+			// System.out.println("LLEGUE AQUI, ID: " + id + " dorsal?: " +
+			// r.getDorsal());
 			ps = getConsulta(c, "SQL_UPDATE_RESULT");
 			ps.setString(1, r.getTiempo());
-		//	ps.setInt(2, r.getPosicion());
-			ps.setInt(2, id);
+			ps.setInt(2, r.getPosicion());
+			ps.setInt(3, id);
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void updateStatus() {
+		PreparedStatement psSetStatus = null;
+		try (Connection c = Jdbc.getConnection()) {
+			psSetStatus = getConsulta(c, "SQL_UPDATE_STATUS_FINISHED");
+			psSetStatus.setLong(1, competicionId);
+			psSetStatus.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	List<Resultados> getErroneos() {
+		return resultadosErroneos;
 	}
 
 	public List<Resultados> obtenerResultado(String nombreCompeticion) {
@@ -199,29 +251,6 @@ public class VerResultados {
 		return c.prepareStatement(Conf.getInstance().getProperty(consultaName));
 	}
 
-	public List<Resultados> generateResultByCategory(String categoria) {
-		List<Resultados> r = new ArrayList<Resultados>();
-		PreparedStatement ps = null;
-		PreparedStatement ps2 = null;
-		ResultSet rs = null;
-		ResultSet rs2 = null;
-		try (Connection c = Jdbc.getConnection()) {
-			ps = getConsulta(c, "SQL_GET_ATLETAS_BY_COMPETITION");
-			ps2 = getConsulta(c, "SQL_GET_RESULT_BY_CATEGRY");
-			rs2 = ps2.executeQuery();
-			while (rs.next()) {
-				Resultados res = new Resultados();
-				res.setNombreCompetidor(rs.getString("DORSAL"));
-				res.setTiempo(rs.getString("TIEMPO"));
-				r.add(res);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		// asignarPosiciones(res);
-		return r;
-	}
-
 	public List<Resultados> generaHistorialAtleta(String email) {
 		List<Resultados> historial = new ArrayList<Resultados>();
 		PreparedStatement psAtletaId = null;
@@ -242,7 +271,8 @@ public class VerResultados {
 			rsResultado = psResultado.executeQuery();
 			while (rsResultado.next()) {
 				psNombreCompeticion = getConsulta(c, "SQL_GET_NAME_LISTAR");
-				psNombreCompeticion.setLong(1, rsResultado.getLong("COMPETICION_ID"));
+				psNombreCompeticion.setLong(1,
+						rsResultado.getLong("COMPETICION_ID"));
 				rsNombreCompeticion = psNombreCompeticion.executeQuery();
 				String nombrecompeticion = "";
 				if (rsNombreCompeticion.next())
@@ -250,7 +280,7 @@ public class VerResultados {
 				Resultados r = new Resultados();
 				r.setFecha(rsResultado.getDate("FECHA"));
 				r.setNombreCompeticion(nombrecompeticion);
-				//r.setPosicion(rsResultado.getInt("POSICION"));
+				r.setPosicion(rsResultado.getInt("POSICION"));
 				r.setTiempo(rsResultado.getString("TIEMPO"));
 				historial.add(r);
 			}
@@ -264,4 +294,51 @@ public class VerResultados {
 		return historial;
 	}
 
+	/* Deprecated */
+	/*
+	 * public void generaResultados(String fileName) { try { resultadosAbsolutos
+	 * = Parser .parseResultados(FileUtil.cargarArchivo(fileName));
+	 * asignaSexos(); //asignaNombre(); ponerPosicion();
+	 * resultadosAbsolutos.forEach(r -> System.out.println(r)); } catch
+	 * (DataException e) { System.out.println(e.getMessage());
+	 * e.printStackTrace(); } uploadResults(); }
+	 * 
+	 * public List<Resultados> generateResultByCategory(String categoria) {
+	 * List<Resultados> r = new ArrayList<Resultados>(); PreparedStatement ps =
+	 * null; PreparedStatement ps2 = null; ResultSet rs = null; ResultSet rs2 =
+	 * null; try (Connection c = Jdbc.getConnection()) { ps = getConsulta(c,
+	 * "SQL_GET_ATLETAS_BY_COMPETITION"); ps2 = getConsulta(c,
+	 * "SQL_GET_RESULT_BY_CATEGRY"); rs2 = ps2.executeQuery(); while (rs.next())
+	 * { Resultados res = new Resultados();
+	 * res.setNombreCompetidor(rs.getString("DORSAL"));
+	 * res.setTiempo(rs.getString("TIEMPO")); r.add(res); } } catch
+	 * (SQLException e) { e.printStackTrace(); } // asignarPosiciones(res);
+	 * return r; }
+	 * 
+	 * private void asignaSexos() { resultadosAbsolutos.forEach(r ->
+	 * asignador(r)); }
+	 * 
+	 * private void asignador(Resultados r) { ResultSet rs = null;
+	 * PreparedStatement ps = null; try (Connection c = Jdbc.getConnection()) {
+	 * 
+	 * ps = c.prepareStatement(
+	 * Conf.getInstance().getProperty("SQL_GET_SEXO_FROM_EMAIL"));
+	 * ps.setString(1, r.getNombreCompetidor()); rs = ps.executeQuery(); if
+	 * (rs.next()) r.setSexo(rs.getString("SEXO")); } catch (SQLException e) {
+	 * e.printStackTrace();
+	 * 
+	 * } } private void asignaNombre() { resultadosAbsolutos.forEach(r ->
+	 * asignadorNombres(r)); } private void asignadoritoNombres(Resultados r) {
+	 * ResultSet rs = null; PreparedStatement ps = null; try (Connection c =
+	 * Jdbc.getConnection()) {
+	 * 
+	 * ps = c.prepareStatement(Conf.getInstance()
+	 * .getProperty("SQL_GET_NOMBRE_FROM_EMAIL")); ps.setString(1,
+	 * r.getNombreCompetidor()); rs = ps.executeQuery(); if (rs.next())
+	 * r.setNombreCompetidor(rs.getString("NOMBRE") + " " +
+	 * rs.getString("APELLIDOS")); } catch (SQLException e) {
+	 * e.printStackTrace();
+	 * 
+	 * } }
+	 */
 }

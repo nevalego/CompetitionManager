@@ -57,6 +57,10 @@ import javax.swing.BoxLayout;
 
 public class Principal extends JFrame {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JPanel pnEntrarOrganizador;
 	private JLabel lblEntrarComoOrganizador;
@@ -218,7 +222,11 @@ public class Principal extends JFrame {
 	private JLabel lblMenuOrganizadorResultados;
 	private JScrollPane scrollPaneTablaResultados;
 	private JTable tableResultados;
-
+	private JPanel pnHistorial;
+	private JLabel lblMenuAtletaHistorial;
+	private JScrollPane scrollPaneHistorial;
+	private JTable tableHistorial;
+	private DefaultTableModel modelHistorial = new DefaultTableModel();
 	/**
 	 * Launch the application.
 	 */
@@ -411,6 +419,7 @@ public class Principal extends JFrame {
 			pnCards.add(getPnOrganizador(), "organizadormenu");
 			pnCards.add(getPnNuevaCompeticion(), "crearcompeticion");
 			pnCards.add(getPnResultados(), "resultados");
+			pnCards.add(getPnHistorial(), "historial");
 		}
 		return pnCards;
 	}
@@ -2274,6 +2283,11 @@ public class Principal extends JFrame {
 	private JButton getBtnVerMiHistorial() {
 		if (btnVerMiHistorial == null) {
 			btnVerMiHistorial = new JButton("Ver Mi Historial");
+			btnVerMiHistorial.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					toHistorial();
+				}
+			});
 			btnVerMiHistorial.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return btnVerMiHistorial;
@@ -2314,5 +2328,56 @@ public class Principal extends JFrame {
 			tableResultados.setModel(modelInscripcionesResultadosCompeticion);
 		}
 		return tableResultados;
+	}
+	private JPanel getPnHistorial() {
+		if (pnHistorial == null) {
+			pnHistorial = new JPanel();
+			pnHistorial.setLayout(new BorderLayout(0, 0));
+			pnHistorial.add(getLblMenuAtletaHistorial(), BorderLayout.NORTH);
+			pnHistorial.add(getScrollPaneHistorial(), BorderLayout.CENTER);
+		}
+		return pnHistorial;
+	}
+	private JLabel getLblMenuAtletaHistorial() {
+		if (lblMenuAtletaHistorial == null) {
+			lblMenuAtletaHistorial = new JLabel("Menu Atleta: Historial");
+			lblMenuAtletaHistorial.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		}
+		return lblMenuAtletaHistorial;
+	}
+	private JScrollPane getScrollPaneHistorial() {
+		if (scrollPaneHistorial == null) {
+			scrollPaneHistorial = new JScrollPane();
+			scrollPaneHistorial.setViewportView(getTableHistorial());
+		}
+		return scrollPaneHistorial;
+	}
+	private JTable getTableHistorial() {
+		if (tableHistorial == null) {
+			tableHistorial = new JTable();
+			tableHistorial.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			tableHistorial.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+			tableHistorial.setModel(modelHistorial);
+			tableHistorial.setRowSelectionAllowed(false);
+			tableHistorial.setEnabled(false);
+		}
+		return tableHistorial;
+	}
+	
+	private void toHistorial() {
+		VerResultados vr = new VerResultados();
+		List<Resultados> lista = vr.generaHistorialAtleta(atleta.email);
+		Object[][] m = new Object[lista.size()][lista.size()];
+
+		for (int i = 0; i < lista.size(); i++) {
+			m[i] = new Object[] { lista.get(i).getNombreCompeticion(), lista.get(i).getPosicion(),
+					lista.get(i).getTiempo(), lista.get(i).getFecha(),};
+		}
+
+		modelHistorial.setDataVector(m,
+				new String[] { "Nombre Competicion", "Posicion", "Tiempo", "Fecha"});
+
+		tableHistorial.getTableHeader().setReorderingAllowed(false);
+		((CardLayout) pnCards.getLayout()).show(pnCards, "historial");
 	}
 }
