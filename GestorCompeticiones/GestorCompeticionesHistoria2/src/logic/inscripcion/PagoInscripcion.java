@@ -1,17 +1,23 @@
 package logic.inscripcion;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import logic.exception.DataException;
 import logic.model.Competicion;
 import logic.model.Inscripcion;
+import logic.model.Pago;
 import logic.model.Plazo;
 import util.Conf;
 import util.Dates;
@@ -60,7 +66,7 @@ public class PagoInscripcion {
 				ins.estado = rs.getString("estado");
 				ins.categoriaId = rs.getLong("categoria_id");
 				ins.fechaModificacion = rs.getDate("fechamodificacion");
-				ins.tiempo = rs.getDouble("tiempo");
+				ins.tiempo = rs.getString("tiempo");
 				ins.atletaId = rs.getLong("atleta_id");
 				ins.competicionId = rs.getLong("competicion_id");
 				ins.medioPago = rs.getString("mediopago");
@@ -124,15 +130,62 @@ public class PagoInscripcion {
 		// competicion, atleta, fecha pago, medio pago y cantidad
 		String fileName = String.valueOf(ins.competicionId) + String.valueOf(ins.atletaId);
 
-		try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File("files/"+fileName)))) {
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File("files/" + fileName)))) {
 			String text = "** JUSTIFICANTE DE PAGO **\n" + "Nombre Competicion: " + ins.nombreCompeticion + "\n"
-					+ "Nombre Atleta: " + ins.nombreAtleta + "\n" + "Fecha pago: " + ins.fechaPago + "\n" + "Medio pago: "
-					+ ins.medioPago + "\n" + "Cantidad abonada: " + ins.cantidad + " €";
+					+ "Nombre Atleta: " + ins.nombreAtleta + "\n" + "Fecha pago: " + ins.fechaPago + "\n"
+					+ "Medio pago: " + ins.medioPago + "\n" + "Cantidad abonada: " + ins.cantidad + " €";
 
 			bw.write(text);
 
 		} catch (IOException e) {
 			throw new DataException("Error al generar justificante de pago");
 		}
+	}
+
+	public int[] leerPagos(String file) throws DataException {
+
+		int oks = 0;
+		int kos = 0;
+		String[] linea = null;
+		Pago pago = null;
+		List<Pago> noCompletados = new ArrayList<>();
+		
+		try (BufferedReader br = new BufferedReader(new FileReader("files/" + file))) {
+
+			while (br.ready()) {
+				pago = new Pago();
+				linea = br.readLine().split("\t");
+				pago.dni = linea[0];
+				pago.fechaPago = Dates.fromString(linea[1]);
+				pago.cantidad = Integer.parseInt(linea[2]);
+				if (comprobarPago(pago)) {
+					oks++;
+				} else {
+					kos++;
+					noCompletados.add(pago);
+				}
+			}
+
+		} catch (FileNotFoundException e) {
+			throw new DataException("Error: Fichero no encontrado");
+		} catch (IOException e) {
+			throw new DataException("Error en la lectura del fichero de pagos");
+		}
+
+		generarFicheroPagosNoCompletados(noCompletados);
+		int[] datos = new int[2];
+		datos[0] = oks;
+		datos[1] = kos;
+		return datos;
+	}
+
+	private void generarFicheroPagosNoCompletados(List<Pago> noCompletados) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	private boolean comprobarPago(Pago pago) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 }

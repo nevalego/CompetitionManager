@@ -22,12 +22,7 @@ import util.Jdbc;
  *
  */
 public class ListarCompeticiones {
-	/*
-	 * Parametros de conexion
-	 */
-	//private final String URL = "jdbc:oracle:thin:@156.35.94.99:1521:DESA";
-	//private final String user = "UO264476";
-	//private final String pass = "PASSWORD";
+
 	
 	public List<Competicion> verCompeticionesDisponibles() throws DataException {
 
@@ -76,6 +71,33 @@ public class ListarCompeticiones {
 			throw new DataException("Fallo en la conexion");
 		}
 		return name;
+	}
+
+	public List<Competicion> verCompeticiones() throws DataException {
+		List<Competicion> competiciones = new ArrayList<Competicion>();
+		Competicion competicion = null;
+		ResultSet rs = null;
+		PreparedStatement ps = null;
+		try (Connection c = Jdbc.getConnection()){
+		
+			ps = c.prepareStatement(Conf.getInstance().getProperty("SQL_VER_COMPETICIONES"));
+			rs = ps.executeQuery();
+
+			while (rs.next()) {
+				competicion = new Competicion();
+				competicion.id = rs.getLong("id");
+				competicion.fecha = rs.getDate("fecha");
+				competicion.nombre= rs.getString("nombre");
+				competicion.km = rs.getInt("km");
+				competicion.plazas = rs.getInt("plazas");
+				competicion.tipo = rs.getString("tipo");
+				competiciones.add(competicion);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DataException("Fallo en la conexion al listar todas las competiciones");
+		}
+		return competiciones;
 	}
 
 }
