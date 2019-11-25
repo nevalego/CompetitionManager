@@ -21,7 +21,7 @@ public class FileUtil {
 			}
 			br.close();
 		} catch (IOException e) {
-			throw new DataException("Error cargando el archivo");
+			throw new DataException("Error cargando el archivo, el fichero:" + fileName);
 		}
 		return lines;
 	}

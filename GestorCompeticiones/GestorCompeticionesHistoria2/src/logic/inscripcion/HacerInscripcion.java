@@ -262,7 +262,7 @@ public class HacerInscripcion {
 			}
 
 		} catch (SQLException e) {
-			System.out.println("Problema con la conexion");
+			//System.out.println("Problema con la conexion");
 		}
 		return true;
 	}
