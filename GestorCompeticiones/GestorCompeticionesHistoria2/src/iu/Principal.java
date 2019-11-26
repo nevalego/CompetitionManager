@@ -678,6 +678,7 @@ public class Principal extends JFrame {
 					ins.cantidad = (int) plazo.cuota;
 					ins.fechaPago = Dates.now();
 					ins.fechaModificacion = Dates.now();
+					ins.estado = "ABONADA";
 					ListarCompeticiones verNombre = new ListarCompeticiones();
 					ins.nombreCompeticion = verNombre.verCompeticionInscripcion(ins);
 					ins.nombreAtleta = atleta.nombre;
@@ -2185,7 +2186,7 @@ public class Principal extends JFrame {
 		PagoInscripcion pago = new PagoInscripcion();
 
 		try {
-			int[] pagos = pago.leerPagos(file);
+			int[] pagos = pago.leerPagos(competicion,file);
 			int oks = pagos[0];
 			int kos = pagos[1];
 			int total = oks + kos;

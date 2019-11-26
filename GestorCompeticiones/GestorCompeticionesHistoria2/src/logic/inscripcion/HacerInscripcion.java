@@ -310,4 +310,27 @@ public class HacerInscripcion {
 		return true;
 
 	}
+
+	public Atleta getAtletaByDNI(String dni) throws DataException {
+		PreparedStatement ps;
+		Atleta atleta = null;
+		try(Connection c = Jdbc.getConnection()) {
+			ps = c.prepareStatement("SELECT * FROM ATLETA WHERE dni = ?");
+			ps.setString(1, dni);
+			ResultSet rs = ps.executeQuery();
+			if(rs.next()) {
+				atleta = new Atleta();
+				atleta.id = rs.getLong("id");
+				atleta.dni = rs.getString("dni");
+				atleta.nombre = rs.getString("nombre");
+				atleta.apellidos = rs.getString("apellidos");
+				atleta.email = rs.getString("email");
+				atleta.sexo = rs.getString("sexo");
+				atleta.fechaNacimiento = rs.getDate("fechanacimiento");
+			}
+			return atleta; 
+		} catch (SQLException e) {
+			throw new DataException("Error al encontrar atleta por dni");
+		}
+	}
 }
