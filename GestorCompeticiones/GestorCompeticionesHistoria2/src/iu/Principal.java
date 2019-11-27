@@ -41,6 +41,7 @@ import javax.swing.table.DefaultTableModel;
 import logic.exception.DataException;
 import logic.inscripcion.HacerInscripcion;
 import logic.inscripcion.HacerRegistro;
+import logic.inscripcion.InscripcionPorLote;
 import logic.inscripcion.ListarCompeticiones;
 import logic.inscripcion.ListarInscripciones;
 import logic.inscripcion.NuevaCompeticion;
@@ -53,7 +54,7 @@ import logic.model.Inscripcion;
 import logic.model.Plazo;
 import logic.model.Resultados;
 import util.Dates;
-import javax.swing.BoxLayout;
+import java.awt.Component;
 
 public class Principal extends JFrame {
 
@@ -63,7 +64,6 @@ public class Principal extends JFrame {
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JPanel pnEntrarOrganizador;
-	private JLabel lblEntrarComoOrganizador;
 	private JButton btnEntrar;
 	private JPanel pnEntrarAtleta;
 	private JLabel lblEntrarComoAtleta;
@@ -148,7 +148,7 @@ public class Principal extends JFrame {
 	private JScrollPane scCompeticiones;
 	private JList<AtletaInscripcion> list;
 	private DefaultListModel<AtletaInscripcion> modeloInscripciones = new DefaultListModel<>();
-	private JPanel pnOrganizador;
+	private JPanel pnOrganizadorMenu;
 	private JButton btnCrearCompeticion;
 	private JPanel pnNuevaCompeticion;
 	private JLabel lblNombreCompeticion;
@@ -179,6 +179,7 @@ public class Principal extends JFrame {
 	private DefaultTableModel modelResultados = new DefaultTableModel();
 	private List<Inscripcion> inscripcionesResultadosCompeticion = new ArrayList<>();
 	private DefaultTableModel modelInscripcionesResultadosCompeticion = new DefaultTableModel();
+	private DefaultTableModel modelCompeticionesClub = new DefaultTableModel();
 	private JPanel pnCentralCompeticionNueva;
 	private JPanel pnTablaCategorias;
 	private JLabel lblTablaPlazos;
@@ -227,6 +228,19 @@ public class Principal extends JFrame {
 	private JScrollPane scrollPaneHistorial;
 	private JTable tableHistorial;
 	private DefaultTableModel modelHistorial = new DefaultTableModel();
+	private JPanel pnEntrarComo;
+	private JPanel pnEntrarClub;
+	private JButton btnClub;
+	private JPanel pnClubMenu;
+	private JLabel lblMenuClub;
+	private JPanel pnClubCompeticiones;
+	private JScrollPane scrollPaneClubCompeticiones;
+	private JTable tableCompeticionesClub;
+	private JPanel pnInscribirLote;
+	private JButton btnInscribirLote;
+	private JLabel lblNewLabel;
+	private JPanel pnCenterMenuClub;
+
 
 	/**
 	 * Launch the application.
@@ -271,7 +285,6 @@ public class Principal extends JFrame {
 			pnEntrarOrganizador = new JPanel();
 			pnEntrarOrganizador.setBorder(new LineBorder(new Color(0, 0, 0)));
 			pnEntrarOrganizador.setBackground(Color.WHITE);
-			pnEntrarOrganizador.add(getLblEntrarComoOrganizador());
 			pnEntrarOrganizador.add(getBtnEntrar());
 		}
 		return pnEntrarOrganizador;
@@ -290,7 +303,7 @@ public class Principal extends JFrame {
 
 	private JButton getBtnEntrar() {
 		if (btnEntrar == null) {
-			btnEntrar = new JButton("Entrar");
+			btnEntrar = new JButton("Entrar como Organizador");
 			btnEntrar.setFont(new Font("Tahoma", Font.PLAIN, 14));
 			btnEntrar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -421,10 +434,11 @@ public class Principal extends JFrame {
 			pnCards.add(getPnAtletaMenu(), "atletamenu");
 			pnCards.add(getPnPagoAtleta(), "pagoatleta");
 			pnCards.add(getPnRegistro(), "registro");
-			pnCards.add(getPnOrganizador(), "organizadormenu");
+			pnCards.add(getPnOrganizadorMenu(), "organizadormenu");
 			pnCards.add(getPnNuevaCompeticion(), "crearcompeticion");
 			pnCards.add(getPnResultados(), "resultados");
 			pnCards.add(getPnHistorial(), "historial");
+			pnCards.add(getPnClubMenu(), "clubmenu");
 		}
 		return pnCards;
 	}
@@ -434,9 +448,8 @@ public class Principal extends JFrame {
 			pnPrincipal = new JPanel();
 			pnPrincipal.setBackground(Color.WHITE);
 			pnPrincipal.setLayout(new BorderLayout(0, 0));
-			pnPrincipal.add(getPnEntrarOrganizador(), BorderLayout.SOUTH);
-			pnPrincipal.add(getPnEntrarAtleta());
 			pnPrincipal.add(getLblInicio(), BorderLayout.NORTH);
+			pnPrincipal.add(getPnEntrarComo(), BorderLayout.CENTER);
 		}
 		return pnPrincipal;
 	}
@@ -704,6 +717,7 @@ public class Principal extends JFrame {
 					ins.cantidad = (int) plazo.cuota;
 					ins.fechaPago = Dates.now();
 					ins.fechaModificacion = Dates.now();
+					ins.estado = "ABONADA";
 					ListarCompeticiones verNombre = new ListarCompeticiones();
 					ins.nombreCompeticion = verNombre
 							.verCompeticionInscripcion(ins);
@@ -1003,15 +1017,14 @@ public class Principal extends JFrame {
 			toAtletaMenu();
 		} else if (cardNumber == 3) { // Panel Registro Atleta
 			toFirst();
-
 		} else if (cardNumber == 4) {// Panel Menu Organizador
 			toFirst();
 		} else if (cardNumber == 5) { // Panel Nueva Competicion
 			toOrganizadorMenu();
 		} else if (cardNumber == 6) { // Panel Resultados Competicion
 			toOrganizadorMenu();
-		} else if (cardNumber == 7) { // Panel Pagos Transferencia Competicion
-			// toPagos();
+		} else if (cardNumber == 7) { // Panel Menu Club
+			toFirst();
 		}
 
 	}
@@ -1569,16 +1582,16 @@ public class Principal extends JFrame {
 		return scrollPaneCompeticiones;
 	}
 
-	private JPanel getPnOrganizador() {
-		if (pnOrganizador == null) {
-			pnOrganizador = new JPanel();
-			pnOrganizador.setBackground(Color.WHITE);
-			pnOrganizador.setLayout(new BorderLayout(0, 0));
-			pnOrganizador.add(getPnBtnCrearCompeticion(), BorderLayout.SOUTH);
-			pnOrganizador.add(getPnTablasOrganizador(), BorderLayout.CENTER);
-			pnOrganizador.add(getLblMenuOrganizador(), BorderLayout.NORTH);
+	private JPanel getPnOrganizadorMenu() {
+		if (pnOrganizadorMenu == null) {
+			pnOrganizadorMenu = new JPanel();
+			pnOrganizadorMenu.setBackground(Color.WHITE);
+			pnOrganizadorMenu.setLayout(new BorderLayout(0, 0));
+			pnOrganizadorMenu.add(getPnBtnCrearCompeticion(), BorderLayout.SOUTH);
+			pnOrganizadorMenu.add(getPnTablasOrganizador(), BorderLayout.CENTER);
+			pnOrganizadorMenu.add(getLblMenuOrganizador(), BorderLayout.NORTH);
 		}
-		return pnOrganizador;
+		return pnOrganizadorMenu;
 	}
 
 	private JButton getBtnCrearCompeticion() {
@@ -2302,11 +2315,13 @@ public class Principal extends JFrame {
 		PagoInscripcion pago = new PagoInscripcion();
 
 		try {
-			int[] pagos = pago.leerPagos(file);
+			int[] pagos = pago.leerPagos(competicion, file);
 			int oks = pagos[0];
 			int kos = pagos[1];
 			int total = oks + kos;
 
+			JOptionPane.showMessageDialog(this, "** Total registro procesados " + total + " ** OKs " + oks + " ** KOs "
+					+ kos + "\nSe ha generado un fichero con los pagos no completados con exito");
 			JOptionPane.showMessageDialog(this, "** Total registro procesados "
 					+ total + " ** OKs " + oks + " ** KOs " + kos
 					+ "\nSe ha generado un fichero con los pagos no completados con exito");
@@ -2517,15 +2532,205 @@ public class Principal extends JFrame {
 		Object[][] m = new Object[lista.size()][lista.size()];
 
 		for (int i = 0; i < lista.size(); i++) {
+			m[i] = new Object[] { lista.get(i).getNombreCompeticion(), lista.get(i).getPosicion(),
+					lista.get(i).getTiempo(), lista.get(i).getFecha(), };
 			m[i] = new Object[] { lista.get(i).getNombreCompeticion(),
 					lista.get(i).getPosicion(), lista.get(i).getTiempo(),
 					lista.get(i).getFecha(), };
 		}
 
+		modelHistorial.setDataVector(m, new String[] { "Nombre Competicion", "Posicion", "Tiempo", "Fecha" });
 		modelHistorial.setDataVector(m, new String[] { "Nombre Competicion",
 				"Posicion", "Tiempo", "Fecha" });
 
 		tableHistorial.getTableHeader().setReorderingAllowed(false);
 		((CardLayout) pnCards.getLayout()).show(pnCards, "historial");
+	}
+
+	private JPanel getPnEntrarComo() {
+		if (pnEntrarComo == null) {
+			pnEntrarComo = new JPanel();
+			pnEntrarComo.setLayout(new GridLayout(1, 1, 0, 0));
+			pnEntrarComo.add(getPnEntrarAtleta());
+			pnEntrarComo.add(getPnEntrarOrganizador());
+			pnEntrarComo.add(getPnEntrarClub());
+		}
+		return pnEntrarComo;
+	}
+
+	private JPanel getPnEntrarClub() {
+		if (pnEntrarClub == null) {
+			pnEntrarClub = new JPanel();
+			pnEntrarClub.setBorder(new LineBorder(new Color(0, 0, 0)));
+			pnEntrarClub.setBackground(Color.WHITE);
+			pnEntrarClub.add(getBtnClub());
+		}
+		return pnEntrarClub;
+	}
+
+	private JButton getBtnClub() {
+		if (btnClub == null) {
+			btnClub = new JButton("Entrar como Club");
+			btnClub.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					toClubMenu();
+				}
+			});
+			btnClub.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return btnClub;
+	}
+
+	protected void toClubMenu() {
+		loadCompeticionesClub();
+		pnButtons.setVisible(true);
+		cardNumber = 7;
+		((CardLayout) pnCards.getLayout()).show(pnCards, "clubmenu");
+	}
+
+	private void loadCompeticionesClub() {
+		tableCompeticionesClub.removeAll();
+
+		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
+		try {
+			competiciones = listarCompeticiones.verCompeticionesDisponibles();
+			Object[][] m = new Object[competiciones.size()][competiciones.size()];
+
+			for (int i = 0; i < competiciones.size(); i++) {
+				m[i] = new Object[] { competiciones.get(i).nombre, competiciones.get(i).fecha,
+						competiciones.get(i).tipo, competiciones.get(i).km, competiciones.get(i).plazas };
+			}
+
+			modelCompeticionesClub.setDataVector(m,
+					new String[] { "Competicion", "Fecha", "Tipo", "Kilometros", "Plazas" });
+
+			tableCompeticionesClub.getTableHeader().setReorderingAllowed(false);
+			scrollPaneClubCompeticiones.setViewportView(tableCompeticionesClub);
+			tableCompeticionesClub.revalidate();
+			tableCompeticionesClub.repaint();
+
+		} catch (DataException e) {
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(this, e.getMessage());
+		}
+
+	}
+
+	private JPanel getPnClubMenu() {
+		if (pnClubMenu == null) {
+			pnClubMenu = new JPanel();
+			pnClubMenu.setBackground(Color.WHITE);
+			pnClubMenu.setLayout(new BorderLayout(0, 0));
+			pnClubMenu.add(getLblMenuClub(), BorderLayout.NORTH);
+			pnClubMenu.add(getPnClubCompeticiones(), BorderLayout.CENTER);
+		}
+		return pnClubMenu;
+	}
+
+	private JLabel getLblMenuClub() {
+		if (lblMenuClub == null) {
+			lblMenuClub = new JLabel("Menu Club");
+			lblMenuClub.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		}
+		return lblMenuClub;
+	}
+
+	private JPanel getPnClubCompeticiones() {
+		if (pnClubCompeticiones == null) {
+			pnClubCompeticiones = new JPanel();
+			pnClubCompeticiones.setBackground(Color.WHITE);
+			pnClubCompeticiones.setLayout(new BorderLayout(0, 0));
+			pnClubCompeticiones.add(getPnCenterMenuClub(), BorderLayout.WEST);
+			pnClubCompeticiones.add(getPnInscribirLote(), BorderLayout.CENTER);
+		}
+		return pnClubCompeticiones;
+	}
+
+	private JScrollPane getScrollPaneClubCompeticiones() {
+		if (scrollPaneClubCompeticiones == null) {
+			scrollPaneClubCompeticiones = new JScrollPane();
+			scrollPaneClubCompeticiones.setBackground(Color.WHITE);
+			scrollPaneClubCompeticiones.setViewportView(getTableCompeticionesClub());
+		}
+		return scrollPaneClubCompeticiones;
+	}
+
+	private JTable getTableCompeticionesClub() {
+		if (tableCompeticionesClub == null) {
+			tableCompeticionesClub = new JTable();
+			tableCompeticionesClub.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			tableCompeticionesClub.setModel(modelCompeticionesClub);
+			tableCompeticionesClub.setBackground(Color.WHITE);
+			tableCompeticionesClub.setEnabled(true);
+			tableCompeticionesClub.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		}
+		return tableCompeticionesClub;
+	}
+
+	private JPanel getPnInscribirLote() {
+		if (pnInscribirLote == null) {
+			pnInscribirLote = new JPanel();
+			pnInscribirLote.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+			pnInscribirLote.setBackground(Color.WHITE);
+			pnInscribirLote.setLayout(null);
+			pnInscribirLote.add(getBtnInscribirLote());
+		}
+		return pnInscribirLote;
+	}
+
+	private JButton getBtnInscribirLote() {
+		if (btnInscribirLote == null) {
+			btnInscribirLote = new JButton("Inscribir Lote");
+			btnInscribirLote.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					int row = tableCompeticionesClub.getSelectedRow();
+					if (row != -1) {
+						inscribirLote(competiciones.get(row));
+					} else
+						JOptionPane.showMessageDialog(getThis(), "No has seleccionado la competicion");
+				}
+			});
+			btnInscribirLote.setBounds(89, 153, 152, 25);
+			btnInscribirLote.setVerticalAlignment(SwingConstants.BOTTOM);
+			btnInscribirLote.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return btnInscribirLote;
+	}
+
+	protected void inscribirLote(Competicion competicion) {
+		String file = JOptionPane.showInputDialog(this,
+				"Escribe el nombre del fichero con los atletas a inscribir");
+		InscripcionPorLote lote = new InscripcionPorLote();
+
+		try {
+			int[] pagos = lote.leerInscripcionesPorLote(competicion, file);
+			int oks = pagos[0];
+			int kos = pagos[1];
+
+			JOptionPane.showMessageDialog(this, "** Total atletas inscritos " + oks + " ** Total no inscritos "
+					+ kos);
+
+		} catch (DataException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage());
+		}
+	}
+
+	private JLabel getLblNewLabel() {
+		if (lblNewLabel == null) {
+			lblNewLabel = new JLabel("Selecciona una competicion para inscribir un lote de atletas:");
+			lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		}
+		return lblNewLabel;
+	}
+
+	private JPanel getPnCenterMenuClub() {
+		if (pnCenterMenuClub == null) {
+			pnCenterMenuClub = new JPanel();
+			pnCenterMenuClub.setBackground(Color.WHITE);
+			pnCenterMenuClub.setLayout(new BorderLayout(0, 0));
+			pnCenterMenuClub.add(getLblNewLabel(), BorderLayout.NORTH);
+			pnCenterMenuClub.add(getScrollPaneClubCompeticiones());
+		}
+		return pnCenterMenuClub;
 	}
 }
