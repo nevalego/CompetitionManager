@@ -240,6 +240,7 @@ public class Principal extends JFrame {
 	private JButton btnInscribirLote;
 	private JLabel lblNewLabel;
 	private JPanel pnCenterMenuClub;
+	private JLabel lblEntrarComoOrganizador;
 
 
 	/**

@@ -163,6 +163,7 @@ public class VerResultados {
 			ps.setString(1, r.getTiempo());
 			ps.setInt(2, r.getPosicion());
 			ps.setInt(3, id);
+			ps.setLong(4, competicionId);
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
