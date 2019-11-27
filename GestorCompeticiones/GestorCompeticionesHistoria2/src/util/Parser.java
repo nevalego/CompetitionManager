@@ -79,15 +79,11 @@ public class Parser {
 							.parse(tiempoEntrada);
 					Duration duration = Duration.between(tiempoSalidaTiempo,
 							tiempoEntradaTiempo);
-					//System.out.println("Duracion entre los tiempos en segundos"		+ duration.getSeconds());
 					int horaFinal = (int) (duration.getSeconds() / 3600);
-					//System.out.println("Prueba con duracion, hora: " + horaFinal);
 					int minFinal = (int) ((duration.getSeconds()
 							- horaFinal * 3600) / 60);
-					//System.out.println("Prueba con duracion, minutos: " + minFinal);
 					int secsFinal = (int) (duration.getSeconds()
 							- (horaFinal * 3600 + minFinal * 60));
-					//System.out.println(	"Prueba con duracion, segundos: " + secsFinal);
 
 					String stringHoraFinal = "" + horaFinal;
 					String stringMinFinal = "" + minFinal;
