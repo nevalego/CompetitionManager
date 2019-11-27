@@ -42,12 +42,9 @@ public class HacerInscripcion {
 					if (comprobarPlazas(id)) {
 						String insertar = "INSERT INTO INSCRIPCION (atleta_id,competicion_id,categoria_id,fecha,estado) VALUES(?,?,?,?,?)";
 						PreparedStatement s = c.prepareStatement(insertar);
-						// HACER SETS
+						
 						s.setLong(1, atletaId);
 						s.setLong(2, id);
-						// TO DO Miguel
-						// s.setString(3, calcularCategoria(id, new
-						// java.sql.Date(System.currentTimeMillis())));
 						s.setLong(3, 1); // Provisional
 						s.setDate(4, new java.sql.Date(Dates.now().getTime()));
 						s.setString(5, "PENDIENTE DE PAGO");
