@@ -240,7 +240,7 @@ public class Principal extends JFrame {
 	private JButton btnInscribirLote;
 	private JLabel lblNewLabel;
 	private JPanel pnCenterMenuClub;
-
+	private List<Resultados> erroneos;
 
 	/**
 	 * Launch the application.
@@ -278,6 +278,7 @@ public class Principal extends JFrame {
 		setContentPane(contentPane);
 		seleccionarPagoTransferencia();
 		loadCompeticiones();
+		
 	}
 
 	private JPanel getPnEntrarOrganizador() {
@@ -288,17 +289,6 @@ public class Principal extends JFrame {
 			pnEntrarOrganizador.add(getBtnEntrar());
 		}
 		return pnEntrarOrganizador;
-	}
-
-	private JLabel getLblEntrarComoOrganizador() {
-		if (lblEntrarComoOrganizador == null) {
-			lblEntrarComoOrganizador = new JLabel("Entrar como Organizador");
-			lblEntrarComoOrganizador
-					.setHorizontalAlignment(SwingConstants.LEFT);
-			lblEntrarComoOrganizador
-					.setFont(new Font("Tahoma", Font.PLAIN, 15));
-		}
-		return lblEntrarComoOrganizador;
 	}
 
 	private JButton getBtnEntrar() {
@@ -450,6 +440,7 @@ public class Principal extends JFrame {
 			pnPrincipal.setLayout(new BorderLayout(0, 0));
 			pnPrincipal.add(getLblInicio(), BorderLayout.NORTH);
 			pnPrincipal.add(getPnEntrarComo(), BorderLayout.CENTER);
+			
 		}
 		return pnPrincipal;
 	}
@@ -1223,7 +1214,7 @@ public class Principal extends JFrame {
 	}
 
 	private void toFirst() {
-
+		// this.getRootPane().setDefaultButton(btnIniciaSesin);
 		pnButtons.setVisible(false);
 		cardNumber = 0;
 		((CardLayout) pnCards.getLayout()).first(pnCards);
@@ -2358,6 +2349,7 @@ public class Principal extends JFrame {
 		VerResultados ver = new VerResultados();
 		ver.generaResultados(competicion.id, "files/" + file);
 		List<Resultados> results = ver.getResultadosAbsolutos();
+		erroneos = ver.getErroneos();
 		toResultados(results);
 
 	}
@@ -2530,18 +2522,13 @@ public class Principal extends JFrame {
 		VerResultados vr = new VerResultados();
 		List<Resultados> lista = vr.generaHistorialAtleta(atleta.email);
 		Object[][] m = new Object[lista.size()][lista.size()];
-
+		
 		for (int i = 0; i < lista.size(); i++) {
 			m[i] = new Object[] { lista.get(i).getNombreCompeticion(), lista.get(i).getPosicion(),
 					lista.get(i).getTiempo(), lista.get(i).getFecha(), };
-			m[i] = new Object[] { lista.get(i).getNombreCompeticion(),
-					lista.get(i).getPosicion(), lista.get(i).getTiempo(),
-					lista.get(i).getFecha(), };
 		}
 
 		modelHistorial.setDataVector(m, new String[] { "Nombre Competicion", "Posicion", "Tiempo", "Fecha" });
-		modelHistorial.setDataVector(m, new String[] { "Nombre Competicion",
-				"Posicion", "Tiempo", "Fecha" });
 
 		tableHistorial.getTableHeader().setReorderingAllowed(false);
 		((CardLayout) pnCards.getLayout()).show(pnCards, "historial");
