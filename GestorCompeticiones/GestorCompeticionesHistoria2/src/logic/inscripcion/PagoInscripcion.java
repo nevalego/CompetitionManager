@@ -91,11 +91,10 @@ public class PagoInscripcion {
 			ps.setString(5, inscripcion.medioPago);
 			ps.setLong(6, inscripcion.id);
 
-			ps.execute();
+			ps.executeUpdate();
 
 		} catch (SQLException e) {
-			e.printStackTrace();
-			throw new DataException("Error en la conexion");
+			throw new DataException("Error en el pago de la inscripcion");
 		}
 	}
 
