@@ -28,29 +28,30 @@ public class VerResultados {
 	 * 
 	 * @param competicion_id, el id de la competicion seleccionada
 	 * @param fileName,       el fichero que contiene los resultados
+	 * @throws DataException 
 	 */
-	public void generaResultados(long competicion_id, String fileName) {
+	public void generaResultados(long competicion_id, String fileName) throws DataException {
 		this.competicionId = competicion_id;
-		try {
-			resultadosAbsolutos = Parser
-					.parseResultados(FileUtil.cargarArchivo(fileName));
-			isAllowed(resultadosAbsolutos);
-			asignadorSexos();
-			asignaNombre();
-			ponerPosicion();
-			//resultadosAbsolutos.forEach(r -> System.out.println(r));
-		} catch (DataException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		}
+
+		resultadosAbsolutos = Parser
+				.parseResultados(FileUtil.cargarArchivo(fileName));
+		isAllowed(resultadosAbsolutos);
+		asignadorSexos();
+		asignaNombre();
+		ponerPosicion();
+		//resultadosAbsolutos.forEach(r -> System.out.println(r));
+
 		uploadResults();
 		updateStatus();
 	}
 
 	private void isAllowed(List<Resultados> provisionales) {
-		for (Resultados result : provisionales) {
+		for (Resultados result: provisionales) {
+			//Resultados result = provisionales.get(i);
 			if (!removeWrongs(result)) {
 				provisionales.remove(result);
+				if(result.getMotivo() == null)
+					result.setMotivo("Dorsal no corredor");
 				resultadosErroneos.add(result);
 			}
 		}
@@ -158,7 +159,7 @@ public class VerResultados {
 			else
 				resultadosErroneos.add(r);
 			// System.out.println("LLEGUE AQUI, ID: " + id + " dorsal?: " +
-			// r.getDorsal());
+			// r.getDorsal() + "tiempo " + r.getTiempo());
 			ps = getConsulta(c, "SQL_UPDATE_RESULT");
 			ps.setString(1, r.getTiempo());
 			ps.setInt(2, r.getPosicion());
@@ -295,5 +296,4 @@ public class VerResultados {
 		return historial;
 	}
 
-	
 }

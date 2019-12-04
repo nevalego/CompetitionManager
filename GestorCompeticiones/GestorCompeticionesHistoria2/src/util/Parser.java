@@ -44,31 +44,36 @@ public class Parser {
 	 * 
 	 * @param line, el fichero leido por lineas
 	 * @return una lista con todos los resultados
+	 * @throws DataException
 	 */
-	public static List<Resultados> parseResultados(List<String> line) {
+	public static List<Resultados> parseResultados(List<String> line)
+			throws DataException {
 		List<Resultados> parseada = new ArrayList<Resultados>();
 		// String infoCompeticion = line.get(0);
 		// line.remove(0);
-		line.forEach(s -> {
-			try {
-				parseada.add(parseResultado(s));
-			} catch (DataException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		});
+		for (String s : line) {
+
+			parseada.add(parseResultado(s));
+
+		}
 		return parseada;
 	}
 
 	private static Resultados parseResultado(String res) throws DataException {
 		Resultados r = new Resultados();
 		String[] part = res.split("\t");
-		r.setDorsal(Integer.parseInt(part[0]));
+		try {
+			r.setDorsal(Integer.parseInt(part[0]));
+		} catch (NumberFormatException e) {
+			r.setDorsal(0);
+			r.setMotivo("Dorsal no numerico");
+		}
 		r.setTiempo(parseTiempo(part[1], part[2]));
 		return r;
 	}
-	private static String parseTiempo(String tiempoSalida,
-			String tiempoEntrada) throws DataException {
+
+	private static String parseTiempo(String tiempoSalida, String tiempoEntrada)
+			throws DataException {
 		String tiempoFinal = null;
 		if (tiempoSalida != null && !tiempoSalida.equals("---")) {
 			if (tiempoEntrada != null && !tiempoEntrada.equals("---")) {
@@ -99,8 +104,7 @@ public class Parser {
 					}
 					tiempoFinal = stringHoraFinal + ":" + stringMinFinal + ":"
 							+ stringSegFinal;
-				} catch (DateTimeException e) {
-					e.printStackTrace();
+				} catch (Exception e) {
 					throw new DataException(
 							"El fichero esta mal formateado en los tiempos");
 				}

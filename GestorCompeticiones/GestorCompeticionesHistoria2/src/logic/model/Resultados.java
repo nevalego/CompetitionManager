@@ -11,6 +11,7 @@ public class Resultados {
 	private Date fecha;
 	private String nombreCompeticion;
 	private int dorsal;
+	private String motivo;
 	public String getNombreCompetidor() {
 		return nombreCompetidor;
 	}
@@ -54,6 +55,13 @@ public class Resultados {
 	}
 	public void setDorsal(int dorsal) {
 		this.dorsal = dorsal;
+	}
+	
+	public String getMotivo() {
+		return motivo;
+	}
+	public void setMotivo(String motivo) {
+		this.motivo = motivo;
 	}
 	@Override
 	public String toString() {

@@ -3,6 +3,7 @@ package iu;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -54,7 +55,6 @@ import logic.model.Inscripcion;
 import logic.model.Plazo;
 import logic.model.Resultados;
 import util.Dates;
-import java.awt.Component;
 
 public class Principal extends JFrame {
 
@@ -175,7 +175,7 @@ public class Principal extends JFrame {
 	private DefaultTableModel modelTodasCompeticiones = new DefaultTableModel();
 	private List<Inscripcion> todasInscripciones = new ArrayList<>();
 	private DefaultTableModel modelTodasInscripciones = new DefaultTableModel();
-	private List<Resultados> resultados = new ArrayList<>();
+	private List<Resultados> resultados = new ArrayList<Resultados>();
 	private DefaultTableModel modelResultados = new DefaultTableModel();
 	private List<Inscripcion> inscripcionesResultadosCompeticion = new ArrayList<>();
 	private DefaultTableModel modelInscripcionesResultadosCompeticion = new DefaultTableModel();
@@ -242,7 +242,15 @@ public class Principal extends JFrame {
 	private JPanel pnCenterMenuClub;
 	private List<Resultados> erroneos;
 	private JLabel lblEntrarComoOrganizador;
-
+	private JPanel panelInferior;
+	private JButton btnVerErroneos;
+	private JPanel pnErroneos;
+	private JLabel lblMenuOrganizadorResultados_1;
+	private JScrollPane scrollPaneErroneos;
+	private JTable tableErroneos;
+	private DefaultTableModel modelErroneos = new DefaultTableModel();
+	private JPanel panelInferiorErroneos;
+	private JButton buttonVolverResultados;
 	/**
 	 * Launch the application.
 	 */
@@ -279,7 +287,7 @@ public class Principal extends JFrame {
 		setContentPane(contentPane);
 		seleccionarPagoTransferencia();
 		loadCompeticiones();
-		
+
 	}
 
 	private JPanel getPnEntrarOrganizador() {
@@ -430,6 +438,7 @@ public class Principal extends JFrame {
 			pnCards.add(getPnResultados(), "resultados");
 			pnCards.add(getPnHistorial(), "historial");
 			pnCards.add(getPnClubMenu(), "clubmenu");
+			pnCards.add(getPnErroneos(), "erroneos");
 		}
 		return pnCards;
 	}
@@ -441,7 +450,7 @@ public class Principal extends JFrame {
 			pnPrincipal.setLayout(new BorderLayout(0, 0));
 			pnPrincipal.add(getLblInicio(), BorderLayout.NORTH);
 			pnPrincipal.add(getPnEntrarComo(), BorderLayout.CENTER);
-			
+
 		}
 		return pnPrincipal;
 	}
@@ -1327,12 +1336,12 @@ public class Principal extends JFrame {
 				atleta.sexo = String.valueOf(comboBoxSexo.getSelectedItem());
 
 				atleta.fechaNacimiento = new Date(
-						Integer.valueOf((String) comboBoxAñoNacimiento
-								.getSelectedItem()) - 1900,
-						Integer.valueOf((String) comboBoxMesNacimiento
-								.getSelectedItem()),
-						Integer.valueOf((String) comboBoxDiaNacimiento
-								.getSelectedItem()));
+						Integer.valueOf(comboBoxAñoNacimiento.getSelectedItem()
+								.toString()) - 1900,
+						Integer.valueOf(comboBoxMesNacimiento.getSelectedItem()
+								.toString()),
+						Integer.valueOf(comboBoxDiaNacimiento.getSelectedItem()
+								.toString()));
 
 				registrar.registrar(atleta);
 				JOptionPane.showMessageDialog(this,
@@ -1579,8 +1588,10 @@ public class Principal extends JFrame {
 			pnOrganizadorMenu = new JPanel();
 			pnOrganizadorMenu.setBackground(Color.WHITE);
 			pnOrganizadorMenu.setLayout(new BorderLayout(0, 0));
-			pnOrganizadorMenu.add(getPnBtnCrearCompeticion(), BorderLayout.SOUTH);
-			pnOrganizadorMenu.add(getPnTablasOrganizador(), BorderLayout.CENTER);
+			pnOrganizadorMenu.add(getPnBtnCrearCompeticion(),
+					BorderLayout.SOUTH);
+			pnOrganizadorMenu.add(getPnTablasOrganizador(),
+					BorderLayout.CENTER);
 			pnOrganizadorMenu.add(getLblMenuOrganizador(), BorderLayout.NORTH);
 		}
 		return pnOrganizadorMenu;
@@ -2312,8 +2323,9 @@ public class Principal extends JFrame {
 			int kos = pagos[1];
 			int total = oks + kos;
 
-			JOptionPane.showMessageDialog(this, "** Total registro procesados " + total + " ** OKs " + oks + " ** KOs "
-					+ kos + "\nSe ha generado un fichero con los pagos no completados con exito");
+			JOptionPane.showMessageDialog(this, "** Total registro procesados "
+					+ total + " ** OKs " + oks + " ** KOs " + kos
+					+ "\nSe ha generado un fichero con los pagos no completados con exito");
 			JOptionPane.showMessageDialog(this, "** Total registro procesados "
 					+ total + " ** OKs " + oks + " ** KOs " + kos
 					+ "\nSe ha generado un fichero con los pagos no completados con exito");
@@ -2348,8 +2360,15 @@ public class Principal extends JFrame {
 			JOptionPane.showMessageDialog(getThis(), "Fichero null");
 		}
 		VerResultados ver = new VerResultados();
-		ver.generaResultados(competicion.id, "files/" + file);
+		try {
+			ver.generaResultados(competicion.id, "files/" + file);
+		} catch (DataException e) {
+			JOptionPane.showMessageDialog(getThis(), e.getMessage(),
+					"Fallo en la carga de resultados",
+					JOptionPane.ERROR_MESSAGE);
+		}
 		List<Resultados> results = ver.getResultadosAbsolutos();
+		resultados = results;
 		erroneos = ver.getErroneos();
 		toResultados(results);
 
@@ -2369,11 +2388,11 @@ public class Principal extends JFrame {
 		Object[][] m = new Object[results.size()][results.size()];
 		for (int i = 0; i < results.size(); i++) {
 			m[i] = new Object[] { results.get(i).getPosicion(),
-					results.get(i).getDorsal(), results.get(i).getTiempo()};
+					results.get(i).getDorsal(), results.get(i).getTiempo() };
 		}
 
-		modelInscripcionesResultadosCompeticion.setDataVector(m, new String[] { "Posicion",
-				"Dorsal", "Tiempo"});
+		modelInscripcionesResultadosCompeticion.setDataVector(m,
+				new String[] { "Posicion", "Dorsal", "Tiempo" });
 
 		tableHistorial.getTableHeader().setReorderingAllowed(false);
 	}
@@ -2449,6 +2468,7 @@ public class Principal extends JFrame {
 					BorderLayout.NORTH);
 			pnResultados.add(getScrollPaneTablaResultados(),
 					BorderLayout.CENTER);
+			pnResultados.add(getPanelInferior(), BorderLayout.SOUTH);
 		}
 		return pnResultados;
 	}
@@ -2523,13 +2543,15 @@ public class Principal extends JFrame {
 		VerResultados vr = new VerResultados();
 		List<Resultados> lista = vr.generaHistorialAtleta(atleta.email);
 		Object[][] m = new Object[lista.size()][lista.size()];
-		
+
 		for (int i = 0; i < lista.size(); i++) {
-			m[i] = new Object[] { lista.get(i).getNombreCompeticion(), lista.get(i).getPosicion(),
-					lista.get(i).getTiempo(), lista.get(i).getFecha(), };
+			m[i] = new Object[] { lista.get(i).getNombreCompeticion(),
+					lista.get(i).getPosicion(), lista.get(i).getTiempo(),
+					lista.get(i).getFecha(), };
 		}
 
-		modelHistorial.setDataVector(m, new String[] { "Nombre Competicion", "Posicion", "Tiempo", "Fecha" });
+		modelHistorial.setDataVector(m, new String[] { "Nombre Competicion",
+				"Posicion", "Tiempo", "Fecha" });
 
 		tableHistorial.getTableHeader().setReorderingAllowed(false);
 		((CardLayout) pnCards.getLayout()).show(pnCards, "historial");
@@ -2582,15 +2604,17 @@ public class Principal extends JFrame {
 		ListarCompeticiones listarCompeticiones = new ListarCompeticiones();
 		try {
 			competiciones = listarCompeticiones.verCompeticionesDisponibles();
-			Object[][] m = new Object[competiciones.size()][competiciones.size()];
+			Object[][] m = new Object[competiciones.size()][competiciones
+					.size()];
 
 			for (int i = 0; i < competiciones.size(); i++) {
-				m[i] = new Object[] { competiciones.get(i).nombre, competiciones.get(i).fecha,
-						competiciones.get(i).tipo, competiciones.get(i).km, competiciones.get(i).plazas };
+				m[i] = new Object[] { competiciones.get(i).nombre,
+						competiciones.get(i).fecha, competiciones.get(i).tipo,
+						competiciones.get(i).km, competiciones.get(i).plazas };
 			}
 
-			modelCompeticionesClub.setDataVector(m,
-					new String[] { "Competicion", "Fecha", "Tipo", "Kilometros", "Plazas" });
+			modelCompeticionesClub.setDataVector(m, new String[] {
+					"Competicion", "Fecha", "Tipo", "Kilometros", "Plazas" });
 
 			tableCompeticionesClub.getTableHeader().setReorderingAllowed(false);
 			scrollPaneClubCompeticiones.setViewportView(tableCompeticionesClub);
@@ -2638,7 +2662,8 @@ public class Principal extends JFrame {
 		if (scrollPaneClubCompeticiones == null) {
 			scrollPaneClubCompeticiones = new JScrollPane();
 			scrollPaneClubCompeticiones.setBackground(Color.WHITE);
-			scrollPaneClubCompeticiones.setViewportView(getTableCompeticionesClub());
+			scrollPaneClubCompeticiones
+					.setViewportView(getTableCompeticionesClub());
 		}
 		return scrollPaneClubCompeticiones;
 	}
@@ -2675,7 +2700,8 @@ public class Principal extends JFrame {
 					if (row != -1) {
 						inscribirLote(competiciones.get(row));
 					} else
-						JOptionPane.showMessageDialog(getThis(), "No has seleccionado la competicion");
+						JOptionPane.showMessageDialog(getThis(),
+								"No has seleccionado la competicion");
 				}
 			});
 			btnInscribirLote.setBounds(89, 153, 152, 25);
@@ -2695,8 +2721,8 @@ public class Principal extends JFrame {
 			int oks = pagos[0];
 			int kos = pagos[1];
 
-			JOptionPane.showMessageDialog(this, "** Total atletas inscritos " + oks + " ** Total no inscritos "
-					+ kos);
+			JOptionPane.showMessageDialog(this, "** Total atletas inscritos "
+					+ oks + " ** Total no inscritos " + kos);
 
 		} catch (DataException e) {
 			JOptionPane.showMessageDialog(this, e.getMessage());
@@ -2705,7 +2731,8 @@ public class Principal extends JFrame {
 
 	private JLabel getLblNewLabel() {
 		if (lblNewLabel == null) {
-			lblNewLabel = new JLabel("Selecciona una competicion para inscribir un lote de atletas:");
+			lblNewLabel = new JLabel(
+					"Selecciona una competicion para inscribir un lote de atletas:");
 			lblNewLabel.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		}
 		return lblNewLabel;
@@ -2720,5 +2747,116 @@ public class Principal extends JFrame {
 			pnCenterMenuClub.add(getScrollPaneClubCompeticiones());
 		}
 		return pnCenterMenuClub;
+	}
+
+	private JPanel getPanelInferior() {
+		if (panelInferior == null) {
+			panelInferior = new JPanel();
+			FlowLayout flowLayout = (FlowLayout) panelInferior.getLayout();
+			flowLayout.setAlignment(FlowLayout.RIGHT);
+			panelInferior.add(getBtnVerErroneos());
+		}
+		return panelInferior;
+	}
+
+	private JButton getBtnVerErroneos() {
+		if (btnVerErroneos == null) {
+			btnVerErroneos = new JButton("Ver Erroneos");
+			btnVerErroneos.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					toErroneos();
+				}
+			});
+			btnVerErroneos.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		}
+		return btnVerErroneos;
+	}
+
+	private JPanel getPnErroneos() {
+		if (pnErroneos == null) {
+			pnErroneos = new JPanel();
+			pnErroneos.setLayout(new BorderLayout(0, 0));
+			pnErroneos.add(getLblMenuOrganizadorResultados_1(),
+					BorderLayout.NORTH);
+			pnErroneos.add(getScrollPaneErroneos(), BorderLayout.CENTER);
+			pnErroneos.add(getPanelInferiorErroneos(), BorderLayout.SOUTH);
+		}
+		return pnErroneos;
+	}
+
+	private JLabel getLblMenuOrganizadorResultados_1() {
+		if (lblMenuOrganizadorResultados_1 == null) {
+			lblMenuOrganizadorResultados_1 = new JLabel(
+					"Menu Organizador: Resultados Erroneos");
+			lblMenuOrganizadorResultados_1
+					.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		}
+		return lblMenuOrganizadorResultados_1;
+	}
+
+	private JScrollPane getScrollPaneErroneos() {
+		if (scrollPaneErroneos == null) {
+			scrollPaneErroneos = new JScrollPane();
+			scrollPaneErroneos.setViewportView(getTableErroneos());
+		}
+		return scrollPaneErroneos;
+	}
+
+	private JTable getTableErroneos() {
+		if (tableErroneos == null) {
+			tableErroneos = new JTable();
+			tableErroneos.setFont(new Font("Tahoma", Font.PLAIN, 14));
+			tableErroneos.setModel(modelErroneos);
+			tableErroneos.setBackground(Color.WHITE);
+			tableErroneos.setEnabled(false);
+		}
+		return tableErroneos;
+	}
+
+	private void toErroneos() {
+		loadErroneos();
+		cardNumber = 8;
+		((CardLayout) pnCards.getLayout()).show(pnCards, "erroneos");
+	}
+
+	private void loadErroneos() {
+		tableErroneos.removeAll();
+
+		Object[][] m = new Object[erroneos.size()][erroneos.size()];
+
+		for (int i = 0; i < erroneos.size(); i++) {
+			m[i] = new Object[] { erroneos.get(i).getDorsal(),
+					 erroneos.get(i).getMotivo() };
+		}
+
+		modelErroneos.setDataVector(m, new String[] { "Dorsal",
+				"Motivo" });
+
+		tableErroneos.getTableHeader().setReorderingAllowed(false);
+		scrollPaneErroneos.setViewportView(tableErroneos);
+		tableErroneos.revalidate();
+		tableErroneos.repaint();
+
+	}
+	private JPanel getPanelInferiorErroneos() {
+		if (panelInferiorErroneos == null) {
+			panelInferiorErroneos = new JPanel();
+			FlowLayout flowLayout = (FlowLayout) panelInferiorErroneos.getLayout();
+			flowLayout.setAlignment(FlowLayout.RIGHT);
+			panelInferiorErroneos.add(getButtonVolverResultados());
+		}
+		return panelInferiorErroneos;
+	}
+	private JButton getButtonVolverResultados() {
+		if (buttonVolverResultados == null) {
+			buttonVolverResultados = new JButton("Volver a Resultados");
+			buttonVolverResultados.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					toResultados(resultados);
+				}
+			});
+			buttonVolverResultados.setFont(new Font("Tahoma", Font.PLAIN, 16));
+		}
+		return buttonVolverResultados;
 	}
 }
