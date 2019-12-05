@@ -71,7 +71,7 @@ public class HacerRegistro {
 			s.setString(6, adto.sexo);
 			s.execute();
 		} catch (SQLException e) {
-			throw new DataException("Fallo con la query de registro");
+			throw new DataException("Fallo en el registro");
 		}
 
 	}

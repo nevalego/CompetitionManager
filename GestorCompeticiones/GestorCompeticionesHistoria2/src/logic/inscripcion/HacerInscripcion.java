@@ -60,7 +60,7 @@ public class HacerInscripcion {
 				throw new DataException("Ya estas inscrito");
 			}
 		} catch (SQLException e) {
-			throw new DataException("Fallo en la conexion");
+			throw new DataException("Error al inscribir");
 		}
 	}
 
@@ -148,7 +148,7 @@ public class HacerInscripcion {
 				inscripcion.estado = rs.getString("estado");
 			}
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexi�n");
+			throw new DataException("Error en la obtencion de la inscripcion");
 		}
 		return inscripcion;
 	}
@@ -175,7 +175,7 @@ public class HacerInscripcion {
 			}
 			return atleta;
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexi�n");
+			throw new DataException("Error en la obtencion del atleta");
 		}
 
 	}
@@ -302,7 +302,7 @@ public class HacerInscripcion {
 				return false;
 			}
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexi�n");
+			throw new DataException("Error al comprobar plazas");
 		}
 		return true;
 

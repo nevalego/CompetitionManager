@@ -25,7 +25,7 @@ public class NuevaCompeticion {
 				id = rs.getLong("id")+1;
 			}
 		} catch (SQLException e) {
-			throw new DataException("Fallo en la conexion");
+			throw new DataException("Fallo al obtener ultimo id de competicion");
 		}
 		return id;
 	}
@@ -59,7 +59,7 @@ public class NuevaCompeticion {
 			ps.executeUpdate();
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new DataException("Fallo en la conexion");
+			throw new DataException("Fallo al añadir plazo");
 		}
 	}
 }

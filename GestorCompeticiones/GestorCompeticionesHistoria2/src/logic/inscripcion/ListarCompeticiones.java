@@ -68,7 +68,7 @@ public class ListarCompeticiones {
 				name = rs.getString("nombre");
 			}
 		} catch (SQLException e) {
-			throw new DataException("Fallo en la conexion");
+			throw new DataException("Fallo al ver el nombre de la competicion");
 		}
 		return name;
 	}

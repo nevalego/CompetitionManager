@@ -44,7 +44,7 @@ public class ListarInscripciones {
 				inscripciones.add(ins);
 			}
 		} catch (SQLException e) {
-			throw new DataException("Fallo en la conexion");
+			throw new DataException("Fallo al listar las inscripciones del atleta");
 		}
 		return inscripciones;
 	}
@@ -76,7 +76,7 @@ public class ListarInscripciones {
 				inscripciones.add(ins);
 			}
 		} catch (SQLException e) {
-			throw new DataException("Fallo en la conexion");
+			throw new DataException("Fallo al listar las inscripciones de la competicion");
 		}
 		return inscripciones;
 	}
@@ -103,7 +103,7 @@ public class ListarInscripciones {
 				inscripciones.add(inscripcion);
 			}
 		} catch (SQLException e) {
-			throw new DataException("Fallo en la conexion");
+			throw new DataException("Fallo al listar los atletas inscripcion");
 		}
 		Collections.sort(inscripciones);
 		return inscripciones;

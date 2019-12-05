@@ -45,7 +45,7 @@ public class PagoInscripcion {
 				competicion.tipo = rs.getString("tipo");
 			}
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexi�n");
+			throw new DataException("Error al obtener la competicion");
 		}
 		return competicion;
 	}
@@ -75,7 +75,7 @@ public class PagoInscripcion {
 			}
 			return ins;
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexion");
+			throw new DataException("Error al obtener la inscripcion");
 		}
 	}
 
@@ -119,7 +119,7 @@ public class PagoInscripcion {
 			}
 
 		} catch (SQLException e) {
-			throw new DataException("Error en la conexi�n");
+			throw new DataException("Error al obtener plazo");
 		}
 		return plazo;
 	}
@@ -151,7 +151,7 @@ public class PagoInscripcion {
 		String why = "";
 		HacerInscripcion ins = new HacerInscripcion();
 
-		try (BufferedReader br = new BufferedReader(new FileReader( file))) {
+		try (BufferedReader br = new BufferedReader(new FileReader("files/" + file))) {
 
 			while (br.ready()) {
 				pago = new Pago();
@@ -168,17 +168,19 @@ public class PagoInscripcion {
 					oks++;
 					Atleta atleta = ins.getAtletaByDNI(pago.dni);
 					Inscripcion inscripcion = ins.getInscripcion(atleta.id, competicion.id);
+					Plazo plazo = obtenerPlazo(inscripcion);
+					
 					inscripcion.medioPago = "Transferencia";
 					inscripcion.fechaPago = pago.fechaPago;
-					inscripcion.cantidad = pago.cantidad;
+					inscripcion.cantidad = pago.cantidad - plazo.cuota;
 					inscripcion.estado = "ABONADA";
 					inscripcion.nombreAtleta = atleta.nombre + " " + atleta.apellidos;
 					inscripcion.fechaModificacion = pago.fechaPago;
 					inscripcion.nombreCompeticion = competicion.nombre;
-					
-					if(inscripcion.cantidad < pago.cantidad)
-						inscripcion.estado="PENDIENTE DE DEVOLUCION";
-					
+
+					if (plazo.cuota < pago.cantidad)
+						inscripcion.estado = "PENDIENTE DEVOLUCION";
+
 					pagarInscripcion(inscripcion);
 
 				} else {
@@ -193,16 +195,16 @@ public class PagoInscripcion {
 			throw new DataException("Error en la lectura del fichero de pagos");
 		}
 
-		generarFicheroPagosNoCompletados(noCompletados);
+		generarFicheroPagosNoCompletados(noCompletados, competicion.id);
 		int[] datos = new int[2];
 		datos[0] = oks;
 		datos[1] = kos;
 		return datos;
 	}
 
-	private void generarFicheroPagosNoCompletados(HashMap<Pago, String> noCompletados) throws DataException {
+	private void generarFicheroPagosNoCompletados(HashMap<Pago, String> noCompletados, long id) throws DataException {
 
-		String fileName = "pagosErroneos";
+		String fileName = "pagosErroneos" + id;
 
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(new File("files/" + fileName)))) {
 			String text = "** PAGOS NO COMPLETADOS **\n";
@@ -232,13 +234,16 @@ public class PagoInscripcion {
 			pago.atletaId = atleta.id;
 			pago.nombreAtleta = atleta.nombre + " " + atleta.apellidos;
 
-			if (Dates.isAfter(pago.fechaPago, Dates.addDays(inscripcion.fecha, 2)))
-				motivo = "La fecha de pago está fuera del periodo de pago de 2 dias tras la inscripcion";
-			else {
-				
-				if( pago.cantidad < inscripcion.cantidad)
+			Plazo plazo = obtenerPlazo(inscripcion);
+			
+			if (inscripcion.estado.equals("PENDIENTE DE PAGO")) {
+				if (Dates.isAfter(pago.fechaPago, Dates.addDays(inscripcion.fecha, 2)))
+					motivo = "La fecha de pago está fuera del periodo de pago de 2 dias tras la inscripcion";
+				if (pago.cantidad < plazo.cuota)
 					motivo = "La cantidad abonada es inferior a la necesaria";
-			}
+			}else
+				motivo = "La inscripcion ya estaba pagada";
+			
 		}
 		return motivo;
 	}
