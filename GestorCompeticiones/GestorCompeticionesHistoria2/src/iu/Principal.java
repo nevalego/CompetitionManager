@@ -1676,31 +1676,32 @@ public class Principal extends JFrame {
 
 	protected void crearCompeticionNueva() {
 
-		leerPlazosTabla();
+		plazosNuevaCompeticion.clear();
 		NuevaCompeticion nueva = new NuevaCompeticion();
 
 		competicionNueva.nombre = txtNombreCompeticionNueva.getText();
 		competicionNueva.tipo = txtTipoCompeticionNueva.getText();
 		competicionNueva.km = ((Integer) spinnerPlazasCompeticionNueva.getValue());
-		int dia = (Integer) comboBoxDiaNuevaComp.getSelectedItem();
-		int mes = (Integer) comboBoxMesNuevaComp.getSelectedItem();
-		int anio = (Integer) comboBoxAnioNuevaComp.getSelectedItem();
-
-		competicionNueva.fecha = new Date(anio, mes, dia);
+		String dia = String.valueOf(comboBoxDiaNuevaComp.getSelectedItem());
+		String mes =  String.valueOf(comboBoxMesNuevaComp.getSelectedItem());
+		String anio =  String.valueOf(comboBoxAnioNuevaComp.getSelectedItem());
+//TODO
+		String string = dia + "/"+ mes + "/"+ anio;
+		competicionNueva.fecha =  Dates.fromString( string);
+		
 		competicionNueva.plazas = (int) spinnerPlazasCompeticionNueva.getValue();
 
 		if (competicionNueva.fecha.before(Dates.now())) {
 			JOptionPane.showMessageDialog(this, "La fecha de la competicion no puede ser anterior al presente");
 		} else {
 			try {
-				nueva.crearCompeticion(competicionNueva);
-				if (plazosCorrectos()) {
-					for (Plazo plazo : plazosNuevaCompeticion)
-						nueva.añadirPlazoCompeticion(competicionNueva.id, plazo);
-					tablePlazos.revalidate();
-					tablePlazos.repaint();
-					JOptionPane.showMessageDialog(this, "Competicion Creada");
-					toOrganizadorMenu();
+				if (leerPlazosTabla(competicionNueva)) {
+					nueva.crearCompeticion(competicionNueva);
+						for (Plazo plazo : plazosNuevaCompeticion)
+							nueva.añadirPlazoCompeticion(competicionNueva.id, plazo);
+						JOptionPane.showMessageDialog(this, "Competicion Creada");
+						toOrganizadorMenu();
+					
 				} else
 					JOptionPane.showMessageDialog(this, "Fechas incorrectas");
 
@@ -1711,39 +1712,33 @@ public class Principal extends JFrame {
 
 	}
 
-	private boolean plazosCorrectos() {
-		for (Plazo plazo : plazosNuevaCompeticion) {
-			if (Dates.isBefore(plazo.fechaFin, plazo.fechaInicio))
-				return false;
-			if (Dates.isAfter(plazo.fechaFin, competicionNueva.fecha))
-				return false;
-		}
-		return true;
-	}
-
-	private void leerPlazosTabla() {
+	private boolean leerPlazosTabla(Competicion competicionN) {
 
 		plazosNuevaCompeticion.removeAll(plazosNuevaCompeticion);
+		Plazo anterior = null;
 		for (int i = 0; i < tablePlazos.getRowCount(); i++) {
 
 			Plazo plazo = new Plazo();
-			int anio = 2000 + (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[2]));
-			int mes = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[1]));
-			int dia = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 0)).split("/")[0]));
-
-			plazo.fechaInicio = new Date(anio, mes, dia);
-
-			anio = 2000 + (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[2]));
-			mes = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[1]));
-			dia = (Integer.parseInt(((String) modelTablaPlazos.getValueAt(i, 1)).split("/")[0]));
-
-			plazo.fechaFin = new Date(anio, mes, dia);
-			// if (i == 0)
-			// plazo.cuota += (int) modelTablaPlazos.getValueAt(i, 2);
-			// if (i == 1)
+			
+			plazo.fechaInicio =  Dates.fromString( (String) modelTablaPlazos.getValueAt(i, 0));
+			plazo.fechaFin= Dates.fromString( (String) modelTablaPlazos.getValueAt(i, 1));
+			
 			plazo.cuota += Integer.parseInt((String) (modelTablaPlazos.getValueAt(i, 2)));
-			plazosNuevaCompeticion.add(plazo);
+			if(Dates.isAfter(plazo.fechaFin, competicionN.fecha)) {
+				return false;
+			}
+			if (Dates.isBefore(plazo.fechaFin, plazo.fechaInicio)) {
+				return false;
+			} else if (anterior != null) {
+				if (Dates.isAfter(anterior.fechaFin, plazo.fechaInicio)) {
+					return false;
+				}
+			} else {
+				plazosNuevaCompeticion.add(plazo);
+			}
+			anterior = plazo;
 		}
+		return true;
 
 	}
 
@@ -1827,7 +1822,7 @@ public class Principal extends JFrame {
 		modelTablaPlazos.addColumn("Cuota");
 
 		for (Plazo p : plazosNuevaCompeticion) {
-			modelTablaPlazos.addRow(new Object[] { Dates.toString(p.fechaInicio), Dates.toString(p.fechaFin),
+			modelTablaPlazos.addRow(new Object[] { Dates.toString2(p.fechaInicio), Dates.toString2(p.fechaFin),
 					String.valueOf(p.cuota) });
 		}
 		tablePlazos.getTableHeader().setReorderingAllowed(false);

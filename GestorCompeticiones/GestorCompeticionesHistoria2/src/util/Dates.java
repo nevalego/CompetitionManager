@@ -105,6 +105,11 @@ public class Dates {
 		return formatter.format(date);
 	}
 
+	public static String toString2(Date date) {
+		DateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+		return formatter.format(date);
+	}
+	
 	public static boolean isDateInWindow(Date date, Date from, Date until) {
 		return date.compareTo(from) >= 0 && date.compareTo(until) <= 0;
 	}
